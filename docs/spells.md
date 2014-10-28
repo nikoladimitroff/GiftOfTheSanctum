@@ -26,14 +26,16 @@ it if the format is changed.
 ```
 
 Spells make heavy-use of several predefined properties.
+
 1. Spell cast types
   1. `projectile` - the spell flies in a certain direction following a certain
     trajectory
   2. `instant` - the spell instantaneously hits the given character / area
   
 2. Effects
+
 | Effect | Additional Properties | Description |
------------------------------------------------------------
+| ------ | --------------------- | ----------- |
 | `"damage"` | `damageAmount` | deals damage / heals when the damage is negative |
 | `"pushback"` | `pushbackForce` | pushes targets around it a certain distance |
 | `"impassable"` | - | this object is impassable and nothing can move trough it |
