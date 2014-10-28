@@ -4,7 +4,7 @@ This is the current format of a map file. Don't forget to update
 it if the format is changed.
 
 Notes:
-1. Currently, that map's shape is that of a regular convex polygon.
+1. Currently, the map's shape is that of a regular convex polygon.
 
 ```javascript
 {

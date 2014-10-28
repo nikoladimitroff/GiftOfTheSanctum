@@ -11,7 +11,8 @@ frames of an animated sprite must be the same.
 
 ```javascript
 {
-    framesPerRow: [ // The number of frames each row contains (yep, that's all it takes)
+    src: "gandalf.png",
+    framesPerRow: [ // The number of frames each row contains
         3,
         5,
         7

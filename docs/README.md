@@ -3,7 +3,7 @@ Common info
 ## Conventions
 1. Adhere to [Google's naming convention][google-convention].
 2. Try to limit your lines to 80 characters.
-3. Use 4 spaces (not tabs) for indentation.
+3. Use 4 spaces (not tabs) for indentation. Never commit trailing spaces.
 4. All game-specific code must be inside the `sanctum` namespace.
 5. Prefer code that runs inside the main game loop as opposed to
 async callbacks.
