@@ -12,44 +12,24 @@ sanctum.Game = function (context) {
 };
 
 var OBJECTS = {
-    "monk": {
-        src: "content/art/characters/monk.png",
-        framesPerRow: [
-            7, 7, 7, 7,
-            8, 8, 8, 8, 
-            9, 9, 9, 9,
-            6, 6, 6, 6,
-            13, 13, 13, 13,
-            6,
-        ]
-    },
-    "fireball": {
-        src: "content/art/spells/fireball.png",
-        framesPerRow: [
-            8, 8, 8, 8, 
-            8, 8, 8, 8, 
-        ]
-    }
+    "monk": "character_monk",
+    "fireball": "content/art/spells/fireball.png",
 }
 
 sanctum.Game.prototype.init = function () {
-    var monk = this.contentManager.get(OBJECTS["monk"].src);
-    var fireball = this.contentManager.get(OBJECTS["fireball"].src);
-    this.characters.push(new sanctum.Character(monk));
-    this.objects.push(new sanctum.Spell(fireball));
+    var monk = this.contentManager.get(OBJECTS["monk"]);
+    this.characters.push(monk);
+    monk.sprite.activeAnimation = monk.animations.walk;
     this.run(0);
 }
 
 sanctum.Game.prototype.loadContent = function () {
-    this.contentManager.onload = this.init.bind(this);
-    this.contentManager.loadSprite(OBJECTS["monk"]);
-    this.contentManager.loadSprite(OBJECTS["fireball"]);
+    this.contentManager.loadAssets("assets.json", this.init.bind(this));
 }
 
 sanctum.Game.mainGameLoop = function () {};
 sanctum.Game.prototype.loop = function (timestamp) {
     var delta = timestamp - this.previousTime;
-    console.log(delta);
     this.physicsManager.update(this.objects);
     this.renderer.render([this.characters, this.objects], delta);
     

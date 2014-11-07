@@ -1,0 +1,14 @@
+{
+    map: "example_map.json",
+    characters: [
+        {
+            sprite: "art/characters/monk.png",
+            animations: {
+                walk: 10,
+                spellcast1: 2,
+            }
+        },
+    ],
+    sprites: "sprites.json",
+    spells: "spell_library.json",
+}

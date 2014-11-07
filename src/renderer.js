@@ -34,7 +34,7 @@ sanctum.Renderer.prototype.render = function (gameObjectsCollections, dt) {
                               sprite.frameWidth, 
                               sprite.frameHeight
                               );
-                              
+
             var msPerFrame = 1000 / sprite.framesPerRow[sprite.activeAnimation];
             sprite.lastFrameUpdate += dt;
             if (sprite.lastFrameUpdate > msPerFrame) {

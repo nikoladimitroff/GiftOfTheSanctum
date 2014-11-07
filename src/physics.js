@@ -116,11 +116,12 @@ var physics = (function (physics) {
     EulerIntegrator = function () { }
     EulerIntegrator.prototype.integrate = function (states, dt) {
         for (var i = 0; i < states.length; i++) {
-            state.velocity += state.acceleration * dt;
-            state.position += state.velocity * dt;
+            var state = states[i];
+            
+            Vector.add(state.velocity, state.acceleration.multiply(dt), state.velocity);
+            Vector.add(state.position, state.velocity.multiply(dt), state.position);
         }
     }
-
     physics.EulerIntegrator = EulerIntegrator;
     return physics;
 })(physics || {});
