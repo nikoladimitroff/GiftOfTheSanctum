@@ -50,7 +50,7 @@ Vector.prototype = {
   toArray: function() {
     return [this.x, this.y];
   },
-  clone: function() {░
+  clone: function() {
     return new Vector(this.x, this.y);
   },
   set: function(x, y) {
