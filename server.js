@@ -1,14 +1,18 @@
-http = require("http");
-network = require("./src/network_manager.js");
+var express = require("express");
+
+var app = express();
+app.use(express.static(__dirname));
+// app.use(express.static(__dirname + "index.html"));
+// app.use(express.static(__dirname + "/content"));
+// app.use(express.static(__dirname + "/3rdparty"));
+// app.use(express.static(__dirname + "/src"));
+
+var http = require("http");
+var network = require("./src/network_manager.js");
 
 var main = require("./src/main");
 
-var server = http.createServer(function(request, response) {
-    console.log("Request received");
-    response.writeHeader(200, {"Content-Type": "text/plain"});
-    response.write("Hello World");
-    response.end();
-}).listen(network.port);
+var server = http.createServer(app).listen(network.port);
 
 var io = require("socket.io").listen(server);
 

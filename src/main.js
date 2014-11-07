@@ -4,7 +4,7 @@ var main = function() {
 
 main.prototype.start = function(socket) {
 	this.socket = socket;
-
+	console.log("lqlq");
 	this.socket.emit("connected", {message : "Hi"});
 
 }
