@@ -1,15 +1,22 @@
 var network = require("network");
 
-var client = function() {
+var Client = function() {
 	this.socket = null;
 }
 
-client.prototype.start = function() {
+Client.prototype.start = function() {
 	this.socket = io.connect("", { port: 8080, transports: ["websocket"] });
-	console.log("dassa");
+	
+	this.load("src/public/main.html");
 }
 
+Client.prototype.load = function(path) {
+	$("#content").load(path);
+}
+
+var client;
+
 window.onload = function() {
-	var c = new client();
-	c.start();
+	client = new Client();
+	client.start();
 }
