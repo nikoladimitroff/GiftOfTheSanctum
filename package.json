@@ -1,0 +1,6 @@
+{
+  "name": "GoS",
+  "dependencies": {
+    "socket.io": "~1.2.0"
+  }
+}
