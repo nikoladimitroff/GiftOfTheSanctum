@@ -1,5 +1,9 @@
 Common info
 ========
+
+##Get Started
+1. Run this command ```npm install``` on every pull.
+
 ## Conventions
 1. Adhere to [Google's naming convention][google-convention]
 (except for filenames!, see next bullet)
