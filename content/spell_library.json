@@ -1,5 +1,7 @@
 [{
     name: "fireball",
+    width: 64,
+    height: 64,
     sprite: "content/art/spells/fireball.png", // only required for projectiles
     castType: "projectile", // see below
     targeted: false, // if true the spell is required to target a player
@@ -10,7 +12,6 @@
     effectRadius: 0, // the radius in which to hit nearby enemies / obstacles
     damageAmount: 10,
     pushbackForce: 100,
-    radius: 0, // size of the projectile
     cooldown: 10, // cooldown of the spell
     movementFunction: "linear", // determines the projectile's path - "quadratic", "homing", "sin"
     acceleration: 1, // the projectile's acceleration magnitude
@@ -18,6 +19,8 @@
     range: 50, // maximum distance the projectile may fly (or the instant cast to hit)
 }, {
     name: "Freeze",
+    width: 64,
+    height: 64,
     sprite: "content/art/spells/freeze.png", // only required for projectiles
     castType: "projectile", // see below
     targeted: false, // if true the spell is required to target a player
@@ -26,9 +29,10 @@
         "pushback"
     ],
     effectRadius: 0, // the radius in which to hit nearby enemies / obstacles
+    width: 64,
+    height: 64,
     damageAmount: 10,
     pushbackForce: 10,
-    radius: 5, // size of the projectile
     cooldown: 10, // cooldown of the spell
     movementFunction: "linear", // determines the projectile's path - "quadratic", "homing", "sin"
     acceleration: 1, // the projectile's acceleration magnitude
@@ -36,6 +40,8 @@
     range: 50, // maximum distance the projectile may fly (or the instant cast to hit)
 }, {
     name: "Frostbolt",
+    width: 64,
+    height: 64,
     sprite: "content/art/spells/frostbolt.png",
     castType: "projectile",
     targeted: false,
@@ -47,7 +53,6 @@
     damageAmount: 5,
 	pushbackForce: 10,
     haste: -5,
-    radius: 5,
     cooldown: 10,
     movementFunction: "linear",
     acceleration: 1, 
@@ -55,6 +60,8 @@
     range: 50,
 }, {
     name: "Heal",
+    width: 64,
+    height: 64,
     sprite: "content/art/spells/heal.png",
     castType: "instant", 
     targeted: true, 
@@ -63,11 +70,12 @@
     ],
     effectRadius: 0, 
     damageAmount: -20,
-    radius: 5, 
     cooldown: 20, 
     range: 20, 
 }, {
     name: "Speed up!",
+    width: 64,
+    height: 64,
     sprite: "content/art/spells/speedup.png",
     castType: "instant", 
     targeted: true, 
@@ -79,6 +87,8 @@
     range: 1, 
 }, {
     name: "Healing well",
+    width: 64,
+    height: 64,
     sprite: "content/art/spells/well.png",
     castType: "instant", 
     targeted: true, 
@@ -90,6 +100,8 @@
     range: 75, 
 }, {
     name: "Flamestrike",
+    width: 64,
+    height: 64,
     sprite: "content/art/spells/flamestrike.png",
     castType: "instant", 
     targeted: false, 

@@ -20,14 +20,10 @@ sanctum.PhysicsManager.prototype.getCollisionPairs = function (objects) {
     this.collisions = [];
     for (var i = 0; i < objects.length; i++) {
         var first = objects[i];
-        var firstCenter = new Vector(first.position.x + first.scale * first.sprite.frameWidth / 2,
-                                     first.position.y + first.scale * first.sprite.frameHeight / 2);
+        var firstCenter = first.getCenter();
         for (var j = i + 1; j < objects.length; j++) {
             var second = objects[j];
-            var secondCenter = new Vector(second.position.x + second.scale * second.sprite.frameWidth / 2,
-                                          second.position.y + second.scale * second.sprite.frameHeight / 2);
-            
-            
+            var secondCenter = second.getCenter();
             var distance = firstCenter.subtract(secondCenter).length();
             var radiusSum = first.collisionRadius + second.collisionRadius;
                                    
@@ -45,9 +41,7 @@ sanctum.PhysicsManager.prototype.getObjectsWithinRadius = function (objects, poi
     var neighbours = [];
     for (var i = 0; i < objects.length; i++) {
         var obj = objects[i];
-        var center = new Vector(obj.position.x + obj.scale * obj.sprite.frameWidth / 2,
-                                obj.position.y + obj.scale * obj.sprite.frameHeight / 2);
-
+        var center = obj.position.add(obj.size.divide(2));
         var distance = center.subtract(point).length();
         var radiusSum = obj.collisionRadius + radius;
         if (distance < radiusSum) 

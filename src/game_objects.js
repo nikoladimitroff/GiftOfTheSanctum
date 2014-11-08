@@ -28,9 +28,9 @@ sanctum.Character = function (sprite, description) {
     this.health = description.health;
     
     this.animations = description.animations;
-    this.scale = description.scale || 1;
+    this.size = new Vector(description.width, description.height);
     
-    this.collisionRadius = this.scale * Math.max(sprite.frameWidth, sprite.frameHeight) / 2;
+    this.collisionRadius = Math.max(this.size.x, this.size.y) / 2;
     
     copyProperties(this, description);
 };
@@ -43,10 +43,9 @@ sanctum.Spell = function (sprite, description) {
     this.rotation = 0;
     this.frictionless = true;
     this.sprite.activeAnimation = 0;
-    
-    this.scale = description.scale || 1;
+    this.size = new Vector(description.width, description.height);
 
-    this.collisionRadius = this.scale * Math.max(sprite.frameWidth, sprite.frameHeight) / 2;
+    this.collisionRadius = Math.max(this.size.x, this.size.y) / 2;
     
     this.id = ID_COUNTER++;
     
@@ -58,9 +57,8 @@ sanctum.Character.prototype.clone = sanctum.Spell.prototype.clone = function () 
     clone.position = this.position.clone();
     clone.velocity = this.velocity.clone();
     clone.acceleration = this.acceleration.clone();
+    clone.size = this.size.clone();
     clone.sprite = this.sprite.clone();
-    
-    clone.scale = this.scale;
 
     clone.collisionRadius = this.collisionRadius;
     clone.id = ID_COUNTER++;
@@ -68,11 +66,8 @@ sanctum.Character.prototype.clone = sanctum.Spell.prototype.clone = function () 
     copyProperties(clone, this);    
     return clone;
 }
- sanctum.Character.prototype.getSpriteCenter = sanctum.Spell.prototype.getSpriteCenter = function () {
-    var center = this.position.clone();
-    center.x += this.scale + this.sprite.frameWidth / 2;
-    center.y += this.scale + this.sprite.frameHeight / 2;
-    return center;
+ sanctum.Character.prototype.getCenter = sanctum.Spell.prototype.getCenter = function () {
+    return this.position.add(this.size.divide(2));
 };
 
 sanctum.Character.prototype.playAnimation = function (action, forward) {

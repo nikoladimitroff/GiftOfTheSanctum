@@ -30,8 +30,8 @@ sanctum.Renderer.prototype.getViewportCenter = function () {
 
 sanctum.Renderer.prototype.renderCircle = function (obj) {
     this.context.beginPath();
-    this.context.arc(obj.position.x + obj.scale * obj.sprite.frameWidth / 2, 
-                     obj.position.y + obj.scale * obj.sprite.frameHeight / 2, 
+    this.context.arc(obj.position.x + obj.size.x / 2, 
+                     obj.position.y + obj.size.y / 2, 
                      obj.collisionRadius,
                      0, 2 * Math.PI);
     this.context.closePath();
@@ -80,11 +80,10 @@ sanctum.Renderer.prototype.render = function (platform, gameObjects, dt) {
         var frameY = sprite.activeAnimation * sprite.frameHeight;
         
         context.save();
-        var cx = obj.position.x + scale * sprite.frameWidth / 2;
-        var cy = obj.position.y + scale * sprite.frameHeight / 2;
-        context.translate(cx, cy);
+        var center = obj.getCenter();
+        context.translate(center.x, center.y);
         context.rotate(obj.rotation);
-        context.translate(-cx, -cy);
+        context.translate(-center.x, -center.y);
         
         context.drawImage(sprite.image, 
                           frameX, frameY,
@@ -92,8 +91,8 @@ sanctum.Renderer.prototype.render = function (platform, gameObjects, dt) {
                           sprite.frameHeight,
                           obj.position.x,
                           obj.position.y,
-                          scale * sprite.frameWidth, 
-                          scale * sprite.frameHeight
+                          obj.size.x,
+                          obj.size.y
                           );
                           
         this.renderCircle(obj);

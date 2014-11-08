@@ -61,23 +61,19 @@ sanctum.EffectManager.prototype.castSpell = function (character, spellName, targ
     if (spellInstance.castType == CastType.projectile) {
         spellInstance.velocity = character.velocity.clone();
         
-        var center = character.getSpriteCenter();
-        var offset = new Vector(spellInstance.scale * spellInstance.sprite.frameWidth / 2,
-                                spellInstance.scale * spellInstance.sprite.frameHeight / 2);
+        var center = character.getCenter();
+        var offset = spellInstance.size.divide(2);
         var forward = target.subtract(center).normalized();
         
-        var distance = spellInstance.collisionRadius + character.collisionRadius * 1.1;
-        spellInstance.position = center.subtract(offset).add(forward.multiply(distance));
-        
+        var distance = (spellInstance.collisionRadius + character.collisionRadius) * 1.1;
+        spellInstance.position = center.subtract(offset).add(forward.multiply(distance));        
         spellInstance.acceleration = forward.multiply(100); // magic
 
         spellInstance.rotation = - Math.PI / 2 +  Vector.right.angleTo360(forward);
     }
     if (spellInstance.castType == CastType.instant) {
         this.activeSpells[spellInstance.id] = spellInstance;
-        spellInstance.position = target.clone();
-        spellInstance.position.x -= spellInstance.scale * spellInstance.sprite.frameWidth / 2;
-        spellInstance.position.y -= spellInstance.scale * spellInstance.sprite.frameHeight / 2;
+        spellInstance.position = target.subtract(spellInstance.size);
     }
     return spellInstance;
 }

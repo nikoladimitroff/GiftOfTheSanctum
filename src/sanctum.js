@@ -138,3 +138,5 @@ function testCast() {
 if(typeof module != "undefined" && module.exports) {
     module.exports = sanctum.Game;
 }
+
+startAll();
