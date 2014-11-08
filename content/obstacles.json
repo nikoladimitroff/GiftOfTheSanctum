@@ -1,28 +1,28 @@
 [
 {
-	name: "healingWell",
+    name: "healingWell",
     sprite: "content/art/spells/well.png",
-	effects:[
-		"damage"
-	],
+    effects:[
+        "damage"
+    ],
     damageAmount: -10,
-	duration: 10,
+    duration: 10,
     cooldown: 30,
-	radius: 10,
+    radius: 10,
     range: 50,
-	impassable: true
+    impassable: true
 },
 
 {
-	name: "flameStrike",
+    name: "flameStrike",
     sprite: "content/art/spells/flameStrike.png",
-	effects:[
-		"damage"
-	],
+    effects:[
+        "damage"
+    ],
     damageAmount: 20,
-	duration: 5,
+    duration: 5,
     cooldown: 30,
     range: 10,
-	radius: 10,
+    radius: 10,
 }, 
 ]

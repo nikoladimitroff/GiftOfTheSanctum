@@ -38,7 +38,7 @@
 },
 
 {
-	name: "Frostbolt",
+    name: "Frostbolt",
     sprite: "content/art/spells/frostbolt.png",
     castType: "projectile",
     targeted: false,
@@ -48,7 +48,7 @@
     ],
     effectRadius: 0,
     damageAmount: 5,
-	haste: -5,
+    haste: -5,
     radius: 5,
     cooldown: 10,
     movementFunction: "linear",
@@ -58,14 +58,14 @@
 },
 
 {
-	name: "Heal",
+    name: "Heal",
     sprite: "content/art/spells/heal.png",
     castType: "instant", 
     targeted: true, 
     effects: [
         "damage"
     ],
-	
+    
     effectRadius: 0, 
     damageAmount: -20,
     radius: 5, 
@@ -74,57 +74,57 @@
 },
 
 {
-	name: "Electric bolt",
+    name: "Electric bolt",
     sprite: "content/art/spells/electric_bolt.png",
     castType: "instant", 
     targeted: true, 
     effects: [
-		"damage",
+        "damage",
         "haste",
     ],
-	
+    
     effectRadius: 10, 
     damageAmount: 10,
-	hasteAmmount: -10,
+    hasteAmmount: -10,
     radius: 5, 
     cooldown: 10, 
     range: 25, 
 },
 
 {
-	name: "Speed up!",
+    name: "Speed up!",
     castType: "instant", 
     targeted: true, 
     effects: [
-		"haste"
+        "haste"
     ],
-	
+    
     cooldown: 20, 
     range: 1, 
 },
 
 {
-	name: "Healing well",
+    name: "Healing well",
     sprite: "content/art/spells/well.png",
     castType: "instant", 
     targeted: true, 
     effects: [
-		"heal"
+        "heal"
     ],
-	spawnObject: "healingWell",
+    spawnObject: "healingWell",
     cooldown: 30, 
     range: 75, 
 },
 
 {
-	name: "Flamestrike",
+    name: "Flamestrike",
     castType: "instant", 
     targeted: false, 
     effects: [
-		"spawn"
+        "spawn"
     ],
-	
-	spawnObject: "flamestrike",
+    
+    spawnObject: "flamestrike",
     cooldown: 40, 
     range: 75, 
 },
