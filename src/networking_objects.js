@@ -52,22 +52,24 @@ networking.Room.prototype.welcome = function(data) {
 }
 
 networking.Room.prototype.leave = function(socket, data) {
-    if(this.masterSocket.sockets.indexOf(socket) == 0) {
-        this.players = null;
-        this.masterSocket.sockets.emit("leave", { roomClosed: true });
-    } else if(this.masterSocket.sockets.indexOf(socket) > 0) {
-        this.removePlayer(player);
-        this.players = this.players.length == 0 ? null : this.players;
-        socket.emit("leave", { roomClosed: this.players.length == 0, });
-        socket.broadcast.emit("roomUpdated", { players: this.players } )
+    if(data && data.playerId) {
+        if(this.masterSocket.sockets.indexOf(socket) == 0) {
+            this.players = null;
+            this.masterSocket.sockets.emit("leave", { roomClosed: true });
+        } else if(this.masterSocket.sockets.indexOf(socket) > 0) {
+            var player = this.findPlayer(data.playerId);
+            this.removePlayer(player);
+            this.players = this.players.length == 0 ? null : this.players;
+            this.masterSocket.sockets.emit("leave", { roomClosed: this.players.length == 0, });
+            this.masterSocket.sockets.emit("roomUpdated", { players: this.players } )
+        }
     }
 }
 
 networking.Room.prototype.play = function(socket) {
     console.log("Game started.");
 
-    socket.emit("play", {});
-    socket.broadcast.emit("play", {});
+    this.masterSocket.sockets.emit("play", {});
 }
 
 networking.Room.prototype.isFree = function() {
