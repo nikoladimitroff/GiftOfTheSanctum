@@ -17,7 +17,7 @@ var server = http.createServer(app).listen(network.port);
 var io = require("socket.io").listen(server);
 
 io.sockets.on('connection', function(socket) {
-	main.start(socket);
+    main.start(io, socket);
 });
 
 console.log("Server Running on " + network.port);
