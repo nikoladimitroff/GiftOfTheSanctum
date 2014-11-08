@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head></head>
+<body>
+    <canvas id="tempCanvas"></canvas>
+    <img src="magic_flare.png" id="spell"> 
+
+    <script type="text/javascript">
+    window.onload = function() {
+        var rows = 8, //change this for rows
+            canvas = document.getElementById("tempCanvas"),
+            ctx = canvas.getContext("2d"),
+            image = document.getElementById("spell"),
+            rowHeight = image.height / rows;
+
+        canvas.width = rows * image.width;
+        canvas.height = rowHeight;
+        console.log(canvas.width, canvas.height);
+
+        for (var i = 0; i < rows; i++) {
+            ctx.drawImage(image, 0, i * rowHeight, image.width, rowHeight, i * image.width, 0, image.width, rowHeight);
+        };
+    };
+    </script>
+</body>
+</html>
