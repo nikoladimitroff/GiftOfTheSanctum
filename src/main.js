@@ -32,12 +32,9 @@ Main.prototype.getRoom = function(socket, data) {
         this.rooms[room.id] = this.rooms[room.id] || room;
         this.players[data.playerId].roomId = room.id;
 
-        // room.players.push(this.players[data.playerId]);
-        var isHost = room.players[0] && room.players[0].id == socket.id;
-
         room.handleRoom();
 
-        socket.emit("getRoom", { roomId: room.id, isHost: isHost });
+        socket.emit("getRoom", { roomId: room.id});
     }
 }
 

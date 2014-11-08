@@ -6,6 +6,8 @@ sanctum.EventTypes = {
     ObjectInfo: 2
 };
 
+var process = process || null;
+
 sanctum.Network = function () {
     this.updateTime = 20; /* millis */
 
@@ -20,7 +22,6 @@ sanctum.Network = function () {
     this.buffer = [];
 };
 
-var process = process || null;
 
 sanctum.Network.port = (process && process.env && process.env.PORT) || 8080;
 

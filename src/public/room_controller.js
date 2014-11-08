@@ -4,14 +4,31 @@ var RoomController = function() {
 
 RoomController.prototype.init = function() {
 	client.socket.on("roomUpdated", this.roomUpdated.bind(this));
+	client.socket.on("welcome", this.handleWelcome.bind(this));
+	client.socket.on("updateHost", this.updateHost.bind(this));
 
 	client.socket.emit("welcome", {playerName: client.playerName, playerId: client.socket.io.engine.id});
+}
 
-	if(!client.isHost) {
-		$("#startButton").addClass("disabled");
-	} else {
+RoomController.prototype.handleWelcome = function(data) {
+	client.isHost = data.isHost;
+	this.renderHost();
+}
+
+RoomController.prototype.renderHost = function() {
+	if(client.isHost) {
+		$("#startButton").removeClass("disabled");
 		$("#startButton").addClass("active");
+	} else {
+		$("#startButton").removeClass("active");
+		$("#startButton").addClass("disabled");
 	}
+	
+}
+
+RoomController.prototype.updateHost = function(data) {
+	client.isHost = data.isHost;
+	this.renderHost();
 }
 
 RoomController.prototype.roomUpdated = function(data) {

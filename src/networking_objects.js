@@ -16,7 +16,9 @@ networking.Player = function(id, name) {
 
 networking.Room = function(masterSocket) {
     this.handled = false;
+    this.hostId = null;
     this.id = networking.token();
+    this.sockets = [];
     this.players = [];
     this.masterSocket = masterSocket;
     this.networkManager = new NetworkManager();
@@ -27,8 +29,9 @@ networking.Room = function(masterSocket) {
 networking.Room.prototype.handleRoom = function() {
     if(!this.handled) {
         this.masterSocket.on("connection", function(socket) {
-            // console.log(socket.id);
-            // console.log(this.parentSocket.sockets);
+            if(!this.hostId) {
+                this.hostId = socket.id;
+            }
 
             this.networkManager.connect(this.masterSocket, socket);
             socket.on("welcome", this.welcome.bind(this, socket));
@@ -49,14 +52,16 @@ networking.Room.prototype.findPlayer = function(id) {
 
 networking.Room.prototype.welcome = function(socket, data) {
     if(data && data.playerId) {
-        // var player = this.findPlayer(data.playerId);
         var player = new networking.Player(data.playerId, data.playerName);
         player.roomId = this.id;
+        this.sockets.push(socket);
         this.players.push(player);
 
+        var isHost = this.hostId == data.playerId;
+
         if(player) {
-            socket.emit("welcome", { message: "Welcome, " + 
-                player.name, players: this.players });
+            socket.emit("welcome", { message: "Welcome, " + player.name, 
+                isHost: isHost, players: this.players });
 
             this.masterSocket.emit("roomUpdated",
                 { players: this.players } );
@@ -70,7 +75,14 @@ networking.Room.prototype.leave = function(socket, data) {
     if(socket && socket.id) {
         if(player) {
             this.removePlayer(player);
+            this.removeSocket(socket);
+
+            if(socket.id == this.hostId) {
+                this.hostId = this.players[0].id;
+                this.sockets[0].emit("updateHost", {isHost: true});
+            }
             
+
             this.masterSocket.emit("leave",
                 { roomClosed: this.players.length == 0, });
 
@@ -95,6 +107,14 @@ networking.Room.prototype.removePlayer = function(player) {
 
     if(playerIndex > -1) {
         this.players.splice(playerIndex, 1)
+    }
+}
+
+networking.Room.prototype.removeSocket = function(socket) {
+    var socketIndex = this.sockets.indexOf(socket)
+
+    if(socketIndex > -1) {
+        this.sockets.splice(socketIndex, 1)
     }
 }
 
