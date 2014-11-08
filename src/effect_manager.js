@@ -81,3 +81,12 @@ sanctum.EffectManager.prototype.castSpell = function (character, spellName, targ
     }
     return spellInstance;
 }
+
+sanctum.EffectManager.prototype.applyPlatformEffect = function (physics, platform, objects, playerCount, center) {
+    for (var i = 0; i < playerCount; i++) {
+        var player = objects[i];
+        if (!physics.circleIntersects(center, platform.radius, player.position, player.collisionRadius)) {
+            player.health -= platform.outsideDamage;
+        }
+    }
+}

@@ -49,6 +49,14 @@ sanctum.ContentManager.prototype.loadCharacter = function (description) {
     this.contentCache[name] = character;
 };
 
+sanctum.ContentManager.prototype.loadPlatform = function (description) {
+    var platform = new sanctum.Platform(this.get(description.texture).image,
+                                        this.get(description.outsideTexture).image,
+                                        description
+                                        );
+    this.contentCache[description.name] = platform;
+};
+
 sanctum.ContentManager.prototype.fetchJSONFile = function (path, callback) {
     var xhr = new XMLHttpRequest();
     path = this.root + path;
@@ -75,8 +83,11 @@ sanctum.ContentManager.prototype.loadAssets = function (assetsPath, callback) {
                 assets.characters.map(self.loadCharacter.bind(self));                
                 self.fetchJSONFile(assets.spells, function (spellLibrary) {
                     spellLibrary.map(self.loadSpell.bind(self));
-                    
-                    callback();
+
+                    self.fetchJSONFile(assets.platform, function (platform) {
+                        self.loadPlatform(platform);
+                        callback();
+                    });
                 });
             }
             sprites.map(self.loadSprite.bind(self));

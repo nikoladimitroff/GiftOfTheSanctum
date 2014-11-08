@@ -4,7 +4,7 @@ var ID_COUNTER = 0;
 
 function copyProperties(object, description) {
     var copyableProperties = [
-        "name",
+        "name", "health",
         "mass",
         "rotation",
         "castType",
@@ -25,6 +25,7 @@ sanctum.Character = function (sprite, description) {
     this.acceleration = new Vector(0, 0);
     this.sprite = sprite;
     this.rotation = 0;
+    this.health = description.health;
     
     this.animations = description.animations;
     this.scale = description.scale || 1;

@@ -7,11 +7,11 @@ sanctum.EventTypes = {
 };
 
 sanctum.Network = function () {
-    this.port = 8080;
-    this.ip = "127.0.0.1";
     this.updateTime = 20; /* millis */
 
     this.lastUpdate = 0;
+    this.port = process.env.PORT || 8080;
+    this.ip = "0.0.0.0";
 
     this.masterSocket = null;
     this.socket = null;
@@ -20,7 +20,7 @@ sanctum.Network = function () {
     this.buffer = [];
 };
 
-sanctum.Network.port = 8080;
+sanctum.Network.port = process.env.PORT || 8080;
 
 sanctum.Network.prototype.connect = function(masterSocket, socket) {
     if(!masterSocket) {

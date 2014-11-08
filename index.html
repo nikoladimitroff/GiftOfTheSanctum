@@ -8,7 +8,7 @@
         <main>
             Haiz, welcome!
         </main>-->
-        <canvas id="game-canvas" width="800px" height="800px" style="border: 1px solid black">
+        <canvas id="game-canvas" width="800px" height="800px">
             Your browser doesn't support the canvas element. Consider upgrading
             your IE6.
         </canvas>
@@ -18,11 +18,21 @@
     <script src="src/network_manager.js"></script>
     <script src="src/public/client.js"></script>
     <script src="src/physics.js"></script>
+    <script src="src/platform.js"></script>
     <script src="src/game_objects.js"></script>
     <script src="src/content_manager.js"></script>
     <script src="src/physics_manager.js"></script>
     <script src="src/effect_manager.js"></script>
     <script src="src/input_manager.js"></script>
     <script src="src/renderer.js"></script>
+    <script src="src/utils/resizer.js"></script>
     <script src="src/sanctum.js"></script>
+    
+    <style>
+        html, body, canvas {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;   
+        }
+    </style>
 </html>

@@ -59,3 +59,10 @@ sanctum.PhysicsManager.prototype.getObjectsWithinRadius = function (objects, poi
 sanctum.PhysicsManager.prototype.applyForce = function (object, force) {
     Vector.add(object.acceleration, force.divide(object.mass), object.acceleration);
 }
+
+
+sanctum.PhysicsManager.prototype.circleIntersects = function (center1, radius1, center2, radius2) {
+    var distance = center1.subtract(center2).length();
+    var radiusSum = radius1 + radius2;
+    return distance <= radiusSum;
+}

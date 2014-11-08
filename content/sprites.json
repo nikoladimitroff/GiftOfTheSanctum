@@ -1,4 +1,10 @@
 [{
+    src: "art/environment/tower_floor.jpg",
+    framesPerRow: []
+}, {
+    src: "art/environment/lava.jpg",
+    framesPerRow: []
+}, {
     src: "art/characters/monk.png",
     framesPerRow: [
         7, 7, 7, 7,
@@ -18,4 +24,36 @@
     framesPerRow: [
         8
     ]
-}]
+}, {
+    src: "art/spells/electric_bolt.png",
+    framesPerRow: [
+        4
+    ]
+}, {
+    src: "art/spells/frostbolt.png",
+    framesPerRow: [
+        8
+    ]
+}, {
+    src: "art/spells/heal.png",
+    framesPerRow: [
+        6
+    ]
+}, {
+    src: "art/spells/well.png",
+    framesPerRow: [
+        6
+    ]
+}, {
+    src: "art/spells/speedup.png",
+    framesPerRow: [
+        6
+    ]
+}
+, {
+    src: "art/spells/flamestrike.png",
+    framesPerRow: [
+        12
+    ]
+}
+]

@@ -9,6 +9,8 @@ Actions = {
 };
 
 sanctum.Game = function (context, playerCount) {
+    Resizer.installHandler(context.canvas);
+
     this.objects = []; // The first playerCount indices hold the characters
     this.playerCount = playerCount;
     this.previousTime = 0;
@@ -25,9 +27,12 @@ sanctum.Game = function (context, playerCount) {
 var OBJECTS = {
     "monk": "character_monk",
     "fireball": "content/art/spells/fireball.png",
+    "platform": "Basic platform",
 }
 
 sanctum.Game.prototype.init = function () {
+    this.platform = this.contentManager.get(OBJECTS["platform"]);
+
     var monk = this.contentManager.get(OBJECTS["monk"]);
     this.objects.push(monk);
     var enemy = monk.clone();
@@ -63,17 +68,17 @@ sanctum.Game.prototype.handleInput = function () {
                 break;
             case Actions.spellcast1:
                 var spell = this.effectManager.castSpell(this.objects[this.playerObjectIndex],
-                                                         "flamestrike",
+                                                         "Flamestrike",
                                                          this.input.mouse.absolute);
                 this.objects.push(spell);
-                player.playAnimation(Actions.spellcast1, spell.acceleration.normalized());
+                player.playAnimation(Actions.spellcast1, spell.position.subtract(player.position).normalized());
                 break;
             case Actions.spellcast2:
                 var spell = this.effectManager.castSpell(this.objects[this.playerObjectIndex],
-                                                         "freeze",
+                                                         "Freeze",
                                                          this.input.mouse.absolute);
                 this.objects.push(spell);
-                player.playAnimation(Actions.spellcast2, spell.acceleration.normalized());
+                player.playAnimation(Actions.spellcast2, spell.position.subtract(player.position).normalized());
         }
         this.waitingForAction = Actions.walk;
     }
@@ -85,9 +90,17 @@ sanctum.Game.prototype.loop = function (timestamp) {
     var delta = timestamp - this.previousTime;
     
     this.handleInput();
+    this.platform.update(delta);
     this.physicsManager.update(this.objects);
     this.effectManager.applyEffects(this.physicsManager, this.objects);
-    this.renderer.render(this.objects, delta);
+    var viewportCenter = this.renderer.getViewportCenter();
+    this.effectManager.applyPlatformEffect(this.physicsManager,
+                                           this.platform, 
+                                           this.objects,
+                                           this.playerCount,
+                                           viewportCenter
+                                           );
+    this.renderer.render(this.platform, this.objects, delta);
     
     this.previousTime = timestamp;
     requestAnimationFrame(sanctum.Game.mainGameLoop);

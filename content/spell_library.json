@@ -1,5 +1,5 @@
 [{
-    name: "Fireball",
+    name: "fireball",
     sprite: "content/art/spells/fireball.png", // only required for projectiles
     castType: "projectile", // see below
     targeted: false, // if true the spell is required to target a player
@@ -10,15 +10,14 @@
     effectRadius: 0, // the radius in which to hit nearby enemies / obstacles
     damageAmount: 10,
     pushbackForce: 100,
-    radius: 5, // size of the projectile
+    radius: 0, // size of the projectile
     cooldown: 10, // cooldown of the spell
     movementFunction: "linear", // determines the projectile's path - "quadratic", "homing", "sin"
     acceleration: 1, // the projectile's acceleration magnitude
     speed: 1, // the projectile's start speed
     range: 50, // maximum distance the projectile may fly (or the instant cast to hit)
-},
-{
-    name: "freeze",
+}, {
+    name: "Freeze",
     sprite: "content/art/spells/freeze.png", // only required for projectiles
     castType: "projectile", // see below
     targeted: false, // if true the spell is required to target a player
@@ -28,16 +27,14 @@
     ],
     effectRadius: 0, // the radius in which to hit nearby enemies / obstacles
     damageAmount: 10,
-    pushbackForce: 100,
+    pushbackForce: 10,
     radius: 5, // size of the projectile
     cooldown: 10, // cooldown of the spell
     movementFunction: "linear", // determines the projectile's path - "quadratic", "homing", "sin"
     acceleration: 1, // the projectile's acceleration magnitude
     speed: 1, // the projectile's start speed
     range: 50, // maximum distance the projectile may fly (or the instant cast to hit)
-},
-
-{
+}, {
     name: "Frostbolt",
     sprite: "content/art/spells/frostbolt.png",
     castType: "projectile",
@@ -48,6 +45,7 @@
     ],
     effectRadius: 0,
     damageAmount: 5,
+	pushbackForce: 10,
     haste: -5,
     radius: 5,
     cooldown: 10,
@@ -55,9 +53,7 @@
     acceleration: 1, 
     speed: 2, 
     range: 50,
-},
-
-{
+}, {
     name: "Heal",
     sprite: "content/art/spells/heal.png",
     castType: "instant", 
@@ -65,34 +61,14 @@
     effects: [
         "damage"
     ],
-    
     effectRadius: 0, 
     damageAmount: -20,
     radius: 5, 
     cooldown: 20, 
     range: 20, 
-},
-
-{
-    name: "Electric bolt",
-    sprite: "content/art/spells/electric_bolt.png",
-    castType: "instant", 
-    targeted: true, 
-    effects: [
-        "damage",
-        "haste",
-    ],
-    
-    effectRadius: 10, 
-    damageAmount: 10,
-    hasteAmmount: -10,
-    radius: 5, 
-    cooldown: 10, 
-    range: 25, 
-},
-
-{
+}, {
     name: "Speed up!",
+    sprite: "content/art/spells/speedup.png",
     castType: "instant", 
     targeted: true, 
     effects: [
@@ -101,9 +77,7 @@
     
     cooldown: 20, 
     range: 1, 
-},
-
-{
+}, {
     name: "Healing well",
     sprite: "content/art/spells/well.png",
     castType: "instant", 
@@ -114,10 +88,9 @@
     spawnObject: "healingWell",
     cooldown: 30, 
     range: 75, 
-},
-
-{
+}, {
     name: "Flamestrike",
+    sprite: "content/art/spells/flamestrike.png",
     castType: "instant", 
     targeted: false, 
     effects: [
@@ -128,5 +101,4 @@
     cooldown: 40, 
     range: 75, 
 },
-
 ]
