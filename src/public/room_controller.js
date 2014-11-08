@@ -40,7 +40,12 @@ RoomController.prototype.roomUpdated = function(data) {
     var players = data.players;
 
     for(var i = 0; i < players.length; i++) {
-        displayPlayers += "<div class='player-row'>" + players[i].name + "</div>";
+        displayPlayers += "<div class='player-row'>" +
+            "<img class='player-row-image' src='content/art/home_wallpaper.jpg'/>" + 
+            "<div class='player-row-name'>" +
+                players[i].name
+            + "</div></div>";
+
     }
 
     $(".players").html(displayPlayers);

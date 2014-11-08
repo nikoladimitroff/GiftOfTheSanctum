@@ -22,39 +22,62 @@ body {
 }
 
 .container {
-	margin-left: 18%;
-	margin-top: 7%;
+	margin-left: 13%;
+	margin-top: 3%;
 }
 
 .players {
-	/*margin-left: 15%;
-	margin-top: 7%;*/
+	background-color: black;
+	opacity: 0.5;
 	color: white;
+	padding: 15px 15px 15px 15px;
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px;
+	border-radius:5px;
+	border:1px solid #1a376b;
 	width: 400px;
-	height: 500px;
+	height: 400px;
+	vertical-align: top;
 	display:inline-block;
 }
 
 .player-row {
-	font-size: 30px;
+	width: 100px;
+	/*height: 100px;*/
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px;
+	border-radius:5px;
+	border:1px solid #1a376b;
+
+	font-size: 15px;
+	text-align: center;
+	margin-top: 10px;
 }
 
-#startGame{
-    margin: -20px -50px;
-    margin-top: 70%;
-    position:relative;
+.player-row:first-child {
+	margin-top: 0;
 }
 
-#leaveGame{
-	margin: -20px -50px;
-    margin-top: 200%;
-    position:relative;
-    top:50%;
+.player-row-image {
+	width: 100px;
+	height: 80px;
 }
 
-.buttons{
+.player-row-name {
+
+}
+
+.buttons {
 	display:inline-block;
 	margin-left: 20px;
+}
+
+.room-button {
+
+}
+
+.room-button:last-child {
+	margin-top: 40px;
 }
 
 .active {
