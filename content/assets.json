@@ -4,8 +4,9 @@
         {
             sprite: "art/characters/monk.png",
             animations: {
-                walk: 10,
-                spellcast1: 2,
+                walk: 8,
+                spellcast1: 0,
+                spellcast2: 4,
             },
             size: 0,
             mass: 1,

@@ -8,6 +8,11 @@
         13, 13, 13, 13,
         6,
     ]
+},{
+    src: "art/spells/freeze.png",
+    framesPerRow: [
+        4, 4, 4, 4
+    ]
 }, {
     src: "art/spells/fireball.png",
     framesPerRow: [
