@@ -1,6 +1,6 @@
 var network = function () {
-    this.port = 8080;
-    this.ip = "127.0.0.1";
+    this.port = process.env.PORT || 8080;
+    this.ip = "0.0.0.0";
 };
 
 module.exports = new network();
