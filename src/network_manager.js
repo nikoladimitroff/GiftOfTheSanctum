@@ -17,7 +17,9 @@ sanctum.Network = function () {
     this.buffer = [];
 };
 
-sanctum.Network.prototype.setup = function(masterSocket, socket) {
+sanctum.Network.port = 8080;
+
+sanctum.Network.prototype.connect = function(masterSocket, socket) {
     if(!masterSocket) {
         this.socket = socket;
     } else {
@@ -77,7 +79,7 @@ sanctum.Network.prototype.getLastUpdate = function() {
 
 var networkManager;
 if(typeof module != "undefined" && module.exports) {
-    module.exports = new sanctum.Network();
+    module.exports = sanctum.Network;
 } else {
     networkManager = new sanctum.Network();
 }
