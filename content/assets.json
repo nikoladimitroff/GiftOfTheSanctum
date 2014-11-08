@@ -6,7 +6,9 @@
             animations: {
                 walk: 10,
                 spellcast1: 2,
-            }
+            },
+            size: 0,
+            mass: 1,
         },
     ],
     sprites: "sprites.json",

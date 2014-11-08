@@ -90,6 +90,12 @@ Vector.unit = function(a, b) {
   b.y = a.y / length;
   return b;
 };
+Vector.normalize = function(a) {
+  var length = a.length();
+  a.x /= length;
+  a.y /= length;
+  return a;
+};
 Vector.fromAngles = function(phi) {
   return new Vector(Math.cos(phi), Math.sin(phi));
 };
@@ -112,12 +118,16 @@ Vector.angleBetween = function(a, b) {
   return a.angleTo(b);
 };
 
+Vector.right = new Vector(1, 0);
+Vector.up = new Vector(0, 1);
+
 var physics = (function (physics) {
     EulerIntegrator = function () { }
-    EulerIntegrator.prototype.integrate = function (states, dt) {
+    EulerIntegrator.prototype.integrate = function (states, dt, friction) {
         for (var i = 0; i < states.length; i++) {
             var state = states[i];
-            
+            if (!state.frictionless)
+                Vector.multiply(state.acceleration, friction, state.acceleration);
             Vector.add(state.velocity, state.acceleration.multiply(dt), state.velocity);
             Vector.add(state.position, state.velocity.multiply(dt), state.position);
         }

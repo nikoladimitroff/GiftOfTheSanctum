@@ -1,5 +1,14 @@
 var sanctum = sanctum || {};
 
+function getFilename(path) {
+    return path.substring(path.lastIndexOf("/") + 1)
+}
+
+function getFilenameWithoutExtension(path) {
+    var filename = getFilename(path);
+    return filename.substring(0, filename.lastIndexOf("."));
+}
+
 sanctum.ContentManager = function () {
     this.contentCache = {};
     this.loading = 0;
@@ -27,15 +36,15 @@ sanctum.ContentManager.prototype.loadSprite = function (description) {
 };
 
 sanctum.ContentManager.prototype.loadSpell = function (description) {
-    console.log("loaded spell", description);
+    var sprite = this.get(description.sprite);
+    this.contentCache[description.name] = new sanctum.Spell(sprite, description);
 };
 
 sanctum.ContentManager.prototype.loadCharacter = function (description) {
     var url = description.sprite;
     var sprite = this.get(this.root + url);
-    var character = new sanctum.Character(sprite, description.animations);
-    var name = "character_" + url.substring(url.lastIndexOf("/") + 1)
-    name = name.substring(0, name.lastIndexOf("."));
+    var character = new sanctum.Character(sprite, description);
+    var name = "character_" + getFilenameWithoutExtension(url);
     console.log(name);
     this.contentCache[name] = character;
 };
@@ -66,8 +75,9 @@ sanctum.ContentManager.prototype.loadAssets = function (assetsPath, callback) {
                 assets.characters.map(self.loadCharacter.bind(self));                
                 self.fetchJSONFile(assets.spells, function (spellLibrary) {
                     spellLibrary.map(self.loadSpell.bind(self));
+                    
+                    callback();
                 });
-                callback();
             }
             sprites.map(self.loadSprite.bind(self));
         });
@@ -77,4 +87,15 @@ sanctum.ContentManager.prototype.loadAssets = function (assetsPath, callback) {
 
 sanctum.ContentManager.prototype.get = function (path) {
     return this.contentCache[path];
+};
+
+sanctum.ContentManager.prototype.getSpellLibrary = function () {
+    var spellLib = {};
+    for (var path in this.contentCache) {
+        var content = this.contentCache[path];
+        if (content instanceof sanctum.Spell) {
+            spellLib[content.name] = content;
+        }
+    }
+    return spellLib;
 };
