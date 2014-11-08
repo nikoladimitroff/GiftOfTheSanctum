@@ -77,7 +77,7 @@ networking.Room.prototype.leave = function(socket, data) {
             this.removePlayer(player);
             this.removeSocket(socket);
 
-            if(socket.id == this.hostId) {
+            if(socket.id == this.hostId && this.players.length > 0) {
                 this.hostId = this.players[0].id;
                 this.sockets[0].emit("updateHost", {isHost: true});
             }

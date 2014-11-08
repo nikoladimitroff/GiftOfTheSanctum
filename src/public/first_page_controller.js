@@ -15,6 +15,13 @@ FirstPageController.bindListeners = function() {
 
     });
 
+    $("#name").keydown(function(event) {
+        if(event.keyCode == 13 /*Enter*/) {
+            var name = $("#name").val();
+            client.socket.emit("getPlayer", {playerName: name});
+        }
+    });
+
     client.socket.on('getPlayer', function(data){
         client.playerId = data.playerId;
         client.playerName = data.playerName;
