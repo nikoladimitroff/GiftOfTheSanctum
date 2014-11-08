@@ -18,4 +18,9 @@
     framesPerRow: [
         8
     ]
+}, {
+    src: "art/spells/flame_strike.png",
+    framesPerRow: [
+        12
+    ]
 }]

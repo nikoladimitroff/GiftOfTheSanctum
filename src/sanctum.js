@@ -9,6 +9,8 @@ Actions = {
 };
 
 sanctum.Game = function (context, playerCount) {
+    Resizer.installHandler(context.canvas);
+
     this.objects = []; // The first playerCount indices hold the characters
     this.playerCount = playerCount;
     this.previousTime = 0;
@@ -66,14 +68,14 @@ sanctum.Game.prototype.handleInput = function () {
                                                          "flamestrike",
                                                          this.input.mouse.absolute);
                 this.objects.push(spell);
-                player.playAnimation(Actions.spellcast1, spell.acceleration.normalized());
+                player.playAnimation(Actions.spellcast1, spell.position.subtract(player.position).normalized());
                 break;
             case Actions.spellcast2:
                 var spell = this.effectManager.castSpell(this.objects[this.playerObjectIndex],
                                                          "freeze",
                                                          this.input.mouse.absolute);
                 this.objects.push(spell);
-                player.playAnimation(Actions.spellcast2, spell.acceleration.normalized());
+                player.playAnimation(Actions.spellcast2, spell.position.subtract(player.position).normalized());
         }
         this.waitingForAction = Actions.walk;
     }
