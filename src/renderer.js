@@ -36,9 +36,11 @@ sanctum.Renderer.prototype.render = function (gameObjects, dt) {
         var frameY = sprite.activeAnimation * sprite.frameHeight;
         
         context.save();
-        context.translate(obj.position.x, obj.position.y);
+        var cx = obj.position.x + scale * sprite.frameWidth / 2;
+        var cy = obj.position.y + scale * sprite.frameHeight / 2;
+        context.translate(cx, cy);
         context.rotate(obj.rotation);
-        context.translate(-obj.position.x, -obj.position.y);
+        context.translate(-cx, -cy);
         
         context.drawImage(sprite.image, 
                           frameX, frameY,
