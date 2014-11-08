@@ -21,6 +21,7 @@ Main.prototype.getPlayer = function(socket, data) {
     if(data && data.playerName) {
         var player = new networking.Player(data.playerName);
         this.players[player.id] = player;
+        
         socket.emit("getPlayer", { playerId: player.id, playerName: player.name });
     }
 }
@@ -30,13 +31,11 @@ Main.prototype.getRoom = function(socket, data) {
         var room = this.firstFreeRoom() || new networking.Room(this.masterSocket);
         this.rooms[room.id] = this.rooms[room.id] || room;
         this.players[data.playerId].roomId = room.id;
-        room.players.push(this.players[data.playerId]);
-        socket.emit("getRoom", { roomId: room.id });
+        room.players.push(this.players[data.playerId].name);
+        var isHost = room.players.length == 1;
+        room.handleRoom(socket, this.players[data.playerId]);
 
-        room.masterSocket.on("connection", function(socket) {
-            console.log("connect to namespace");
-            this.networkManager.connect(this.masterSocket, socket);
-        }.bind(room));
+        socket.emit("getRoom", { roomId: room.id, isHost: isHost });
     }
 }
 
