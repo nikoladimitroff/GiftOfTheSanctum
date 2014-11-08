@@ -1,3 +1,5 @@
+var NetworkManager = require("./network_manager");
+
 var networking = networking || {};
 var MAX_PLAYERS = 8;
 
@@ -11,9 +13,13 @@ networking.Player = function(name) {
     this.roomId = null;
 }
 
-networking.Room = function() {
+networking.Room = function(masterSocket) {
     this.id = networking.token();
     this.players = [];
+    this.masterSocket = masterSocket;
+    this.networkManager = new NetworkManager();
+
+    this.masterSocket = this.masterSocket.of("/" + this.id);
 }
 
 networking.Room.prototype.isFree = function() {

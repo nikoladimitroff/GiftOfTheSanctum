@@ -5,7 +5,7 @@ var Client = function() {
 Client.prototype.start = function() {
 	this.socket = io.connect("", { port: 8080, transports: ["websocket"] });
 
-    networkManager.setup(null, this.socket);
+    networkManager.connect(null, this.socket);
 
 	this.load("src/public/main.html");
 }
