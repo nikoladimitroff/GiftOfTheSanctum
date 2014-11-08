@@ -8,6 +8,10 @@ Client.prototype.start = function() {
 	this.socket = io.connect("", { port: 8080, transports: ["websocket"] });
 	
 	this.load("src/public/main.html");
+
+Client.prototype.start = function() {
+    this.socket = io.connect("", { port: 8080, transports: ["websocket"] });
+    console.log("dassa");
 }
 
 Client.prototype.load = function(path) {
