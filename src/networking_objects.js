@@ -17,6 +17,7 @@ networking.Player = function(id, name) {
 networking.Room = function(masterSocket) {
     this.handled = false;
     this.hostId = null;
+    this.isRunning = false;
     this.id = networking.token();
     this.sockets = [];
     this.players = [];
@@ -29,14 +30,14 @@ networking.Room = function(masterSocket) {
 networking.Room.prototype.handleRoom = function() {
     if(!this.handled) {
         this.masterSocket.on("connection", function(socket) {
-            if(!this.hostId) {
+            if(!this.hostId || this.players.length < 1) {
                 this.hostId = socket.id;
             }
 
             this.networkManager.connect(this.masterSocket, socket);
             socket.on("welcome", this.welcome.bind(this, socket));
             socket.on("leave", this.leave.bind(this, socket));
-            socket.on("play", function() {}.bind(this, socket));
+            socket.on("play", this.play.bind(this, socket));
             socket.on("disconnect", this.leave.bind(this, socket));
 
         }.bind(this));
@@ -93,13 +94,16 @@ networking.Room.prototype.leave = function(socket, data) {
 }
 
 networking.Room.prototype.play = function(socket) {
-    console.log("Game started.");
+    if(socket.id == this.hostId) {
+        console.log("Game started.");
+        this.isRunning = true;
 
-    this.masterSocket.sockets.emit("play", {});
+        this.masterSocket.emit("play", {});
+    }
 }
 
 networking.Room.prototype.isFree = function() {
-    return this.players.length < MAX_PLAYERS;
+    return this.players.length < MAX_PLAYERS && !this.isRunning;
 }
 
 networking.Room.prototype.removePlayer = function(player) {
