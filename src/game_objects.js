@@ -7,6 +7,7 @@ function copyProperties(object, description) {
         "name",
         "mass",
         "rotation",
+        "castType",
         "effects", "effectRadius", "damageAmount", "pushbackForce",
     ];
     

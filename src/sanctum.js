@@ -63,7 +63,7 @@ sanctum.Game.prototype.handleInput = function () {
                 break;
             case Actions.spellcast1:
                 var spell = this.effectManager.castSpell(this.objects[this.playerObjectIndex],
-                                                         "fireball",
+                                                         "flamestrike",
                                                          this.input.mouse.absolute);
                 this.objects.push(spell);
                 player.playAnimation(Actions.spellcast1, spell.acceleration.normalized());

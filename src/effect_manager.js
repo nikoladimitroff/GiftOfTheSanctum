@@ -1,5 +1,10 @@
 var sanctum = sanctum || {};
 
+var CastType = {
+    projectile: "projectile",
+    instant: "instant",
+};
+
 sanctum.EffectManager = function () {
     
 };
@@ -52,8 +57,8 @@ sanctum.EffectManager.prototype.explodeSpell = function (spell, physics, objects
 
 sanctum.EffectManager.prototype.castSpell = function (character, spellName, target, physics) {
     var spellInstance = this.spellLibrary[spellName].clone();
-    if (target instanceof Vector) {
-        this.activeSpells[spellInstance.id] = spellInstance;
+    this.activeSpells[spellInstance.id] = spellInstance;
+    if (spellInstance.castType == CastType.projectile) {
         spellInstance.velocity = character.velocity.clone();
         
         var center = character.getSpriteCenter();
@@ -67,6 +72,12 @@ sanctum.EffectManager.prototype.castSpell = function (character, spellName, targ
         spellInstance.acceleration = forward.multiply(100); // magic
 
         spellInstance.rotation = - Math.PI / 2 +  Vector.right.angleTo360(forward);
+    }
+    if (spellInstance.castType == CastType.instant) {
+        this.activeSpells[spellInstance.id] = spellInstance;
+        spellInstance.position = target.clone();
+        spellInstance.position.x -= spellInstance.scale * spellInstance.sprite.frameWidth / 2;
+        spellInstance.position.y -= spellInstance.scale * spellInstance.sprite.frameHeight / 2;
     }
     return spellInstance;
 }
