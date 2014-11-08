@@ -10,7 +10,7 @@ sanctum.Network = function () {
     this.updateTime = 20; /* millis */
 
     this.lastUpdate = 0;
-    this.port = process.env.PORT || 8080;
+    this.port = (process && process.env && process.env.PORT) || 8080;
     this.ip = "0.0.0.0";
 
     this.masterSocket = null;
@@ -20,7 +20,9 @@ sanctum.Network = function () {
     this.buffer = [];
 };
 
-sanctum.Network.port = process.env.PORT || 8080;
+var process = process || null;
+
+sanctum.Network.port = (process && process.env && process.env.PORT) || 8080;
 
 sanctum.Network.prototype.connect = function(masterSocket, socket) {
     if(!masterSocket) {
