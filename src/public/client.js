@@ -1,17 +1,13 @@
-var network = require("network");
-
 var Client = function() {
 	this.socket = null;
 }
 
 Client.prototype.start = function() {
 	this.socket = io.connect("", { port: 8080, transports: ["websocket"] });
-	
-	this.load("src/public/main.html");
 
-Client.prototype.start = function() {
-    this.socket = io.connect("", { port: 8080, transports: ["websocket"] });
-    console.log("dassa");
+    networkManager.setup(null, this.socket);
+
+	this.load("src/public/main.html");
 }
 
 Client.prototype.load = function(path) {

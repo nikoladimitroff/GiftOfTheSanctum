@@ -3,9 +3,9 @@
  * around node.js
 **/
 
-var module = {
-    exports: {},
-};
+// var module = {
+//     exports: {},
+// };
 
 var require = function (moduleName) {
     if (!moduleName) throw new Error("Could not load module: " + moduleName);

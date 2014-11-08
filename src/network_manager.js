@@ -10,14 +10,22 @@ sanctum.Network = function () {
     this.port = 8080;
     this.ip = "127.0.0.1";
 
+    this.masterSocket = null;
     this.socket = null;
+    this.sockets = [];
+    this.updateQueue = [];
     this.buffer = [];
 };
 
-sanctum.Network.prototype.setup = function(socket) {
-    this.socket = socket;
+sanctum.Network.prototype.setup = function(masterSocket, socket) {
+    if(!masterSocket) {
+        this.socket = socket;
+    } else {
+        this.sockets.push(socket);
+        this.masterSocket = masterSocket;
+    }
 
-    this.socket.on("update", this.handleUpdate);
+    socket.on("update", this.handleUpdate.bind(this));
 }
 
 sanctum.Network.prototype.addSpellcast = function(spellName, target, caster) {
@@ -48,27 +56,28 @@ sanctum.Network.prototype.addObject = function(object) {
 }
 
 sanctum.Network.prototype.flush = function() {
-    this.socket.emit("update", this.buffer);
-}
+    if(this.buffer.length > 0) {
+        if(!this.masterSocket) {
+            this.socket.emit("update", this.buffer);        
+        } else {
+            this.masterSocket.emit("update", this.buffer);
+        }
+    }
 
-sanctum.Network.prototype.listen = function() {
-    
+    this.buffer = [];
 }
 
 sanctum.Network.prototype.handleUpdate = function(payload /*Array*/) {
-    for(event in payload) {
-        switch(event.t) {
-            case sanctum.EventTypes.CharacterInfo:
-
-                break;
-
-            case sanctum.EventTypes.Spellcast:
-                break;
-
-            case sanctum.EventTypes.ObjectInfo:
-                break;
-        }
-    }
+    this.updateQueue.push(payload.data);
 }
 
-module.exports = new sanctum.Network();
+sanctum.Network.prototype.getLastUpdate = function() {
+    return this.updateQueue.shift();
+}
+
+var networkManager;
+if(typeof module != "undefined" && module.exports) {
+    module.exports = new sanctum.Network();
+} else {
+    networkManager = new sanctum.Network();
+}
