@@ -1,5 +1,5 @@
 {
-    map: "example_map.json",
+    platform: "example_platform.json",
     characters: [
         {
             sprite: "art/characters/monk.png",
@@ -10,6 +10,7 @@
             },
             size: 0,
             mass: 1,
+            health: 100,
         },
     ],
     sprites: "sprites.json",

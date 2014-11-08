@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head></head>
+<body>
+    <canvas id="tempCanvas"></canvas>
+    <img src="E:\Projects\GOS\GiftOfTheSanctum\content\art\spells\magic_5.png" id="spell"> 
+
+    <script type="text/javascript">
+    window.onload = function() {
+        var rows = 2,
+			wantedRows = 2,
+			//change this for rows
+            canvas = document.getElementById("tempCanvas"),
+            ctx = canvas.getContext("2d"),
+            image = document.getElementById("spell"),
+            rowHeight = image.height / rows;
+
+        canvas.width = wantedRows * image.width;
+        canvas.height = rowHeight;
+        console.log(canvas.width, canvas.height);
+
+        for (var i = 0; i < wantedRows; i++) {
+            ctx.drawImage(image, 0, i * rowHeight, image.width, rowHeight, i * image.width, 0, image.width, rowHeight);
+        };
+    };
+    </script>
+</body>
+</html>

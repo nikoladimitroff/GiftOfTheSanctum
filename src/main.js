@@ -31,9 +31,9 @@ Main.prototype.getRoom = function(socket, data) {
         var room = this.firstFreeRoom() || new networking.Room(this.masterSocket);
         this.rooms[room.id] = this.rooms[room.id] || room;
         this.players[data.playerId].roomId = room.id;
-        room.players.push(this.players[data.playerId].name);
+        room.players.push(this.players[data.playerId]);
         var isHost = room.players.length == 1;
-        room.handleRoom(socket, this.players[data.playerId]);
+        room.handleRoom();
 
         socket.emit("getRoom", { roomId: room.id, isHost: isHost });
     }
