@@ -1,5 +1,8 @@
 var Client = function() {
     this.socket = null;
+    this.playerId = null;
+    this.playerName = null;
+    this.roomId = null;
 }
 
 Client.prototype.start = function() {

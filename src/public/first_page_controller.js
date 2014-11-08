@@ -2,8 +2,6 @@ var FirstPageController = function() {
     
 };
 
-var playerId;
-
 FirstPageController.run = function() {
     // var name = $("#name").val();
     // console.log(name);
@@ -18,8 +16,8 @@ FirstPageController.bindListeners = function() {
     });
 
     client.socket.on('getPlayer', function(data){
-        playerId = data.playerId;
-        var playerName = data.playerName;
+        client.playerId = data.playerId;
+        client.playerName = data.playerName;
         
         client.load("src/public/please_wait.html");
     });

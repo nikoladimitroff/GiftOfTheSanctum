@@ -9,6 +9,9 @@ sanctum.EventTypes = {
 sanctum.Network = function () {
     this.port = 8080;
     this.ip = "127.0.0.1";
+    this.updateTime = 20; /* millis */
+
+    this.lastUpdate = 0;
 
     this.masterSocket = null;
     this.socket = null;
@@ -62,7 +65,7 @@ sanctum.Network.prototype.flush = function() {
         if(!this.masterSocket) {
             this.socket.emit("update", this.buffer);        
         } else {
-            this.masterSocket.emit("update", this.buffer);
+            this.masterSocket.sockets.emit("update", this.buffer);
         }
     }
 

@@ -10,16 +10,16 @@ var Main = function() {
 }
 
 Main.prototype.firstFreeRoom = function() {
-    for(var i = 0, length = this.rooms.length; i < length; i++) {
-        if(this.rooms[i].isFree()) {
-            return this.rooms[i];
+    for(roomId in this.rooms) {
+        if(this.rooms[roomId].isFree()) {
+            return this.rooms[roomId];
         }
     }
 }
 
 Main.prototype.getPlayer = function(socket, data) {
     if(data && data.playerName) {
-        var player = new networking.Player(data.playerName);
+        var player = new networking.Player(socket.id, data.playerName);
         this.players[player.id] = player;
         
         socket.emit("getPlayer", { playerId: player.id, playerName: player.name });
@@ -31,8 +31,10 @@ Main.prototype.getRoom = function(socket, data) {
         var room = this.firstFreeRoom() || new networking.Room(this.masterSocket);
         this.rooms[room.id] = this.rooms[room.id] || room;
         this.players[data.playerId].roomId = room.id;
-        room.players.push(this.players[data.playerId]);
-        var isHost = room.players.length == 1;
+
+        // room.players.push(this.players[data.playerId]);
+        var isHost = room.players[0] && room.players[0].id == socket.id;
+
         room.handleRoom();
 
         socket.emit("getRoom", { roomId: room.id, isHost: isHost });
