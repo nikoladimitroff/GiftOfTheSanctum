@@ -16,7 +16,6 @@
 }, {
     src: "art/spells/fireball.png",
     framesPerRow: [
-        8, 8, 8, 8, 
-        8, 8, 8, 8, 
+        8
     ]
 }]

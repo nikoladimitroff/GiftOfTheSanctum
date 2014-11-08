@@ -47,6 +47,21 @@ Vector.prototype = {
   angleTo: function(a) {
     return Math.acos(this.dot(a) / (this.length() * a.length()));
   },
+  angleTo360: function(a) {
+    var n1 = this.clone(),
+        n2 = a.clone();
+    Vector.normalize(n1);
+    Vector.normalize(n2);
+    var cos = n1.dot(n2);
+    var sin = ((n2.x + n2.y) - (n1.x + n1.y) * cos) / (n1.x - n1.y);
+    var angle = Math.acos(cos);
+    
+    if (sin <= 0)
+        angle = -angle;
+        
+    angle += Math.PI / 2
+    return angle;
+  },
   toArray: function() {
     return [this.x, this.y];
   },

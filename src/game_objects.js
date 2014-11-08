@@ -40,6 +40,7 @@ sanctum.Spell = function (sprite, description) {
     this.sprite = sprite;
     this.rotation = 0;
     this.frictionless = true;
+    this.sprite.activeAnimation = 0;
     
     this.scale = description.scale || 1;
 
@@ -50,20 +51,43 @@ sanctum.Spell = function (sprite, description) {
     copyProperties(this, description);    
 }
 
-sanctum.Character.prototype = sanctum.Spell.prototype = {
-    clone: function () {
-        var clone = new this.constructor({}, {});
-        clone.position = this.position.clone();
-        clone.velocity = this.velocity.clone();
-        clone.acceleration = this.acceleration.clone();
-        clone.sprite = this.sprite;
-        
-        clone.scale = this.scale;
+sanctum.Character.prototype.clone = sanctum.Spell.prototype.clone = function () {
+    var clone = new this.constructor({}, {});
+    clone.position = this.position.clone();
+    clone.velocity = this.velocity.clone();
+    clone.acceleration = this.acceleration.clone();
+    clone.sprite = this.sprite.clone();
+    
+    clone.scale = this.scale;
 
-        clone.collisionRadius = this.collisionRadius;
-        clone.id = ID_COUNTER++;
-        
-        copyProperties(clone, this);    
-        return clone;
-    },
+    clone.collisionRadius = this.collisionRadius;
+    clone.id = ID_COUNTER++;
+    
+    copyProperties(clone, this);    
+    return clone;
+}
+ sanctum.Character.prototype.getSpriteCenter = sanctum.Spell.prototype.getSpriteCenter = function () {
+    var center = this.position.clone();
+    center.x += this.scale + this.sprite.frameWidth / 2;
+    center.y += this.scale + this.sprite.frameHeight / 2;
+    return center;
+};
+
+sanctum.Character.prototype.playAnimation = function (action, forward) {
+    var angle = Vector.right.angleTo360(forward);
+    var animationOffset = 0;
+    if (angle >= Math.PI / 4 && angle <  3 * Math.PI / 4) {
+        animationOffset = 3;
+    }
+    else if (angle >= 3 * Math.PI / 4 && angle <  5 * Math.PI / 4) {
+        animationOffset = 2;
+    }
+    else if (angle >= 5 * Math.PI / 4 && angle < 7 * Math.PI / 2) {
+        animationOffset = 1;
+    }
+    else {
+        animationOffset = 0;
+    }    
+    console.log(animationOffset);
+    this.sprite.activeAnimation = this.animations[action] + animationOffset;
 };

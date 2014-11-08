@@ -11,6 +11,14 @@ sanctum.Sprite = function (image, framesPerRow) {
     this.lastFrameUpdate = 0;
 }
 
+sanctum.Sprite.prototype.clone = function () {
+    var sprite = new sanctum.Sprite({}, []);
+    for (var prop in sprite) {
+        sprite[prop] = this[prop];
+    }
+    return sprite;
+}
+
 sanctum.Renderer = function (context) {
     this.context = context;
 }

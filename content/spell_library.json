@@ -1,5 +1,5 @@
 [{
-    name: "fireball",
+    name: "Fireball",
     sprite: "content/art/spells/fireball.png", // only required for projectiles
     castType: "projectile", // see below
     targeted: false, // if true the spell is required to target a player
@@ -35,4 +35,98 @@
     acceleration: 1, // the projectile's acceleration magnitude
     speed: 1, // the projectile's start speed
     range: 50, // maximum distance the projectile may fly (or the instant cast to hit)
-}]
+},
+
+{
+	name: "Frostbolt",
+    sprite: "content/art/spells/frostbolt.png",
+    castType: "projectile",
+    targeted: false,
+    effects: [
+        "damage",
+        "haste"
+    ],
+    effectRadius: 0,
+    damageAmount: 5,
+	haste: -5,
+    radius: 5,
+    cooldown: 10,
+    movementFunction: "linear",
+    acceleration: 1, 
+    speed: 2, 
+    range: 50,
+},
+
+{
+	name: "Heal",
+    sprite: "content/art/spells/heal.png",
+    castType: "instant", 
+    targeted: true, 
+    effects: [
+        "damage"
+    ],
+	
+    effectRadius: 0, 
+    damageAmount: -20,
+    radius: 5, 
+    cooldown: 20, 
+    range: 20, 
+},
+
+{
+	name: "Electric bolt",
+    sprite: "content/art/spells/electric_bolt.png",
+    castType: "instant", 
+    targeted: true, 
+    effects: [
+		"damage",
+        "haste",
+    ],
+	
+    effectRadius: 10, 
+    damageAmount: 10,
+	hasteAmmount: -10,
+    radius: 5, 
+    cooldown: 10, 
+    range: 25, 
+},
+
+{
+	name: "Speed up!",
+    castType: "instant", 
+    targeted: true, 
+    effects: [
+		"haste"
+    ],
+	
+    cooldown: 20, 
+    range: 1, 
+},
+
+{
+	name: "Healing well",
+    sprite: "content/art/spells/well.png",
+    castType: "instant", 
+    targeted: true, 
+    effects: [
+		"heal"
+    ],
+	spawnObject: "healingWell",
+    cooldown: 30, 
+    range: 75, 
+},
+
+{
+	name: "Flamestrike",
+    castType: "instant", 
+    targeted: false, 
+    effects: [
+		"spawn"
+    ],
+	
+	spawnObject: "flamestrike",
+    cooldown: 40, 
+    range: 75, 
+},
+
+]

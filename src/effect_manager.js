@@ -30,7 +30,7 @@ sanctum.EffectManager.prototype.explodeSpell = function (spell, physics, objects
                                                  spell.effectRadius);
     if (targets.length == 0)
         targets.push(hitTarget);
-    
+
     for (var i = 0; i < targets.length; i++) {
         var target = targets[i];
         for (var j = 0; j < spell.effects.length; j++) {
@@ -56,12 +56,17 @@ sanctum.EffectManager.prototype.castSpell = function (character, spellName, targ
         this.activeSpells[spellInstance.id] = spellInstance;
         spellInstance.velocity = character.velocity.clone();
         
-        var force = target.subtract(character.position).normalized();
-        Vector.multiply(force, 100, force);// magic
-        spellInstance.acceleration = force;
-        var forward = spellInstance.position.subtract(target).normalized();
-        spellInstance.position = character.position.add(forward.multiply(-10)); // magic
-        spellInstance.rotation = Vector.right.angleTo(forward);
+        var center = character.getSpriteCenter();
+        var offset = new Vector(spellInstance.scale * spellInstance.sprite.frameWidth / 2,
+                                spellInstance.scale * spellInstance.sprite.frameHeight / 2);
+        var forward = target.subtract(center).normalized();
+        
+        var distance = spellInstance.collisionRadius + character.collisionRadius * 1.1;
+        spellInstance.position = center.subtract(offset).add(forward.multiply(distance));
+        
+        spellInstance.acceleration = forward.multiply(100); // magic
+
+        spellInstance.rotation = - Math.PI / 2 +  Vector.right.angleTo360(forward);
     }
     return spellInstance;
 }

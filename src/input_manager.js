@@ -2,14 +2,23 @@ var sanctum = sanctum || {};
 
 function MouseData() {
     this.scroll = 0;
-    this.leftButton = false;
-    this.middleButton = false;
-    this.rightButton = false;
+    this.left = false;
+    this.middle = false;
+    this.right = false;
     this.absolute = new Vector();
 };
 
+MouseData.prototype.copyFrom = function (data) {
+    this.scroll = data.scroll;
+    this.left = data.left;
+    this.middle = data.middle;
+    this.right = data.right;
+    this.absolute = data.absolute.clone();
+}
+
 sanctum.InputManager = function () {
     this.mouse = new MouseData();
+    this.previousMouse = new MouseData();
     this.keyboard = [];
     this.previousKeyboard = [];
     
@@ -33,13 +42,13 @@ sanctum.InputManager.prototype.init = function () {
     window.addEventListener("mousedown", function (args) {
         switch (args.button) {
             case 0:
-                this.mouse.leftButton = true;
+                this.mouse.left = true;
                 break;
             case 1:
-                this.mouse.middleButton = true;
+                this.mouse.middle = true;
                 break;
             case 2:
-                this.mouse.rightButton = true;
+                this.mouse.right = true;
                 break;
         };
         // If we are awaiting mouse detection, raise the event
@@ -51,13 +60,13 @@ sanctum.InputManager.prototype.init = function () {
     window.addEventListener("mouseup", function (args) {
         switch (args.button) {
             case 0:
-                this.mouse.leftButton = false;
+                this.mouse.left = false;
                 break;
             case 1:
-                this.mouse.middleButton = false;
+                this.mouse.middle = false;
                 break;
             case 2:
-                this.mouse.rightButton = false;
+                this.mouse.right = false;
                 break;
         };
     }.bind(this), false);
@@ -88,14 +97,15 @@ sanctum.InputManager.prototype.detectMouseDown = function (callback) {
 
 sanctum.InputManager.prototype.swap = function () {
     this.previousKeyboard = Array.apply(Array, this.keyboard);
+    this.previousMouse.copyFrom(this.mouse);
 }
 
 sanctum.InputManager.prototype.keyCodeToKeyName = function(keyCode) {
-    return InputManager.keyCodeToName[keyCode];
+    return sanctum.InputManager.keyCodeToName[keyCode];
 }
 
 sanctum.InputManager.prototype.keyNameToKeyCode = function(keyName) {
-    return InputManager.keyNameToCode[keyName];
+    return sanctum.InputManager.keyNameToCode[keyName];
 }
 
 sanctum.InputManager.generateKeyCodeToNameMapping = function (){
