@@ -27,9 +27,12 @@ sanctum.Game = function (context, playerCount) {
 var OBJECTS = {
     "monk": "character_monk",
     "fireball": "content/art/spells/fireball.png",
+    "platform": "Basic platform",
 }
 
 sanctum.Game.prototype.init = function () {
+    this.platform = this.contentManager.get(OBJECTS["platform"]);
+
     var monk = this.contentManager.get(OBJECTS["monk"]);
     this.objects.push(monk);
     var enemy = monk.clone();
@@ -87,9 +90,17 @@ sanctum.Game.prototype.loop = function (timestamp) {
     var delta = timestamp - this.previousTime;
     
     this.handleInput();
+    this.platform.update(delta);
     this.physicsManager.update(this.objects);
     this.effectManager.applyEffects(this.physicsManager, this.objects);
-    this.renderer.render(this.objects, delta);
+    var viewportCenter = this.renderer.getViewportCenter();
+    this.effectManager.applyPlatformEffect(this.physicsManager,
+                                           this.platform, 
+                                           this.objects,
+                                           this.playerCount,
+                                           viewportCenter
+                                           );
+    this.renderer.render(this.platform, this.objects, delta);
     
     this.previousTime = timestamp;
     requestAnimationFrame(sanctum.Game.mainGameLoop);

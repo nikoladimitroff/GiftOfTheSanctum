@@ -1,4 +1,10 @@
 [{
+    src: "art/environment/tower_floor.jpg",
+    framesPerRow: []
+}, {
+    src: "art/environment/lava.jpg",
+    framesPerRow: []
+}, {
     src: "art/characters/monk.png",
     framesPerRow: [
         7, 7, 7, 7,
