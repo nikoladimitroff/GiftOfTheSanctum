@@ -57,6 +57,11 @@ sanctum.ContentManager.prototype.loadPlatform = function (description) {
     this.contentCache[description.name] = platform;
 };
 
+
+sanctum.ContentManager.prototype.loadKeybindings = function (keybindings) {
+    this.contentCache["keybindings"] = keybindings;
+};
+
 sanctum.ContentManager.prototype.fetchJSONFile = function (path, callback) {
     var xhr = new XMLHttpRequest();
     path = this.root + path;
@@ -75,16 +80,17 @@ sanctum.ContentManager.prototype.fetchJSONFile = function (path, callback) {
     xhr.send(); 
 }
 
-sanctum.ContentManager.prototype.loadAssets = function (assetsPath, callback) {
+sanctum.ContentManager.prototype.loadGameData = function (gameDataPath, callback) {
     var self = this;
-    this.fetchJSONFile(assetsPath, function (assets) {    
-        self.fetchJSONFile(assets.sprites, function (sprites) {
+    this.fetchJSONFile(gameDataPath, function (gameData) {    
+        self.fetchJSONFile(gameData.sprites, function (sprites) {
             self.onload = function () {
-                assets.characters.map(self.loadCharacter.bind(self));                
-                self.fetchJSONFile(assets.spells, function (spellLibrary) {
+                this.loadKeybindings(gameData.keybindings);
+                gameData.characters.map(self.loadCharacter.bind(self));                
+                self.fetchJSONFile(gameData.spells, function (spellLibrary) {
                     spellLibrary.map(self.loadSpell.bind(self));
 
-                    self.fetchJSONFile(assets.platform, function (platform) {
+                    self.fetchJSONFile(gameData.platform, function (platform) {
                         self.loadPlatform(platform);
                         callback();
                     });
