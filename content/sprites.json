@@ -47,7 +47,7 @@
 }, {
     src: "art/spells/speedup.png",
     framesPerRow: [
-        6
+       4, 4, 4, 4, 4, 4
     ]
 }
 , {

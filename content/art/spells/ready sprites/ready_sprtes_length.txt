@@ -1,0 +1,9 @@
+NAME - length
+ready_sprite_1 - 40
+ready_sprite_2 - 32
+ready_sprite_3 - 96
+ready_sprite_4 - 51
+ready_sprite_5 - 24
+ready_sprite_6 - 50
+ready_sprite_7 - 39
+ready_sprite_8 - 39
