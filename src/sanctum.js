@@ -117,15 +117,24 @@ sanctum.Game.prototype.run = function () {
     sanctum.Game.mainGameLoop(0);
 }
 
-var canvas = document.getElementById("game-canvas");
-var game = new sanctum.Game(canvas.getContext("2d"), 1);
-game.loadContent();
-game.bindSpells("Fireball", "Freeze", "Frostbolt", 
-                "Heal", "Speed up!", "Healing well");
+var canvas, game;
+
+function startAll() {
+    canvas = document.getElementById("game-canvas");
+    game = new sanctum.Game(canvas.getContext("2d"), 1);
+    game.loadContent();
+    game.bindSpells("Fireball", "Freeze", "Frostbolt", 
+                    "Heal", "Speed up!", "Healing well");
+
+}
 
 function testCast() {
     m = game.objects[0];
     e = game.effectManager;
     p = game.physicsManager;
     game.objects.push(e.castSpell(m, "fireball", new Vector(0, 0)));
+}
+
+if(typeof module != "undefined" && module.exports) {
+    module.exports = sanctum.Game;
 }
