@@ -14,8 +14,8 @@
 },
 
 {
-    name: "flameStrike",
-    sprite: "content/art/spells/flameStrike.png",
+    name: "Flamestrike",
+    sprite: "content/art/spells/flamestrike.png",
     effects:[
         "damage"
     ],

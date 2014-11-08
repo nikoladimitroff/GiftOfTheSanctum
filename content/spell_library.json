@@ -18,7 +18,7 @@
     range: 50, // maximum distance the projectile may fly (or the instant cast to hit)
 },
 {
-    name: "freeze",
+    name: "Freeze",
     sprite: "content/art/spells/freeze.png", // only required for projectiles
     castType: "projectile", // see below
     targeted: false, // if true the spell is required to target a player
@@ -28,7 +28,7 @@
     ],
     effectRadius: 0, // the radius in which to hit nearby enemies / obstacles
     damageAmount: 10,
-    pushbackForce: 100,
+    pushbackForce: 10,
     radius: 5, // size of the projectile
     cooldown: 10, // cooldown of the spell
     movementFunction: "linear", // determines the projectile's path - "quadratic", "homing", "sin"
@@ -48,6 +48,7 @@
     ],
     effectRadius: 0,
     damageAmount: 5,
+	pushbackForce: 10,
     haste: -5,
     radius: 5,
     cooldown: 10,
@@ -93,6 +94,7 @@
 
 {
     name: "Speed up!",
+	sprite: "content/art/spells/speedup.png",
     castType: "instant", 
     targeted: true, 
     effects: [
@@ -118,6 +120,7 @@
 
 {
     name: "Flamestrike",
+	sprite: "content/art/spells/flamestrike.png",
     castType: "instant", 
     targeted: false, 
     effects: [
