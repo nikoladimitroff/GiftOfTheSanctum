@@ -7,8 +7,9 @@ networking.token = function() {
     return Math.random().toString(36).substr(2);
 }
 
-networking.Player = function(name) {
-    this.id = name + networking.token();
+networking.Player = function(id, name) {
+    // this.id = name + networking.token();
+    this.id = id;
     this.name = name;
     this.roomId = null;
 }
@@ -26,16 +27,19 @@ networking.Room = function(masterSocket) {
 networking.Room.prototype.handleRoom = function() {
     if(!this.handled) {
         this.masterSocket.on("connection", function(socket) {
+            // console.log(socket.id);
+            // console.log(this.parentSocket.sockets);
+
             this.networkManager.connect(this.masterSocket, socket);
             socket.on("welcome", this.welcome.bind(this, socket));
             socket.on("leave", this.leave.bind(this, socket));
             socket.on("play", function() {}.bind(this, socket));
             socket.on("disconnect", this.leave.bind(this, socket));
+
         }.bind(this));
 
         this.handled = true;
     }
-
 
 }
 
@@ -45,34 +49,33 @@ networking.Room.prototype.findPlayer = function(id) {
 
 networking.Room.prototype.welcome = function(socket, data) {
     if(data && data.playerId) {
-        var player = this.findPlayer(data.playerId);
+        // var player = this.findPlayer(data.playerId);
+        var player = new networking.Player(data.playerId, data.playerName);
+        player.roomId = this.id;
+        this.players.push(player);
 
         if(player) {
             socket.emit("welcome", { message: "Welcome, " + 
                 player.name, players: this.players });
 
-            this.masterSocket.sockets.emit("roomUpdated",
+            this.masterSocket.emit("roomUpdated",
                 { players: this.players } );
         }
     }
 }
 
 networking.Room.prototype.leave = function(socket, data) {
-    if(data && data.playerId) {
-        if(this.masterSocket.sockets.indexOf(socket) == 0) {
-            this.players = null;
-            this.masterSocket.sockets.emit("leave", { roomClosed: true });
-        } else if(this.masterSocket.sockets.indexOf(socket) > 0) {
-            var player = this.findPlayer(data.playerId);
+    var player = this.findPlayer(socket.id);
+
+    if(socket && socket.id) {
+        if(player) {
+            this.removePlayer(player);
             
-            if(player) {
-                this.removePlayer(player);
-                this.players = this.players.length == 0 ? null : this.players;
-                this.masterSocket.sockets.emit("leave",
-                    { roomClosed: this.players.length == 0, });
-                this.masterSocket.sockets.emit("roomUpdated",
-                    { players: this.players } )
-            }
+            this.masterSocket.emit("leave",
+                { roomClosed: this.players.length == 0, });
+
+            this.masterSocket.emit("roomUpdated",
+                { players: this.players } );
         }
     }
 }

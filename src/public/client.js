@@ -1,9 +1,12 @@
 var Client = function() {
     this.socket = null;
+    this.playerId = null;
+    this.playerName = null;
+    this.roomId = null;
 }
 
 Client.prototype.start = function() {
-	this.socket = io.connect("", { port: 8080, transports: ["websocket"] });
+	this.socket = io.connect("", { port: networkManager.port, transports: ["websocket"] });
 
     networkManager.connect(null, this.socket);
 

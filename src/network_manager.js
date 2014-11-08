@@ -7,7 +7,10 @@ sanctum.EventTypes = {
 };
 
 sanctum.Network = function () {
-    this.port = process.env.PORT || 8080;
+    this.updateTime = 20; /* millis */
+
+    this.lastUpdate = 0;
+    this.port = (process && process.env && process.env.PORT) || 8080;
     this.ip = "0.0.0.0";
 
     this.masterSocket = null;
@@ -17,7 +20,9 @@ sanctum.Network = function () {
     this.buffer = [];
 };
 
-sanctum.Network.port = process.env.PORT || 8080;
+var process = process || null;
+
+sanctum.Network.port = (process && process.env && process.env.PORT) || 8080;
 
 sanctum.Network.prototype.connect = function(masterSocket, socket) {
     if(!masterSocket) {
@@ -62,7 +67,7 @@ sanctum.Network.prototype.flush = function() {
         if(!this.masterSocket) {
             this.socket.emit("update", this.buffer);        
         } else {
-            this.masterSocket.emit("update", this.buffer);
+            this.masterSocket.sockets.emit("update", this.buffer);
         }
     }
 
