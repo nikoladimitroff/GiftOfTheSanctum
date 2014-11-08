@@ -1,5 +1,7 @@
 {
     platform: "example_platform.json",
+    sprites: "sprites.json",
+    spells: "spell_library.json",
     characters: [
         {
             sprite: "art/characters/monk.png",
@@ -13,6 +15,12 @@
             health: 100,
         },
     ],
-    sprites: "sprites.json",
-    spells: "spell_library.json",
+    keybindings: {
+        Q: "spellcast1", // WARNING, keyBindings are written in PascalCase
+        W: "spellcast2",
+        E: "spellcast3",
+        R: "spellcast4",
+        T: "spellcast5",
+        Y: "spellcast6",
+    }
 }

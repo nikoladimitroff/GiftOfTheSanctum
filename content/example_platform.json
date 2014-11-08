@@ -19,7 +19,4 @@
         speed: 10, // The default speed to move our characters with
     },
     staticObjects: "my-static-objects.json", // The file containing all static objects.
-    keyBindings: {
-        q: "spellcast1",
-    }
 }
