@@ -7,7 +7,7 @@ function copyProperties(object, description) {
         "name", "health", 
         "mass",
         "rotation",
-        "castType","range", "duration",
+        "castType", "range", "duration",
         "effects", "effectRadius", "damageAmount", "pushbackForce",
     ];
     
@@ -51,7 +51,8 @@ sanctum.Spell = function (sprite, description) {
     // stamps and stuff
     this.initialPosition = this.position.clone();
     this.timestamp = Date.now();
-
+    
+    this.cooldown = description.cooldown;
     
     this.id = ID_COUNTER++;
     

@@ -6,7 +6,7 @@ var CastType = {
 };
 
 sanctum.EffectManager = function () {
-    
+    this.spellCooldowns = [];
 };
 
 sanctum.EffectManager.prototype.init = function (spellLibrary, objects, platform) {
@@ -64,7 +64,14 @@ sanctum.EffectManager.prototype.pulseSpell = function (spell, physics, hitTarget
         this.removeSpell(spell.id);
 }
 
-sanctum.EffectManager.prototype.castSpell = function (character, spellName, target, physics) {
+sanctum.EffectManager.prototype.castSpell = function (characterId, spellName, target, physics) {
+   // var lastTimeDifference = 
+    if (this.spellCooldowns[characterId] && 
+        Date.now() - this.spellCooldowns[characterId][spellName] <= this.spellLibrary[spellName].cooldown) {
+        return null;
+    }
+
+    var character = this.objects[characterId];
     var spellInstance = this.spellLibrary[spellName].clone();
     if (spellInstance.castType == CastType.projectile) {
         spellInstance.velocity = character.velocity.clone();
@@ -84,6 +91,9 @@ sanctum.EffectManager.prototype.castSpell = function (character, spellName, targ
     }
     this.objects.push(spellInstance);
     this.activeSpells[spellInstance.id] = spellInstance;
+    
+    this.spellCooldowns[characterId] = this.spellCooldowns[characterId] || {};
+    this.spellCooldowns[characterId][spellName] = Date.now();
     return spellInstance;
 }
 

@@ -73,12 +73,13 @@ sanctum.Game.prototype.handleInput = function () {
                 break;
             default:
                 var spellName = this.spellBindings[this.nextAction];
-                var spell = this.effectManager.castSpell(this.objects[this.playerObjectIndex],
+                var spell = this.effectManager.castSpell(this.playerObjectIndex,
                                                          spellName,
                                                          this.input.mouse.absolute);
-                //this.objects.push(spell);
-                var forward = spell.position.subtract(player.position).normalized();
-                player.playAnimation(this.nextAction, forward);
+                if (spell !== null) {
+                    var forward = spell.position.subtract(player.position).normalized();
+                    player.playAnimation(this.nextAction, forward);
+                }
         }
         this.nextAction = Actions.walk;
     }
