@@ -42,10 +42,10 @@ Main.prototype.handleDisconnect = function(socket) {
     if(this.players[socket.id]) {
         var roomId = this.players[socket.id].roomId;
         var room = this.rooms[roomId];
-        if(!room) {
+        if(!room.game) {
             return;
         }
-        
+
         room.game.disconnectCount = (room.game.disconnectCount + 1) || 1;
         if(room.game.disconnectCount >= room.game.playerCount) {
             console.log("deleting room");

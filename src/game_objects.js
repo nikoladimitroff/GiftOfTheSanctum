@@ -35,6 +35,7 @@ sanctum.Character = function (sprite, description) {
     this.acceleration = new Vector(0, 0);
     this.sprite = sprite;
     this.rotation = 0;
+    this.startingHealth = description.health;
     this.health = description.health;
 	this.speed = description.speed || 100;
     this.score = 0;

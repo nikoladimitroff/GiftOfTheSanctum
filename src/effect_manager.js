@@ -20,6 +20,11 @@ sanctum.EffectManager.prototype.init = function (spellLibrary, obstacleLibrary, 
     this.playerCount = playerCount;
 }
 
+sanctum.EffectManager.prototype.resetRound = function() {
+    this.activeSpells = {};
+    this.spellCooldowns = [];
+}
+
 sanctum.EffectManager.prototype.removeSpell = function (spellId) {
     if (this.activeSpells[spellId] <= this.playerCount || this.objects.length <= this.playerCount)
         return false;

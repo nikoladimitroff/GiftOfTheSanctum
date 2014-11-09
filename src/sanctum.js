@@ -134,6 +134,23 @@ sanctum.Game.prototype.loadContent = function () {
     this.contentManager.loadGameData("game_data.json", this.init.bind(this), this.networkManager.isServer());
 }
 
+sanctum.Game.prototype.resetRound = function() {
+    console.log("reset");
+    var newObjects = [];
+    var playerPositions = this.platform.generateVertices(this.playerCount, 50);
+
+    for(var i = 0; i < this.playerCount; i++) {
+        var player = this.objects[i];
+        player.position = playerPositions[i];
+        player.health = player.startingHealth;
+        player.dead = false;
+
+        newObjects.push(player);
+    }
+    this.effectManager.resetRound();
+    this.objects = newObjects;
+}
+
 sanctum.Game.prototype.handleInput = function () {
     for (var key in this.keybindings) {
         if (this.input.keyboard[this.input.keyNameToKeyCode(key)]) {
@@ -236,12 +253,31 @@ sanctum.Game.prototype.loop = function (timestamp) {
     var delta = (timestamp - this.previousTime) || 1000 / 60;
 
     if (!this.networkManager.isServer()) {
+
+
         this.processPendingDeaths();
 
         var me = this.objects[this.playerObjectIndex];
         if (me.health <= 0 && !me.dead) {
             this.networkManager.sendDie(this.playerObjectIndex, this.objects);
             me.dead = true;
+            this.deathsCount++;
+        }
+
+        if(this.deathsCount >= this.playerCount - 1) {
+            if(!this.objects[this.playerObjectIndex].dead) {
+                this.objects[this.playerObjectIndex].score += 7;
+            }
+
+            this.resetRound();
+            $.get("src/public/background.html", function(html) {
+                $("body").append(html);
+                
+                // var scores = this.networkManager.getScores();
+                // console.log(scores);
+                scoreBoardShows(this.objects, this.playerCount);
+            }.bind(this));
+            return;
         }
 
         this.platform.update(delta);
@@ -268,7 +304,7 @@ sanctum.Game.prototype.loop = function (timestamp) {
             this.networkManager.addObject(this.objects[this.playerObjectIndex], this.playerObjectIndex);
             this.networkManager.flush();
         }
-        this.networkManager.lastUpdate = 0;        
+        this.networkManager.lastUpdate = 0;
     }
 
     this.processNetworkData();
