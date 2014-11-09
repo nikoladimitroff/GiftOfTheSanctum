@@ -148,7 +148,7 @@ var physics = (function (physics) {
             var state = states[i];
             if (!state) continue;
             if (!state.frictionless) {
-                Vector.multiply(state.acceleration, friction, state.acceleration);
+                Vector.multiply(state.acceleration, friction * dt, state.acceleration);
                 Vector.add(state.velocity,
                            state.velocity.negated().multiply(0.01), // magic
                            state.velocity)
