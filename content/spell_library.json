@@ -1,5 +1,5 @@
 [{
-    name: "fireball",
+    name: "Fireball",
     width: 64,
     height: 64,
     sprite: "content/art/spells/fireball.png", // only required for projectiles
