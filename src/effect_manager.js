@@ -54,6 +54,7 @@ sanctum.EffectManager.prototype.pulseSpell = function (spell, physics, hitTarget
             switch (effect) {
                 case 'damage':
                     target.health -= spell.damageAmount;
+                    break;
                 case 'pushback':
                     var hitDirection = target.position.subtract(spell.position);
                     Vector.normalize(hitDirection);
