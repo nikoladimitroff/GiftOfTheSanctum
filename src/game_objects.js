@@ -37,6 +37,7 @@ sanctum.Character = function (sprite, description) {
     this.rotation = 0;
     this.health = description.health;
     this.score = 0;
+    this.dead = false;
     
     this.animations = description.animations;
     this.size = new Vector(description.width, description.height);

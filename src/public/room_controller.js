@@ -61,20 +61,27 @@ RoomController.prototype.handleChat = function(data) {
 }
 
 RoomController.prototype.roomUpdated = function(data) {
-    var displayPlayers = "";
     this.players = data.players;
 
+    var playersDisplayInfo = "<div class='players-column'>";
+
     for(var i = 0; i < this.players.length; i++) {
-        displayPlayers += "<div class='player-row'>" +
+        playersDisplayInfo += "<div class='player-row'>" +
             "<img class='player-row-image' src='content/art/characters/lobby/"+ 
             this.avatar_images[i] + "'/>" + 
             "<div class='player-row-name'>" +
                 this.players[i].name
             + "</div></div>";
 
+        if(i == 3) {
+            playersDisplayInfo += "</div><div class='players-column'>";
+        }
+
     }
 
-    $(".players").html(displayPlayers);
+    playersDisplayInfo += "</div>";
+
+    $(".players").html(playersDisplayInfo);
 }
 
 RoomController.prototype.findSelfIndex = function() {

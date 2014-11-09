@@ -183,36 +183,44 @@ sanctum.Game.prototype.processNetworkData = function() {
         switch (event.t) {
             case sanctum.EventTypes.ObjectInfo:
                 var player = this.objects[event.data.id];
-               // var newPos = player.velocity.multiply(this.networkManager.updateTime)
-               //                     .add(new Vector(event.data.position.x, event.data.position.y));
-               // player.position.set(newPos);
-               var canSkip = event.data.id == this.playerObjectIndex;
-               if(canSkip) {
+                var canSkip = event.data.id == this.playerObjectIndex;
+                if(canSkip) {
                     continue;
-               }
-               var evpos = new Vector().set(event.data.position);
-               var evvel = new Vector().set(event.data.velocity);
-               // var limit = 3;
-               // var posDist = player.position.subtract(evpos).length();
-               //  if (!canSkip || posDist >= limit) {
-               //      player.position = Vector.lerp(player.position, evpos, 0.5)
-               //  }
-               //  var velDist = player.velocity.subtract(evvel).length();
-               //  if (!canSkip || velDist >= limit) {
-               //      player.velocity = Vector.lerp(player.velocity, evvel, 0.5)
-               //  }
+                }
+                var evpos = new Vector().set(event.data.position);
+                var evvel = new Vector().set(event.data.velocity);
+
                 player.position.set(evpos);
                 player.velocity.set(evvel);
                 break;
 
             case sanctum.EventTypes.Spellcast:
+                var canSkip = event.data.caster == this.playerObjectIndex;
+                if(canSkip) {
+                    continue;
+                }
+
                 var spell = this.effectManager.castSpell(event.data.caster,
                                                          event.data.spellName,
                                                          new Vector().set(event.data.target));
                 break;
         }
      }
-}   
+}
+
+sanctum.Game.prototype.processPendingDeaths = function() {
+    var deaths = this.networkManager.getPendingDeaths();
+    if(!deaths || deaths.length < 1) {
+        return;
+    }
+
+    for(var i = 0; i < deaths.length; i++) {
+        var player = this.objects[deaths[i]];
+        console.log("player died");
+        player.dead = true;
+    }
+    this.networkManager.pendingDeaths = [];
+}
 
 sanctum.Game.prototype.bindSpells = function (cast1, cast2, cast3, cast4, cast5, cast6) {
     for (var i = 0; i < arguments.length; i++) { // magic, fix the number of casts
@@ -224,7 +232,15 @@ sanctum.Game.mainGameLoop = function () {};
 sanctum.Game.prototype.loop = function (timestamp) {
     var delta = (timestamp - this.previousTime) || 1000 / 60;
 
-    if(!this.networkManager.isServer()) {
+    if (!this.networkManager.isServer()) {
+        this.processPendingDeaths();
+
+        var me = this.objects[this.playerObjectIndex];
+        if (me.health <= 0 && !me.dead) {
+            this.networkManager.sendDie(this.playerObjectIndex, this.objects);
+            me.dead = true;
+        }
+
         this.platform.update(delta);
         this.physicsManager.update(this.objects);
         this.effectManager.applyEffects(this.physicsManager);
@@ -233,12 +249,14 @@ sanctum.Game.prototype.loop = function (timestamp) {
                                                this.playerCount
                                                );
         this.effectManager.cleanupEffects(this.playerCount);
-    }
 
-    if(!this.networkManager.isServer()) {
-        this.handleInput();       
-        this.renderer.camera.follow(this.objects[this.playerObjectIndex].position);
-        this.renderer.render(this.platform, this.objects, delta);        
+        if(!me.dead) {
+            this.handleInput();
+        }
+        var following = !me.dead ? this.playerObjectIndex : this.getMaxScorePlayerIndex();
+
+        this.renderer.camera.follow(this.objects[following].position);
+        this.renderer.render(this.platform, this.objects, delta);
     }
 
     this.networkManager.lastUpdate += delta;
@@ -259,6 +277,19 @@ sanctum.Game.prototype.loop = function (timestamp) {
     else {
         requestAnimationFrame(this.mainGameLoop);
     }
+}
+
+sanctum.Game.prototype.getMaxScorePlayerIndex = function() {
+    var maxScoreIndex = 0;
+    var max = this.objects[0].score;
+    for(var i = 0; i < this.playerCount; i++) {
+        if(max < this.objects[i].score) {
+            max = this.objects[i].score;
+            maxScoreIndex = i;
+        }
+    }
+
+    return maxScoreIndex;
 }
 
 sanctum.Game.prototype.run = function () {

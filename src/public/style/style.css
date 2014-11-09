@@ -58,6 +58,10 @@
 	top:1px;
 }
 
+.microsoft-image {
+	max-width: 100px;
+}
+
 @font-face {
     font-family:Charming;
 	src: url(Achafsex.ttf);
