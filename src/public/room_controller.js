@@ -24,7 +24,6 @@ RoomController.prototype.init = function() {
             if($('#chat_text').val() != '') {
                 $('#chat_text').val('');
                 $('#chat_text').focus();
-                console.log(client);
                 client.socket.emit("chat", { message: message });
             }
         }.bind(this))
@@ -55,7 +54,7 @@ RoomController.prototype.handlePlay = function() {
 
 RoomController.prototype.handleChat = function(data) {
     if(data && data.message) {
-        $("#chat").append(data.message + "\n");
+        $("#chat").val($("#chat").val() + data.message + "\n");
         $("#chat").scrollTol($("#chat")[0].scrollHeight);
     }
 }
