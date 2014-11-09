@@ -125,7 +125,7 @@ sanctum.Game.prototype.init = function () {
     var spellLibrary = this.contentManager.getSpellLibrary();
     var obstacleLibrary = this.contentManager.getLibrary(sanctum.Obstacle);
     
-    this.effectManager.init(spellLibrary, obstacleLibrary, this.objects, this.platform);
+    this.effectManager.init(spellLibrary, obstacleLibrary, this.objects, this.platform, this.playerCount);
     this.run(0);
 }
 
@@ -140,28 +140,27 @@ sanctum.Game.prototype.handleInput = function () {
         }
     }
 
-    if (this.input.mouse.left && !this.input.previousMouse.left) {
-        var player = this.objects[this.playerObjectIndex];
-        switch (this.nextAction) {
-            case Actions.walk:
-                player.velocity = this.input.mouse.absolute.subtract(player.position);
-                Vector.normalize(player.velocity);
-                Vector.multiply(player.velocity, 100, player.velocity); // magic;
-                player.playAnimation(Actions.walk, player.velocity.normalized());
-                break;
-            default:
-                var spellName = this.spellBindings[this.nextAction];
-                var spell = this.effectManager.castSpell(this.playerObjectIndex,
-                                                         spellName,
-                                                         this.input.mouse.absolute);
-                if (spell !== null) {
-                    var forward = spell.position.subtract(player.position).normalized();
-                    player.playAnimation(this.nextAction, forward);
-                }
-                //this.objects.push(spell);
-                this.networkManager.addSpellcast(spellName, this.input.mouse.absolute, this.playerObjectIndex);
-                var forward = spell.position.subtract(player.position).normalized();
-                player.playAnimation(this.nextAction, forward);
+    var player = this.objects[this.playerObjectIndex];
+    if (this.input.mouse.right && 
+        !this.input.previousMouse.right) {
+        player.velocity = this.input.mouse.absolute.subtract(player.position);
+        Vector.normalize(player.velocity);
+        Vector.multiply(player.velocity, 100, player.velocity); // magic;
+        player.playAnimation(Actions.walk, player.velocity.normalized());
+    }
+    else if (this.input.mouse.left && 
+             !this.input.previousMouse.left &&
+             this.nextAction != Actions.walk) {
+        var spellName = this.spellBindings[this.nextAction];
+        var spell = this.effectManager.castSpell(this.playerObjectIndex,
+                                                 spellName,
+                                                 this.input.mouse.absolute);
+        if (spell !== null) {
+            var forward = spell.position.subtract(player.position).normalized();
+            player.playAnimation(this.nextAction, forward);
+            this.networkManager.addSpellcast(spellName, this.input.mouse.absolute, this.playerObjectIndex);
+            var forward = spell.position.subtract(player.position).normalized();
+            player.playAnimation(this.nextAction, forward);
         }
         this.nextAction = Actions.walk;
     }

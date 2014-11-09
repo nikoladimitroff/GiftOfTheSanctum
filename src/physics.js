@@ -146,8 +146,13 @@ var physics = (function (physics) {
     EulerIntegrator.prototype.integrate = function (states, dt, friction) {
         for (var i = 0; i < states.length; i++) {
             var state = states[i];
-            if (!state.frictionless)
+            if (!state) continue;
+            if (!state.frictionless) {
                 Vector.multiply(state.acceleration, friction, state.acceleration);
+                Vector.add(state.velocity,
+                           state.velocity.negated().multiply(0.01), // magic
+                           state.velocity)
+            }
             Vector.add(state.velocity, state.acceleration.multiply(dt), state.velocity);
             Vector.add(state.position, state.velocity.multiply(dt), state.position);
         }
