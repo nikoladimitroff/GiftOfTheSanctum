@@ -20,7 +20,7 @@
             size: 0,
             mass: 1,
             health: 600,
-			speed: 150
+			speed: 330
         }, {
             sprite: "art/characters/sprite/knight.png",
                         width: 64,
@@ -36,7 +36,7 @@
             },
             mass: 1,
             health: 600,
-			speed: 150
+			speed: 330
         }, {
             sprite: "art/characters/sprite/mage.png",
             width: 64,
@@ -52,6 +52,7 @@
             },
             mass: 1,
             health: 600,
+			speed: 330
         }, {
             sprite: "art/characters/sprite/monk.png",
             width: 64,
@@ -84,6 +85,7 @@
             size: 0,
             mass: 1,
             health: 600,
+            speed: 330
         }, {
             sprite: "art/characters/sprite/orc.png",
             width: 64,
@@ -99,6 +101,7 @@
             },
             mass: 1,
             health: 600,
+			speed: 330
         }, {
             sprite: "art/characters/sprite/queen.png",
             width: 64,
@@ -114,6 +117,7 @@
             },
             mass: 1,
             health: 600,
+			speed: 330
         }, {
             sprite: "art/characters/sprite/rogue.png",
             width: 64,
@@ -129,6 +133,7 @@
             },
             mass: 1,
             health: 600,
+			speed: 330
         },
     ],
     keybindings: {
