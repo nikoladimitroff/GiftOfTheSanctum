@@ -9,13 +9,21 @@ sanctum.EffectManager = function () {
     
 };
 
-sanctum.EffectManager.prototype.init = function (spellLibrary) {
+sanctum.EffectManager.prototype.init = function (spellLibrary, objects, platform) {
     this.spellLibrary = spellLibrary;
+    this.objects = objects;
+    this.platform = platform;
     this.activeSpells = {};
 }
 
-sanctum.EffectManager.prototype.applyEffects = function (physics, objects) {
-    var collisions = physics.getCollisionPairs(objects);
+sanctum.EffectManager.prototype.removeSpell = function (spellId) {
+    this.objects[this.activeSpells[spellId]] = this.objects[this.objects.length - 1];
+    this.objects.pop();
+    delete this.activeSpells[spellId];
+}
+
+sanctum.EffectManager.prototype.applyEffects = function (physics) {
+    var collisions = physics.getCollisionPairs(this.objects);
     for (var i = 0; i < collisions.length; i++) {
         var first = collisions[i].first,
             second = collisions[i].second;
@@ -24,13 +32,13 @@ sanctum.EffectManager.prototype.applyEffects = function (physics, objects) {
         }
         
         if (second instanceof sanctum.Spell) {
-            this.explodeSpell(second, physics, objects, first);
+            this.pulseSpell(second, physics, first);
         }
     };
 };
 
-sanctum.EffectManager.prototype.explodeSpell = function (spell, physics, objects, hitTarget) {
-    var targets = physics.getObjectsWithinRadius(objects,
+sanctum.EffectManager.prototype.pulseSpell = function (spell, physics, hitTarget) {
+    var targets = physics.getObjectsWithinRadius(this.objects,
                                                  spell.position,
                                                  spell.effectRadius);
     if (targets.length == 0)
@@ -52,12 +60,12 @@ sanctum.EffectManager.prototype.explodeSpell = function (spell, physics, objects
             };
         }
     }
-    delete this.activeSpells[spell.id];
+    if (spell.castType == CastType.projectile)
+        this.removeSpell(spell.id);
 }
 
 sanctum.EffectManager.prototype.castSpell = function (character, spellName, target, physics) {
     var spellInstance = this.spellLibrary[spellName].clone();
-    this.activeSpells[spellInstance.id] = spellInstance;
     if (spellInstance.castType == CastType.projectile) {
         spellInstance.velocity = character.velocity.clone();
         
@@ -72,17 +80,43 @@ sanctum.EffectManager.prototype.castSpell = function (character, spellName, targ
         spellInstance.rotation = - Math.PI / 2 +  Vector.right.angleTo360(forward);
     }
     if (spellInstance.castType == CastType.instant) {
-        this.activeSpells[spellInstance.id] = spellInstance;
         spellInstance.position = target.subtract(spellInstance.size);
     }
+    this.objects.push(spellInstance);
+    this.activeSpells[spellInstance.id] = spellInstance;
     return spellInstance;
 }
 
-sanctum.EffectManager.prototype.applyPlatformEffect = function (physics, platform, objects, playerCount, center) {
+sanctum.EffectManager.prototype.applyPlatformEffect = function (physics, playerCount) {
+    var center = this.platform.size.divide(2);
     for (var i = 0; i < playerCount; i++) {
-        var player = objects[i];
-        if (!physics.circleIntersects(center, platform.radius, player.position, player.collisionRadius)) {
-            player.health -= platform.outsideDamage;
+        var player = this.objects[i];
+        if (!physics.circleIntersects(center, this.platform.radius, player.position, player.collisionRadius)) {
+            player.health -= this.platform.outsideDamage;
+        }
+    }
+}
+
+sanctum.EffectManager.prototype.cleanupEffects = function (playerCount) {
+    var now = Date.now();
+    for (var i = playerCount; i < this.objects.length; i++) {
+        var object = this.objects[i];
+        if (object instanceof sanctum.Spell) {
+            var spell = object;
+            var removeInstantSpell = spell.castType == CastType.instant &&
+                                     now - spell.timestamp >= object.duration;
+            var pos = spell.position;
+            var distanceTravelled = pos.subtract(spell.initialPosition).length();
+            var outsideRange = spell.range > 0 && distanceTravelled >= spell.range;
+            var outsideMap = pos.x < 0 || pos.x > this.platform.size.x ||
+                             pos.y < 0 || pos.y > this.platform.size.y;
+            var removeProjectileSpell = spell.castType == CastType.projectile &&
+                                        (outsideMap || outsideRange);
+
+            if (removeInstantSpell || removeProjectileSpell) {
+                this.removeSpell(spell.id);
+                i--;
+            }
         }
     }
 }

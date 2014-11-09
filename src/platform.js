@@ -5,9 +5,11 @@ sanctum.Platform = function (texture, outsideTexture, description) {
 
     var sides = description.sides;
     var radius = description.radius;
-    
+
+    this.size = new Vector(description.width, description.height);
+
     this.generateVertices(sides, radius);
-    
+
     this.radius = radius;
     this.texture = texture;
     this.outsideTexture = outsideTexture;

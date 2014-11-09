@@ -4,10 +4,10 @@ var ID_COUNTER = 0;
 
 function copyProperties(object, description) {
     var copyableProperties = [
-        "name", "health",
+        "name", "health", 
         "mass",
         "rotation",
-        "castType",
+        "castType","range", "duration",
         "effects", "effectRadius", "damageAmount", "pushbackForce",
     ];
     
@@ -36,16 +36,22 @@ sanctum.Character = function (sprite, description) {
 };
 
 sanctum.Spell = function (sprite, description) {
+    // physics
     this.position = new Vector(300, 300);
     this.velocity = new Vector(0, 0);
     this.acceleration = new Vector(0, 0);
+    this.frictionless = true;
+    this.size = new Vector(description.width, description.height);
+    this.collisionRadius = Math.max(this.size.x, this.size.y) / 2;
+    
+    // rendering
     this.sprite = sprite;
     this.rotation = 0;
-    this.frictionless = true;
-    this.sprite.activeAnimation = 0;
-    this.size = new Vector(description.width, description.height);
+    
+    // stamps and stuff
+    this.initialPosition = this.position.clone();
+    this.timestamp = Date.now();
 
-    this.collisionRadius = Math.max(this.size.x, this.size.y) / 2;
     
     this.id = ID_COUNTER++;
     
@@ -62,6 +68,11 @@ sanctum.Character.prototype.clone = sanctum.Spell.prototype.clone = function () 
 
     clone.collisionRadius = this.collisionRadius;
     clone.id = ID_COUNTER++;
+    
+    if (this.constructor == sanctum.Spell) {
+        clone.timestamp = Date.now();
+        clone.initialPosition = clone.position;
+    }
     
     copyProperties(clone, this);    
     return clone;

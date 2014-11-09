@@ -46,7 +46,7 @@ sanctum.Game.prototype.init = function () {
     monk.sprite.activeAnimation = monk.animations.walk;
     
     this.keybindings = this.contentManager.get("keybindings");
-    this.effectManager.init(spellLibrary);
+    this.effectManager.init(spellLibrary, this.objects, this.platform);
     this.input.init();
     this.run(0);
 }
@@ -76,7 +76,7 @@ sanctum.Game.prototype.handleInput = function () {
                 var spell = this.effectManager.castSpell(this.objects[this.playerObjectIndex],
                                                          spellName,
                                                          this.input.mouse.absolute);
-                this.objects.push(spell);
+                //this.objects.push(spell);
                 var forward = spell.position.subtract(player.position).normalized();
                 player.playAnimation(this.nextAction, forward);
         }
@@ -98,14 +98,12 @@ sanctum.Game.prototype.loop = function (timestamp) {
     this.handleInput();
     this.platform.update(delta);
     this.physicsManager.update(this.objects);
-    this.effectManager.applyEffects(this.physicsManager, this.objects);
-    var viewportCenter = this.renderer.getViewportCenter();
+    this.effectManager.applyEffects(this.physicsManager);
     this.effectManager.applyPlatformEffect(this.physicsManager,
-                                           this.platform, 
-                                           this.objects,
-                                           this.playerCount,
-                                           viewportCenter
+                                           this.platform,
+                                           this.playerCount
                                            );
+    this.effectManager.cleanupEffects(this.playerCount);
     this.renderer.render(this.platform, this.objects, delta);
     
     this.previousTime = timestamp;
