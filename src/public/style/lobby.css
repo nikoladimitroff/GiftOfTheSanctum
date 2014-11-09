@@ -20,7 +20,7 @@ body {
     border-radius:5px;
     border:1px solid #1a376b;
     width: 400px;
-    height: 400px;
+    height: 450px;
     vertical-align: top;
     display:inline-block;
 }
@@ -69,7 +69,7 @@ body {
     border-radius:5px;
     border:1px solid #1a376b;
     width: 400px;
-    height: 400px;
+    height: 450px;
     vertical-align: top;
     display:inline-block;
 }
@@ -108,10 +108,22 @@ body {
 }
 
 .buttons {
+    vertical-align: top;
     display:inline-block;
     margin-left: 20px;
+    margin-right: 20px;
 }
 
+.guide {
+    margin:auto;
+}
+
+.guide-img {
+    margin-left: 20px;
+    margin-top: 50px;
+    width:200px;
+    height:350px;
+}
 .room-button {
 
 }
