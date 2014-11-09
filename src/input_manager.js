@@ -1,4 +1,14 @@
-var sanctum = sanctum || {};
+var sanctum = require("./all_sanctum") || sanctum;
+sanctum = sanctum || {};
+
+var allPhysics = require("./physics");
+var physics = physics || {};
+var Vector = Vector || {};
+
+if(allPhysics) {
+    physics = allPhysics.physics || physics;
+    Vector = allPhysics.Vector || Vector;
+}
 
 function MouseData() {
     this.scroll = 0;
@@ -26,7 +36,7 @@ sanctum.InputManager = function () {
     this.completeMouseDown = function () {};
 }
 
-sanctum.InputManager.prototype.init = function () {
+sanctum.InputManager.prototype.init = function (camera) {
     window.addEventListener("keydown", function (args) {
         this.keyboard[args.keyCode] = true;
         // If we are awaiting key detection, raise the event
@@ -72,8 +82,8 @@ sanctum.InputManager.prototype.init = function () {
     }.bind(this), false);
 
     window.addEventListener("mousemove", function(args) {
-        this.mouse.absolute.x = args.x;
-        this.mouse.absolute.y = args.y;
+        this.mouse.absolute.x = camera.position.x + args.x;
+        this.mouse.absolute.y = camera.position.y + args.y;
     }.bind(this), false);
 
     var onscroll = function (args) {
@@ -194,3 +204,8 @@ sanctum.InputManager.keyCodeToName = sanctum.InputManager.generateKeyCodeToNameM
 sanctum.InputManager.keyNameToCode = JSON.parse(sanctum.InputManager.generateKeyCodeToNameMapping().reduce(function(previous, current, index, array) {
     return previous.substring(0, previous.length - 1) + "\"" + array[index] + "\":" + index + ",}";
 }, "{}").replace(",}", "}"));
+
+
+if(typeof module != "undefined" && module.exports) {
+    module.exports = sanctum.InputManager;
+}

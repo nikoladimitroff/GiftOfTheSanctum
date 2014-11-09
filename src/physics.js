@@ -69,6 +69,11 @@ Vector.prototype = {
     return new Vector(this.x, this.y);
   },
   set: function(x, y) {
+    if(y === undefined) {
+      this.x = x.x;
+      this.y = x.y;
+      return this;
+    }
     this.x = x; this.y = y;
     return this;
   }
@@ -150,3 +155,9 @@ var physics = (function (physics) {
     physics.EulerIntegrator = EulerIntegrator;
     return physics;
 })(physics || {});
+
+
+if(typeof module != "undefined" && module.exports) {
+    module.exports.Vector = Vector;
+    module.exports.physics = physics;
+}

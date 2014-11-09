@@ -8,16 +8,18 @@
 // };
 
 var require = function (moduleName) {
+	return null;
+	
     if (!moduleName) throw new Error("Could not load module: " + moduleName);
     return moduleName.exports || moduleName;
 }
 
 window = window || {};
-window.requestAnimationFrame = (function(){
-  return  window.requestAnimationFrame       ||
-          window.webkitRequestAnimationFrame ||
-          window.mozRequestAnimationFrame    ||
-          function(callback){
-            window.setTimeout(callback, 1000 / 60);
-          };
-})();
+// window.requestAnimationFrame = (function(){
+//   return  window.requestAnimationFrame       ||
+//           window.webkitRequestAnimationFrame ||
+//           window.mozRequestAnimationFrame    ||
+//           function(callback){
+//             window.setTimeout(callback, 1000 / 60);
+//           };
+// })();

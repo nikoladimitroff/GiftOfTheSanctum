@@ -1,5 +1,14 @@
 var sanctum = sanctum || {};
 
+var allPhysics = require("./physics");
+var physics = physics || {};
+var Vector = Vector || {};
+
+if(allPhysics) {
+    physics = allPhysics.physics || physics;
+    Vector = allPhysics.Vector || Vector;
+}
+
 var ID_COUNTER = 0;
 
 function copyProperties(object, description) {
@@ -9,6 +18,7 @@ function copyProperties(object, description) {
         "rotation",
         "castType", "range", "duration",
         "effects", "effectRadius", "damageAmount", "pushbackForce",
+        "animations"
     ];
     
     for (var i = 0; i < copyableProperties.length; i++) {
@@ -65,14 +75,14 @@ sanctum.Character.prototype.clone = sanctum.Spell.prototype.clone = function () 
     clone.velocity = this.velocity.clone();
     clone.acceleration = this.acceleration.clone();
     clone.size = this.size.clone();
-    clone.sprite = this.sprite.clone();
+    clone.sprite = (this.sprite && this.sprite.clone()) || {};
 
     clone.collisionRadius = this.collisionRadius;
     clone.id = ID_COUNTER++;
     
     if (this.constructor == sanctum.Spell) {
         clone.timestamp = Date.now();
-        clone.initialPosition = clone.position;
+        clone.initialPosition = this.position.clone();
     }
     
     copyProperties(clone, this);    
@@ -96,7 +106,11 @@ sanctum.Character.prototype.playAnimation = function (action, forward) {
     }
     else {
         animationOffset = 0;
-    }    
-    console.log(animationOffset);
+    }
     this.sprite.activeAnimation = this.animations[action] + animationOffset;
 };
+
+if(typeof module != "undefined" && module.exports) {
+    module.exports.Character = sanctum.Character;
+    module.exports.Spell = sanctum.Spell;
+}

@@ -1,9 +1,20 @@
-var sanctum = sanctum || {};
+var sanctum = require("./all_sanctum") || sanctum;
+
+sanctum = sanctum || {};
+
+var allPhysics = require("./physics");
+var physics = physics || {};
+var Vector = Vector || {};
+
+if(allPhysics) {
+    physics = allPhysics.physics || physics;
+    Vector = allPhysics.Vector || Vector;
+}
 
 sanctum.PhysicsManager = function (friction) {
     this.integrator = new physics.EulerIntegrator();
     this.fixedStep = 1 / 60;
-    this.friction = friction || 1;
+    this.friction = friction || 0.4;
     this.collisions = [];
 }
 
@@ -59,4 +70,8 @@ sanctum.PhysicsManager.prototype.circleIntersects = function (center1, radius1, 
     var distance = center1.subtract(center2).length();
     var radiusSum = radius1 + radius2;
     return distance <= radiusSum;
+}
+
+if(typeof module != "undefined" && module.exports) {
+    module.exports = sanctum.PhysicsManager;
 }

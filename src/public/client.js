@@ -6,9 +6,7 @@ var Client = function() {
 }
 
 Client.prototype.start = function() {
-	this.socket = io.connect("", { port: networkManager.port, transports: ["websocket"] });
-
-    networkManager.connect(null, this.socket);
+	this.socket = io.connect("", { port: sanctum.NetworkManager.port, transports: ["websocket"] });
 
 	this.load("src/public/main.html");
 }

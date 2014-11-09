@@ -90,10 +90,10 @@ sanctum.EffectManager.prototype.castSpell = function (characterId, spellName, ta
         spellInstance.position = target.subtract(spellInstance.size);
     }
     this.objects.push(spellInstance);
-    this.activeSpells[spellInstance.id] = spellInstance;
     
     this.spellCooldowns[characterId] = this.spellCooldowns[characterId] || {};
     this.spellCooldowns[characterId][spellName] = Date.now();
+    this.activeSpells[spellInstance.id] = this.objects.length - 1;
     return spellInstance;
 }
 
@@ -129,4 +129,8 @@ sanctum.EffectManager.prototype.cleanupEffects = function (playerCount) {
             }
         }
     }
+}
+
+if(typeof module != "undefined" && module.exports) {
+    module.exports = sanctum.EffectManager;
 }

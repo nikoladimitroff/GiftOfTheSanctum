@@ -1,4 +1,6 @@
-var sanctum = sanctum || {};
+var sanctum = require("./all_sanctum") || sanctum;
+
+sanctum = sanctum || {};
 
 sanctum.EventTypes = {
     Spellcast: 0,
@@ -8,8 +10,8 @@ sanctum.EventTypes = {
 
 var process = process || null;
 
-sanctum.Network = function () {
-    this.updateTime = 20; /* millis */
+sanctum.NetworkManager = function () {
+    this.updateTime = 100; /* millis */
 
     this.lastUpdate = 0;
     this.port = (process && process.env && process.env.PORT) || 8080;
@@ -23,9 +25,9 @@ sanctum.Network = function () {
 };
 
 
-sanctum.Network.port = (process && process.env && process.env.PORT) || 8080;
+sanctum.NetworkManager.port = (process && process.env && process.env.PORT) || 8080;
 
-sanctum.Network.prototype.connect = function(masterSocket, socket) {
+sanctum.NetworkManager.prototype.connect = function(masterSocket, socket) {
     if(!masterSocket) {
         this.socket = socket;
     } else {
@@ -36,26 +38,25 @@ sanctum.Network.prototype.connect = function(masterSocket, socket) {
     socket.on("update", this.handleUpdate.bind(this));
 }
 
-sanctum.Network.prototype.addSpellcast = function(spellName, target, caster) {
+sanctum.NetworkManager.prototype.addSpellcast = function(spellName, target, caster) {
     this.buffer.push({t/*EventType*/: sanctum.EventTypes.Spellcast, 
                         data: {spellName: spellName, target: target, caster: caster}});
 }
 
-sanctum.Network.prototype.addCharacterInfo = function(character) {
+sanctum.NetworkManager.prototype.addCharacterInfo = function(character, index) {
     var characterInfo = {
         position: character.position,
         velocity: character.velocity,
-        id: character.id
+        id: index
     };
 
     this.buffer.push({t/*EventType*/: sanctum.EventTypes.CharacterInfo, 
-                        data: character });
+                        data: characterInfo });
 }
 
-sanctum.Network.prototype.addObject = function(object) {
+sanctum.NetworkManager.prototype.addObject = function(object) {
     var objectInfo = {
-        position: object.position,
-        velocity: object.velocity,
+        origin: object.origin,
         id: object.id
     };
 
@@ -63,29 +64,36 @@ sanctum.Network.prototype.addObject = function(object) {
                         data: objectInfo});
 }
 
-sanctum.Network.prototype.flush = function() {
+sanctum.NetworkManager.prototype.flush = function() {
     if(this.buffer.length > 0) {
         if(!this.masterSocket) {
             this.socket.emit("update", this.buffer);        
         } else {
-            this.masterSocket.sockets.emit("update", this.buffer);
+            this.masterSocket.emit("update", this.buffer);
         }
     }
 
     this.buffer = [];
 }
 
-sanctum.Network.prototype.handleUpdate = function(payload /*Array*/) {
-    this.updateQueue.push(payload.data);
+sanctum.NetworkManager.prototype.addObjectData = function(objects, playerCount) {
+    for(var i = 0; i < playerCount; i++) {
+        this.addCharacterInfo(objects[i], i);
+    }
 }
 
-sanctum.Network.prototype.getLastUpdate = function() {
+sanctum.NetworkManager.prototype.handleUpdate = function(payload /*Array*/) {
+    this.updateQueue.push(payload);
+}
+
+sanctum.NetworkManager.prototype.getLastUpdate = function() {
     return this.updateQueue.shift();
 }
 
-var networkManager;
+sanctum.NetworkManager.prototype.isServer = function() {
+    return this.masterSocket != null;
+}
+
 if(typeof module != "undefined" && module.exports) {
-    module.exports = sanctum.Network;
-} else {
-    networkManager = new sanctum.Network();
+    module.exports = sanctum.NetworkManager;
 }

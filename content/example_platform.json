@@ -3,8 +3,8 @@
     sides: 7, // The size of each side of polygon
     radius: 400, // The radius of the polygon.
     texture: "content/art/environment/tower_floor.jpg",
-    width: 1300,
-    height: 766,
+    width: 2000,
+    height: 2000,
 
 
     collapseIterations: 10, // The number of times parts of the platform crumble

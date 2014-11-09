@@ -11,8 +11,6 @@ FirstPageController.bindListeners = function() {
     $("#playButton").on("click", function() {
         var name = $("#name").val();
         client.socket.emit("getPlayer", {playerName: name});
-        // console.log(name);
-
     });
 
     $("#name").keydown(function(event) {
