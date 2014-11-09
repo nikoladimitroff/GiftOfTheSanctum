@@ -9,19 +9,24 @@ sanctum.EffectManager = function () {
     this.spellCooldowns = [];
 };
 
-sanctum.EffectManager.prototype.init = function (spellLibrary, obstacleLibrary, objects, platform) {
+sanctum.EffectManager.prototype.init = function (spellLibrary, obstacleLibrary, objects, platform, playerCount) {
     this.spellLibrary = spellLibrary;
     this.obstacleLibrary = obstacleLibrary;
 
     this.objects = objects;
     this.platform = platform;
     this.activeSpells = {};
+    
+    this.playerCount = playerCount;
 }
 
 sanctum.EffectManager.prototype.removeSpell = function (spellId) {
+    if (this.activeSpells[spellId] <= this.playerCount || this.objects.length <= this.playerCount)
+        return false;
     this.objects[this.activeSpells[spellId]] = this.objects[this.objects.length - 1];
     this.objects.pop();
     delete this.activeSpells[spellId];
+    return true;
 }
 
 sanctum.EffectManager.prototype.applyEffects = function (physics) {
@@ -30,11 +35,8 @@ sanctum.EffectManager.prototype.applyEffects = function (physics) {
         var first = collisions[i].first,
             second = collisions[i].second;
 
-        if (first instanceof sanctum.Character) {
-
-        }
-        
-        if (second instanceof sanctum.Spell) {
+        if (first instanceof sanctum.Character &&
+            second instanceof sanctum.Spell) {
             this.pulseSpell(second, physics, first);
         }
     };
@@ -121,6 +123,8 @@ sanctum.EffectManager.prototype.cleanupEffects = function (playerCount) {
     var now = Date.now();
     for (var i = playerCount; i < this.objects.length; i++) {
         var object = this.objects[i];
+        if (!object) continue;
+        
         if (object instanceof sanctum.Spell) {
             var spell = object;
             var removeInstantSpell = spell.castType == CastType.instant &&
@@ -134,8 +138,8 @@ sanctum.EffectManager.prototype.cleanupEffects = function (playerCount) {
                                         (outsideMap || outsideRange);
 
             if (removeInstantSpell || removeProjectileSpell) {
-                this.removeSpell(spell.id);
-                i--;
+                if (this.removeSpell(spell.id))
+                    i--;
             }
         }
     }

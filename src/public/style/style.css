@@ -42,6 +42,8 @@
 	padding:11px 23px;
 	text-decoration:none;
 	text-shadow:0px -1px 0px #596894;
+	margin-top: 10px;
+
 }
 .playButton:hover {
 	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #000042), color-stop(1, #1d249e));
@@ -56,6 +58,10 @@
 .playButton:active {
 	position:relative;
 	top:1px;
+}
+
+.microsoft-image {
+	max-width: 100px;
 }
 
 @font-face {

@@ -13,6 +13,12 @@ FirstPageController.bindListeners = function() {
         client.socket.emit("getPlayer", {playerName: name});
     });
 
+    $("#azureButton").on("click", function() {
+        var azureController = new AzureManager();
+        azureController.login();
+        console.log("clicked");
+    });
+
     $("#name").keydown(function(event) {
         if(event.keyCode == 13 /*Enter*/) {
             var name = $("#name").val();

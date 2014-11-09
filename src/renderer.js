@@ -64,6 +64,12 @@ sanctum.Renderer.prototype.renderCircle = function (obj) {
     this.context.stroke();
 }   
 
+sanctum.Renderer.prototype.renderOverlay = function () {
+    this.context.globalAlpha = 0.5;
+    this.context.fillStyle = "#222";
+    this.context.fillRect(0, 0, canvas.width, canvas.height);
+    this.context.globalAlpha = 1;
+}
 
 sanctum.Renderer.prototype.renderPlatform = function (platform) {
     this.context.drawImage(platform.outsideTexture, 
@@ -104,6 +110,9 @@ sanctum.Renderer.prototype.render = function (platform, gameObjects, dt) {
     this.renderPlatform(platform);
     for (var i = 0; i < gameObjects.length; i++) {
         var obj = gameObjects[i];
+
+        if (!obj || obj.dead) continue;
+        
         var sprite = obj.sprite;
         var frameX = sprite.frameIndex * sprite.frameWidth;
         var frameY = sprite.activeAnimation * sprite.frameHeight;

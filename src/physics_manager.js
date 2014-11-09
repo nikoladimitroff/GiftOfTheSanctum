@@ -31,9 +31,14 @@ sanctum.PhysicsManager.prototype.getCollisionPairs = function (objects) {
     this.collisions = [];
     for (var i = 0; i < objects.length; i++) {
         var first = objects[i];
+        if (!first) continue;
+        
         var firstCenter = first.getCenter();
         for (var j = i + 1; j < objects.length; j++) {
             var second = objects[j];
+
+            if (!second) continue;
+
             var secondCenter = second.getCenter();
             var distance = firstCenter.subtract(secondCenter).length();
             var radiusSum = first.collisionRadius + second.collisionRadius;
@@ -52,6 +57,9 @@ sanctum.PhysicsManager.prototype.getObjectsWithinRadius = function (objects, poi
     var neighbours = [];
     for (var i = 0; i < objects.length; i++) {
         var obj = objects[i];
+        
+        if (!obj) continue;
+        
         var center = obj.position.add(obj.size.divide(2));
         var distance = center.subtract(point).length();
         var radiusSum = obj.collisionRadius + radius;
