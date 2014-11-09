@@ -22,10 +22,11 @@ sanctum.EffectManager.prototype.init = function (spellLibrary, obstacleLibrary, 
 
 sanctum.EffectManager.prototype.removeSpell = function (spellId) {
     if (this.activeSpells[spellId] <= this.playerCount || this.objects.length <= this.playerCount)
-        return;
+        return false;
     this.objects[this.activeSpells[spellId]] = this.objects[this.objects.length - 1];
     this.objects.pop();
     delete this.activeSpells[spellId];
+    return true;
 }
 
 sanctum.EffectManager.prototype.applyEffects = function (physics) {
@@ -137,8 +138,8 @@ sanctum.EffectManager.prototype.cleanupEffects = function (playerCount) {
                                         (outsideMap || outsideRange);
 
             if (removeInstantSpell || removeProjectileSpell) {
-                this.removeSpell(spell.id);
-                i--;
+                if (this.removeSpell(spell.id))
+                    i--;
             }
         }
     }
