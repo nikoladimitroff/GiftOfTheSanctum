@@ -1,5 +1,7 @@
 var RoomController = function() {
     this.players = [];
+    this.avatar_images = ["archer.png", "knight.png", "mage.png", "monk.png",
+     "necro.png", "orc.png", "queen.png", "rogue.png"];
 }
 
 RoomController.prototype.init = function() {
@@ -38,7 +40,8 @@ RoomController.prototype.roomUpdated = function(data) {
 
     for(var i = 0; i < players.length; i++) {
         displayPlayers += "<div class='player-row'>" +
-            "<img class='player-row-image' src='content/art/characters/monk_avatar.png'/>" + 
+            "<img class='player-row-image' src='content/art/characters/lobby/"+ 
+            this.avatar_images[i] + "'/>" + 
             "<div class='player-row-name'>" +
                 players[i].name
             + "</div></div>";
