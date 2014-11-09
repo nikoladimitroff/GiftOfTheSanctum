@@ -10,6 +10,39 @@ body {
 	src: url(Achafsex.ttf);
 }
 
+.chat_container {
+	background-color: black;
+	opacity: 0.5;
+	color: white;
+	padding: 15px 15px 15px 15px;
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px;
+	border-radius:5px;
+	border:1px solid #1a376b;
+	width: 400px;
+	height: 400px;
+	vertical-align: top;
+	display:inline-block;
+}
+
+#chat, #chat_text, #chat_submit {
+	background-color: black;
+	opacity: 0.5;
+	color: white;
+}
+
+#chat:focus {
+	outline:0px none transparent;
+}
+
+#chat {
+	resize: none;
+	border: none;
+	height: 95%;
+	width: 100%;
+	vertical-align: top;
+}
+
 #lobby {
 	width: 100%;
 	height: 100%;

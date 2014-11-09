@@ -26,7 +26,7 @@
 }
 
 #spell_info ul {
-
+	list-style: none;
 }
 
 #health_orb {
