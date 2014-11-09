@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <link rel="stylesheet" type="text/css" href="src/public/style/character_info.css" />
         <title>GotS</title>
     </head>
     <body>
@@ -8,11 +9,15 @@
         <main>
             Haiz, welcome!
         </main>-->
+
+        <div id="health_container"></div>
+        <div id="spell_info"></div>
         <canvas id="game-canvas" width="800px" height="800px">
             Your browser doesn't support the canvas element. Consider upgrading
             your IE6.
         </canvas>
     </body>
+    <script src="3rdparty/jquery-1.11.1.min.js"></script>
     <script src="3rdparty/socket.io-1.2.0.js"></script> 
     <script src="src/node_fallbacks.js"></script>
     <script src="src/network_manager.js"></script>
@@ -27,6 +32,7 @@
     <script src="src/renderer.js"></script>
     <script src="src/utils/resizer.js"></script>
     <script src="src/sanctum.js"></script>
+    <script src="src/public/character_info.js"></script>
     
     <style>
         html, body, canvas {

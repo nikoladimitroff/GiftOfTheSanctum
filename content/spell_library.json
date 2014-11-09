@@ -21,6 +21,7 @@
     name: "Freeze",
     width: 64,
     height: 64,
+    range: 500,
     sprite: "content/art/spells/freeze.png", // only required for projectiles
     castType: "projectile", // see below
     targeted: false, // if true the spell is required to target a player
@@ -37,7 +38,6 @@
     movementFunction: "linear", // determines the projectile's path - "quadratic", "homing", "sin"
     acceleration: 1, // the projectile's acceleration magnitude
     speed: 1, // the projectile's start speed
-    range: 50, // maximum distance the projectile may fly (or the instant cast to hit)
 }, {
     name: "Frostbolt",
     width: 64,
@@ -72,6 +72,7 @@
     damageAmount: -20,
     cooldown: 20, 
     range: 20, 
+    duration: 5000,
 }, {
     name: "Speed up!",
     width: 64,

@@ -1,4 +1,6 @@
-var sanctum = sanctum || {};
+var sanctum = require("./all_sanctum") || sanctum;
+
+sanctum = sanctum || {};
 
 Actions = {
     walk: "walk",
@@ -10,8 +12,10 @@ Actions = {
     spellcast6: "spellcast6",
 };
 
-sanctum.Game = function (context, playerCount) {
-    Resizer.installHandler(context.canvas);
+sanctum.Game = function (context, playerCount, networkManager) {
+    if(!require("./all_sanctum")) {
+        Resizer.installHandler(context.canvas);
+    }
 
     this.objects = []; // The first playerCount indices hold the characters
     this.playerCount = playerCount;
@@ -21,11 +25,14 @@ sanctum.Game = function (context, playerCount) {
     this.spellBindings = {};
     this.keybindings = {};
 
+    console.log(sanctum);
+
     this.contentManager = new sanctum.ContentManager();
     this.physicsManager = new sanctum.PhysicsManager();
     this.effectManager = new sanctum.EffectManager();
     this.input = new sanctum.InputManager();
-    this.renderer = new sanctum.Renderer(context);     
+    this.renderer = new sanctum.Renderer(context);
+    this.networkManager = networkManager;
 };
 
 var OBJECTS = {
@@ -46,7 +53,7 @@ sanctum.Game.prototype.init = function () {
     monk.sprite.activeAnimation = monk.animations.walk;
     
     this.keybindings = this.contentManager.get("keybindings");
-    this.effectManager.init(spellLibrary);
+    this.effectManager.init(spellLibrary, this.objects, this.platform);
     this.input.init();
     this.run(0);
 }
@@ -76,13 +83,18 @@ sanctum.Game.prototype.handleInput = function () {
                 var spell = this.effectManager.castSpell(this.objects[this.playerObjectIndex],
                                                          spellName,
                                                          this.input.mouse.absolute);
-                this.objects.push(spell);
+                //this.objects.push(spell);
                 var forward = spell.position.subtract(player.position).normalized();
                 player.playAnimation(this.nextAction, forward);
         }
         this.nextAction = Actions.walk;
     }
     this.input.swap();
+}
+
+sanctum.Game.prototype.processNetworkData = function() {
+    var payload = this.networkManager.getLastUpdate();
+
 }
 
 sanctum.Game.prototype.bindSpells = function (cast1, cast2, cast3, cast4, cast5, cast6) {
@@ -98,14 +110,12 @@ sanctum.Game.prototype.loop = function (timestamp) {
     this.handleInput();
     this.platform.update(delta);
     this.physicsManager.update(this.objects);
-    this.effectManager.applyEffects(this.physicsManager, this.objects);
-    var viewportCenter = this.renderer.getViewportCenter();
+    this.effectManager.applyEffects(this.physicsManager);
     this.effectManager.applyPlatformEffect(this.physicsManager,
-                                           this.platform, 
-                                           this.objects,
-                                           this.playerCount,
-                                           viewportCenter
+                                           this.platform,
+                                           this.playerCount
                                            );
+    this.effectManager.cleanupEffects(this.playerCount);
     this.renderer.render(this.platform, this.objects, delta);
     
     this.previousTime = timestamp;
@@ -128,6 +138,8 @@ function startAll() {
 
 }
 
+// startAll();
+
 function testCast() {
     m = game.objects[0];
     e = game.effectManager;
@@ -139,4 +151,4 @@ if(typeof module != "undefined" && module.exports) {
     module.exports = sanctum.Game;
 }
 
-startAll();
+// startAll();

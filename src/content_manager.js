@@ -116,3 +116,7 @@ sanctum.ContentManager.prototype.getSpellLibrary = function () {
     }
     return spellLib;
 };
+
+if(typeof module != "undefined" && module.exports) {
+    module.exports = sanctum.ContentManager;
+}

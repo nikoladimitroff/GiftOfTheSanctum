@@ -150,3 +150,9 @@ var physics = (function (physics) {
     physics.EulerIntegrator = EulerIntegrator;
     return physics;
 })(physics || {});
+
+
+if(typeof module != "undefined" && module.exports) {
+    module.exports.Vector = Vector;
+    module.exports.physics = physics;
+}

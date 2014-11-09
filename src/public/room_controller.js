@@ -64,4 +64,3 @@ RoomController.prototype.renderHost = function() {
 
 var roomController = new RoomController();
 roomController.init();
-
