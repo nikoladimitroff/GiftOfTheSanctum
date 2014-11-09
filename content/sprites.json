@@ -1,4 +1,7 @@
 [{
+    src: "art/environment/fog_of_suddent_death.png",
+    framesPerRow: []
+},{
     src: "art/environment/tower_floor.jpg",
     framesPerRow: []
 }, {

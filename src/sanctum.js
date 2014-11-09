@@ -76,6 +76,7 @@ sanctum.Game = function (context, playerCount, selfIndex, networkManager) {
     this.objects = []; // The first playerCount indices hold the characters
     this.playerCount = playerCount;
     this.previousTime = 0;
+    this.deathsCount = 0;
     this.playerObjectIndex = selfIndex;
     this.nextAction = Actions.walk;
     this.spellBindings = {};
@@ -216,8 +217,10 @@ sanctum.Game.prototype.processPendingDeaths = function() {
 
     for(var i = 0; i < deaths.length; i++) {
         var player = this.objects[deaths[i]];
-        console.log("player died");
-        player.dead = true;
+        if(!player.dead) {
+            this.deathsCount++;
+            player.dead = true;
+        }
     }
     this.networkManager.pendingDeaths = [];
 }
@@ -283,7 +286,7 @@ sanctum.Game.prototype.getMaxScorePlayerIndex = function() {
     var maxScoreIndex = 0;
     var max = this.objects[0].score;
     for(var i = 0; i < this.playerCount; i++) {
-        if(max < this.objects[i].score) {
+        if(max < this.objects[i].score && !this.objects[i].dead) {
             max = this.objects[i].score;
             maxScoreIndex = i;
         }
