@@ -31,24 +31,41 @@ RoomController.prototype.handlePlay = function() {
     $("#content").remove();
     $("body").append('<canvas id="game-canvas" width="800px" height="800px">Your browser does not support the canvas element. Consider upgrading your IE6.</canvas>');
     
-    startAll();
+    console.log(sanctum);
+
+    var networkManager = new sanctum.NetworkManager();
+    networkManager.connect(null, client.socket);
+
+    startAll(this.players.length, this.findSelfIndex(), networkManager);
 }
 
 RoomController.prototype.roomUpdated = function(data) {
     var displayPlayers = "";
-    var players = data.players;
+    this.players = data.players;
 
-    for(var i = 0; i < players.length; i++) {
+    for(var i = 0; i < this.players.length; i++) {
         displayPlayers += "<div class='player-row'>" +
             "<img class='player-row-image' src='content/art/characters/lobby/"+ 
             this.avatar_images[i] + "'/>" + 
             "<div class='player-row-name'>" +
-                players[i].name
+                this.players[i].name
             + "</div></div>";
 
     }
 
     $(".players").html(displayPlayers);
+}
+
+RoomController.prototype.findSelfIndex = function() {
+    console.log(client.socket.io.engine.id);
+    console.log(this.players);
+    for(var i = 0; i < this.players.length; i++) {
+        if(this.players[i].id == client.socket.io.engine.id) {
+            return i;
+        }
+    }
+
+    return -1;
 }
 
 RoomController.prototype.renderHost = function() {

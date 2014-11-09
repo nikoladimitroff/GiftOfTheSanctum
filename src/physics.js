@@ -69,6 +69,11 @@ Vector.prototype = {
     return new Vector(this.x, this.y);
   },
   set: function(x, y) {
+    if(y === undefined) {
+      this.x = x.x;
+      this.y = x.y;
+      return this;
+    }
     this.x = x; this.y = y;
     return this;
   }

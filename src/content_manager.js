@@ -1,5 +1,29 @@
 var sanctum = sanctum || {};
 
+sanctum.Platform = require("./platform") || sanctum.Platform;
+
+var allGameObjects = require("./game_objects");
+
+if(allGameObjects) {
+    console.log(allGameObjects);
+    sanctum.Character = allGameObjects.Character;
+    sanctum.Spell = allGameObjects.Spell;
+}
+
+var allPhysics = require("./physics");
+var physics = physics || {};
+var Vector = Vector || {};
+
+if(allPhysics) {
+    physics = allPhysics.physics || physics;
+    Vector = allPhysics.Vector || Vector;
+}
+
+// console.log(sanctum);
+
+var fs = require("fs");
+
+
 function getFilename(path) {
     return path.substring(path.lastIndexOf("/") + 1)
 }
@@ -49,11 +73,17 @@ sanctum.ContentManager.prototype.loadCharacter = function (description) {
     this.contentCache[name] = character;
 };
 
-sanctum.ContentManager.prototype.loadPlatform = function (description) {
-    var platform = new sanctum.Platform(this.get(description.texture).image,
-                                        this.get(description.outsideTexture).image,
-                                        description
-                                        );
+sanctum.ContentManager.prototype.loadPlatform = function (description, isServer) {
+    var platform;
+    if(isServer) {
+        platform = new sanctum.Platform({}, {}, description);
+    } else {
+        var platform = new sanctum.Platform(this.get(description.texture).image,
+                                            this.get(description.outsideTexture).image,
+                                            description
+                                            );
+    }
+    
     this.contentCache[description.name] = platform;
 };
 
@@ -80,7 +110,12 @@ sanctum.ContentManager.prototype.fetchJSONFile = function (path, callback) {
     xhr.send(); 
 }
 
-sanctum.ContentManager.prototype.loadGameData = function (gameDataPath, callback) {
+sanctum.ContentManager.prototype.loadGameData = function (gameDataPath, callback, isServer) {
+    if(isServer) {
+        this.loadGameDataServer(gameDataPath, callback);
+        return;
+    }
+
     var self = this;
     this.fetchJSONFile(gameDataPath, function (gameData) {    
         self.fetchJSONFile(gameData.sprites, function (sprites) {
@@ -99,6 +134,29 @@ sanctum.ContentManager.prototype.loadGameData = function (gameDataPath, callback
             sprites.map(self.loadSprite.bind(self));
         });
     });
+}
+
+sanctum.ContentManager.prototype.loadGameDataServer = function (gameDataPath, callback) {
+    var self = this;
+
+    var gameData = this.fetchJSONServer(gameDataPath);    
+    gameData.characters.map(self.loadCharacter.bind(self));
+
+    var spellLibrary = this.fetchJSONServer(gameData.spells);
+
+    spellLibrary.map(self.loadSpell.bind(self));
+
+    var platform = this.fetchJSONServer(gameData.platform);
+
+    self.loadPlatform(platform, true);
+    callback();
+}
+
+sanctum.ContentManager.prototype.fetchJSONServer = function(path) {
+    var stringData = fs.readFileSync(this.root + path, "utf8");
+    var data = eval("Object(" + stringData + ")");
+
+    return data;
 }
 
 

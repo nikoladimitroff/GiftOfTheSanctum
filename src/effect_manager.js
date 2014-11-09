@@ -83,7 +83,7 @@ sanctum.EffectManager.prototype.castSpell = function (character, spellName, targ
         spellInstance.position = target.subtract(spellInstance.size);
     }
     this.objects.push(spellInstance);
-    this.activeSpells[spellInstance.id] = spellInstance;
+    this.activeSpells[spellInstance.id] = this.objects.length - 1;
     return spellInstance;
 }
 

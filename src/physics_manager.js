@@ -14,7 +14,7 @@ if(allPhysics) {
 sanctum.PhysicsManager = function (friction) {
     this.integrator = new physics.EulerIntegrator();
     this.fixedStep = 1 / 60;
-    this.friction = friction || 1;
+    this.friction = friction || 0.4;
     this.collisions = [];
 }
 

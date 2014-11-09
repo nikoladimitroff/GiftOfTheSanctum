@@ -66,6 +66,8 @@ networking.Room.prototype.welcome = function(socket, data) {
             socket.emit("welcome", { message: "Welcome, " + player.name, 
                 isHost: isHost, players: this.players });
 
+            console.log(this.players);
+
             this.masterSocket.emit("roomUpdated",
                 { players: this.players } );
         }
@@ -99,7 +101,8 @@ networking.Room.prototype.play = function(socket) {
     if(socket.id == this.hostId) {
         console.log("Game started.");
         this.isRunning = true;
-        // this.game = new Game({}, this.players.length, this.networkManager);
+        this.game = new Game({}, this.players.length, -1, this.networkManager);
+        this.game.loadContent();
 
         this.masterSocket.emit("play", {});
     }
