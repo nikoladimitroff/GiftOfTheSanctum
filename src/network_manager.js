@@ -21,6 +21,8 @@ sanctum.NetworkManager = function () {
     this.sockets = [];
     this.updateQueue = [];
     this.buffer = [];
+    this.pendingDeaths = [];
+    this.deathIndex = 0;
 };
 
 
@@ -35,6 +37,7 @@ sanctum.NetworkManager.prototype.connect = function(masterSocket, socket) {
     }
 
     socket.on("update", this.handleUpdate.bind(this));
+    socket.on("death", this.handleDeath.bind(this));
 }
 
 sanctum.NetworkManager.prototype.addSpellcast = function(spellName, target, caster) {
@@ -73,6 +76,23 @@ sanctum.NetworkManager.prototype.addObjectData = function(objects, playerCount) 
 
 sanctum.NetworkManager.prototype.handleUpdate = function(payload /*Array*/) {
     this.updateQueue.push(payload);
+}
+
+sanctum.NetworkManager.prototype.handleDeath = function(data) {
+    if(this.masterSocket) {
+        this.masterSocket.emit("death", data);
+    } else {
+        this.pendingDeaths.push(data.index);
+    }
+}
+
+sanctum.NetworkManager.prototype.getPendingDeaths = function() {
+    return this.pendingDeaths;
+}
+
+sanctum.NetworkManager.prototype.sendDie = function(playerIndex, objects) {
+    this.socket.emit("death", {index: playerIndex});
+    objects[playerIndex].score = this.deathIndex++;
 }
 
 sanctum.NetworkManager.prototype.getLastUpdate = function() {

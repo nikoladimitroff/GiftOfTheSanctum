@@ -1,5 +1,5 @@
 [{
-    name: "fireball",
+    name: "Fireball",
     width: 64,
     height: 64,
     sprite: "content/art/spells/fireball.png", // only required for projectiles
@@ -16,7 +16,7 @@
     movementFunction: "linear", // determines the projectile's path - "quadratic", "homing", "sin"
     acceleration: 1, // the projectile's acceleration magnitude
     speed: 1, // the projectile's start speed
-    range: 50, // maximum distance the projectile may fly (or the instant cast to hit)
+    range: 1000, // maximum distance the projectile may fly (or the instant cast to hit)
 }, {
     name: "Freeze",
     width: 64,
@@ -96,6 +96,7 @@
     ],
     spawnObject: "healingWell",
     cooldown: 30, 
+    duration: 3000,
     range: 75, 
 }, {
     name: "Flamestrike",
