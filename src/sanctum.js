@@ -257,7 +257,6 @@ sanctum.Game.prototype.loop = function (timestamp) {
             this.handleInput();
         }
         var following = !me.dead ? this.playerObjectIndex : this.getMaxScorePlayerIndex();
-        // following = (following == 0) ? this.firstAlivePlayer() : 0;
 
         this.renderer.camera.follow(this.objects[following].position);
         this.renderer.render(this.platform, this.objects, delta);

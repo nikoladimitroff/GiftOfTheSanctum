@@ -146,7 +146,7 @@ sanctum.Renderer.prototype.render = function (platform, gameObjects, dt) {
                           obj.size.y
                           );
                           
-        this.renderCircle(obj);
+        // this.renderCircle(obj);
         
         context.restore();
 
