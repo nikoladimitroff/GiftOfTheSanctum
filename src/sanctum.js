@@ -117,9 +117,11 @@ sanctum.Game.prototype.init = function () {
 
     var playerPositions = this.platform.generateVertices(this.playerCount, 50);
 
+    var center = new Vector(this.platform.size.x / 2, this.platform.size.y / 2);
+
     for(var i = 0; i < this.playerCount; i++) {
-        var player = this.contentManager.get(CHARACTERS[i]).clone();
-        player.position = playerPositions[i];
+        var player = this.contentManager.get(CHARACTERS[i]).clone();        
+        player.position = playerPositions[i].add(center);
         this.objects.push(player);
     }
 
