@@ -16,7 +16,7 @@ It was developed during [HackFMI](http://hackfmi.com/) 4 by
 * [Veselin Genadiev](https://github.com/Veselin-Genadiev)
 * [Mariya Paskova](https://github.com/mimipaskova)
 
-or simply [Team 1/2](https://hackpad.com/-HackFMI-4-ZlYNXlko1RR#:h=Отбор-1/2-Ники---Room-309)
+or simply [Team 1/2 Niki](https://hackpad.com/-HackFMI-4-ZlYNXlko1RR#:h=Отбор-1/2-Ники---Room-309)
 
 Technology stack
 --------
