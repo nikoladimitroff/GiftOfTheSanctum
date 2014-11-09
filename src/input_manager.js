@@ -36,7 +36,7 @@ sanctum.InputManager = function () {
     this.completeMouseDown = function () {};
 }
 
-sanctum.InputManager.prototype.init = function () {
+sanctum.InputManager.prototype.init = function (camera) {
     window.addEventListener("keydown", function (args) {
         this.keyboard[args.keyCode] = true;
         // If we are awaiting key detection, raise the event
@@ -82,8 +82,8 @@ sanctum.InputManager.prototype.init = function () {
     }.bind(this), false);
 
     window.addEventListener("mousemove", function(args) {
-        this.mouse.absolute.x = args.x;
-        this.mouse.absolute.y = args.y;
+        this.mouse.absolute.x = camera.position.x + args.x;
+        this.mouse.absolute.y = camera.position.y + args.y;
     }.bind(this), false);
 
     var onscroll = function (args) {

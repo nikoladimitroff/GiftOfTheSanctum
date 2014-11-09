@@ -29,32 +29,23 @@ sanctum.Sprite.prototype.clone = function () {
     return sprite;
 }
 
-sanctum.Camera = function(viewport, mapSize) {
-    this.viewport = viewport;
-    this.mapSize = mapSize;
-    this.position = new Vector();
-}
-
-sanctum.Camera.prototype.follow = function(target) {
-    if(target.x - this.viewport.x / 2 < 0) {
-        target.x = 0;
-    }
-    if(target.y - this.viewport.y / 2 < 0) {
-        target.y = 0;
-    }
-    if(target.x + this.viewport.x / 2 > this.mapSize.x) {
-        target.x = this.mapSize.x - this.viewport.x;
-    }
-    if(target.y + this.viewport.y / 2 > this.mapSize.y) {
-        this.target.y = this.mapSize.y - this.viewport.y;
-    }
-
-    this.position = target;
-}
-
 sanctum.Renderer = function (context) {
     this.context = context;
-    this.camera = new sanctum.Camera(new Vector(640, 480), new Vector(1000, 1000));
+}
+
+sanctum.Renderer.prototype.init = function(camera) {
+    this.camera = camera;
+
+    var onresize = function() {
+        this.context.canvas.width = window.innerWidth;
+        this.context.canvas.height = window.innerHeight;
+        window.aspect = this.context.canvas.width / this.context.canvas.height;
+
+        this.camera.viewport.x = this.context.canvas.width;
+        this.camera.viewport.y = this.context.canvas.height;
+    }.bind(this);
+    onresize();
+    window.onresize = onresize;
 }
 
 
@@ -79,7 +70,7 @@ sanctum.Renderer.prototype.renderPlatform = function (platform) {
                            0, 0, 
                            platform.outsideTexture.width, platform.outsideTexture.height,
                            0, 0,
-                           this.context.canvas.width, this.context.canvas.height
+                           platform.size.x, platform.size.y
                            );
 
     this.context.save();
@@ -99,15 +90,16 @@ sanctum.Renderer.prototype.renderPlatform = function (platform) {
     this.context.drawImage(platform.texture, 
                            0, 0, platform.texture.width, platform.texture.height,
                            destination.x, destination.y,
-                           platform.texture.width, platform.texture.height);
+                           platform.radius * 2, platform.radius * 2);
     this.context.restore();
 }   
 
 sanctum.Renderer.prototype.render = function (platform, gameObjects, dt) {
     var context = this.context;
     context.clearRect(0, 0, canvas.width, canvas.height);
+
     context.save();
-    context.translate(this.camera.x, this.camera.y);
+    context.translate(-this.camera.position.x, -this.camera.position.y);
 
     this.renderPlatform(platform);
     for (var i = 0; i < gameObjects.length; i++) {
@@ -149,5 +141,5 @@ sanctum.Renderer.prototype.render = function (platform, gameObjects, dt) {
 
 
 if(typeof module != "undefined" && module.exports) {
-    module.exports = sanctum.Renderer;
+    module.exports.Renderer = sanctum.Renderer;
 }

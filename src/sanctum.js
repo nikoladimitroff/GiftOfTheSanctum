@@ -12,11 +12,34 @@ Actions = {
     spellcast6: "spellcast6",
 };
 
-sanctum.Game = function (context, playerCount, networkManager) {
-    if(!require("./all_sanctum")) {
-        Resizer.installHandler(context.canvas);
+sanctum.Camera = function(viewport, platformSize) {
+    this.viewport = viewport;
+    this.platformSize = platformSize;
+    this.position = new Vector();
+}
+
+sanctum.Camera.prototype.follow = function(target) {
+    var position = this.position;
+
+    position.x = target.x - this.viewport.x / 2;
+    position.y = target.y - this.viewport.y / 2;
+
+    if(target.x - this.viewport.x / 2 < 0) {
+        position.x = 0;
+    }
+    if(target.y - this.viewport.y / 2 < 0) {
+        position.y = 0;
+    }
+    if(target.x + this.viewport.x / 2 > this.platformSize.x) {
+        position.x = this.platformSize.x - this.viewport.x;
+    }
+    if(target.y + this.viewport.y / 2 > this.platformSize.y) {
+        position.y = this.platformSize.y - this.viewport.y;
     }
 
+}
+
+sanctum.Game = function (context, playerCount, networkManager) {
     this.objects = []; // The first playerCount indices hold the characters
     this.playerCount = playerCount;
     this.previousTime = 0;
@@ -24,8 +47,6 @@ sanctum.Game = function (context, playerCount, networkManager) {
     this.nextAction = Actions.walk;
     this.spellBindings = {};
     this.keybindings = {};
-
-    console.log(sanctum);
 
     this.contentManager = new sanctum.ContentManager();
     this.physicsManager = new sanctum.PhysicsManager();
@@ -44,6 +65,10 @@ var OBJECTS = {
 sanctum.Game.prototype.init = function () {
     this.platform = this.contentManager.get(OBJECTS["platform"]);
 
+    var camera = new sanctum.Camera(new Vector(), this.platform.size);
+    this.renderer.init(camera);
+    this.input.init(camera);
+
     var monk = this.contentManager.get(OBJECTS["monk"]);
     this.objects.push(monk);
     var enemy = monk.clone();
@@ -54,7 +79,6 @@ sanctum.Game.prototype.init = function () {
     
     this.keybindings = this.contentManager.get("keybindings");
     this.effectManager.init(spellLibrary, this.objects, this.platform);
-    this.input.init();
     this.run(0);
 }
 
@@ -75,7 +99,7 @@ sanctum.Game.prototype.handleInput = function () {
             case Actions.walk:
                 player.velocity = this.input.mouse.absolute.subtract(player.position);
                 Vector.normalize(player.velocity);
-                Vector.multiply(player.velocity, 10, player.velocity); // magic;
+                Vector.multiply(player.velocity, 100, player.velocity); // magic;
                 player.playAnimation(Actions.walk, player.velocity.normalized());
                 break;
             default:
@@ -116,6 +140,8 @@ sanctum.Game.prototype.loop = function (timestamp) {
                                            this.playerCount
                                            );
     this.effectManager.cleanupEffects(this.playerCount);
+
+    this.renderer.camera.follow(this.objects[this.playerObjectIndex].position);
     this.renderer.render(this.platform, this.objects, delta);
     
     this.previousTime = timestamp;
