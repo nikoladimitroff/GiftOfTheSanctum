@@ -13,7 +13,7 @@ var ID_COUNTER = 0;
 
 function copyProperties(object, description) {
     var copyableProperties = [
-        "name", "health", 
+        "name", "health", "speed",
         "mass",
         "rotation",
         "castType", "range", "duration",
@@ -36,6 +36,7 @@ sanctum.Character = function (sprite, description) {
     this.sprite = sprite;
     this.rotation = 0;
     this.health = description.health;
+	this.speed = description.speed || 100;
     this.score = 0;
     this.dead = false;
     
@@ -65,6 +66,8 @@ sanctum.Spell = function (sprite, description) {
     this.position = new Vector(300, 300);
     this.velocity = new Vector(0, 0);
     this.acceleration = new Vector(0, 0);
+	this.startingVelocity = description.velocity || 0;
+	this.startingAcceleration = description.acceleration || 0;
     this.frictionless = true;
     this.size = new Vector(description.width, description.height);
     this.collisionRadius = Math.max(this.size.x, this.size.y) / 2;

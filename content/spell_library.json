@@ -10,32 +10,13 @@
         "pushback"
     ],
     effectRadius: 0, // the radius in which to hit nearby enemies / obstacles
-    damageAmount: 10,
+    damageAmount: 120,
     pushbackForce: 100,
-    cooldown: 10, // cooldown of the spell
+    cooldown: 1000, // cooldown of the spell
     movementFunction: "linear", // determines the projectile's path - "quadratic", "homing", "sin"
-    acceleration: 1, // the projectile's acceleration magnitude
-    speed: 1, // the projectile's start speed
+    acceleration: 150, // the projectile's acceleration magnitude
+    velocity: 450, // the projectile's start velocity
     range: 1000, // maximum distance the projectile may fly (or the instant cast to hit)
-}, {
-    name: "Freeze",
-    width: 64,
-    height: 64,
-    range: 0,
-    sprite: "content/art/spells/freeze.png", // only required for projectiles
-    castType: "projectile", // see below
-    targeted: false, // if true the spell is required to target a player
-    effects: [ // see below
-        "damage",
-        "pushback"
-    ],
-    effectRadius: 0, // the radius in which to hit nearby enemies / obstacles
-    damageAmount: 10,
-    pushbackForce: 100,
-    cooldown: 10, // cooldown of the spell
-    movementFunction: "linear", // determines the projectile's path - "quadratic", "homing", "sin"
-    acceleration: 1, // the projectile's acceleration magnitude
-    speed: 1, // the projectile's start speed
 }, {
     name: "Frostbolt",
     width: 64,
@@ -48,14 +29,14 @@
         "haste"
     ],
     effectRadius: 0,
-    damageAmount: 5,
+    damageAmount: 60,
     pushbackForce: 10,
     haste: -5,
-    cooldown: 10,
+    cooldown: 800,
     movementFunction: "linear",
-    acceleration: 1, 
-    speed: 2, 
-    range: 50,
+    acceleration: 150, 
+    velocity: 450, 
+    range: 1000,
 }, {
     name: "Heal",
     width: 64,
@@ -67,37 +48,9 @@
         "damage"
     ],
     effectRadius: 0, 
-    damageAmount: -20,
-    cooldown: 20, 
+    damageAmount: -150,
+    cooldown: 12000, 
     range: 20, 
-    duration: 5000,
-}, {
-    name: "Speed up!",
-    width: 64,
-    height: 64,
-    sprite: "content/art/spells/speedup.png",
-    castType: "instant", 
-    targeted: true, 
-    effects: [
-        "haste"
-    ],
-    
-    cooldown: 20, 
-    range: 1, 
-}, {
-    name: "Healing well",
-    width: 64,
-    height: 64,
-    sprite: "content/art/spells/well.png",
-    castType: "instant", 
-    targeted: true, 
-    effects: [
-        "heal"
-    ],
-    spawnObject: "healingWell",
-    cooldown: 30, 
-    duration: 3000,
-    range: 75, 
 }, {
     name: "Flamestrike",
     width: 64,
@@ -106,11 +59,88 @@
     castType: "instant", 
     targeted: false, 
     effects: [
-        "spawn"
+        "damage"
     ],
-    
-    spawnObject: "flamestrike",
-    cooldown: 40, 
-    range: 75, 
+	damageAmount: 60,
+	duration: 5000,
+	cooldown: 15000,
+    radius: 75,
+    range: 750, 
+}, {
+    name: "Electric bolt",
+    width: 64,
+    height: 64,
+    sprite: "content/art/spells/electric_bolt.png",
+    castType: "projectile",
+    targeted: false,
+    effects: [
+        "damage",
+        "haste"
+    ],
+    effectRadius: 0,
+    damageAmount: 30,
+    pushbackForce: 10,
+    haste: -15,
+    cooldown: 1000,
+    movementFunction: "linear",
+    acceleration: 450, 
+    velocity: 450, 
+    range: 500,
+	radius: 50,
+},  {
+    name: "Death bolt",
+    width: 64,
+    height: 64,
+    sprite: "content/art/spells/deathbolt.png",
+    castType: "projectile",
+    targeted: false,
+    effects: [
+        "damage"
+    ],
+    effectRadius: 0,
+    damageAmount: 550,
+    pushbackForce: 150,
+    cooldown: 9000,
+    movementFunction: "linear",
+    acceleration: 1, 
+    velocity: 200, 
+    range: 1500,
+}, {
+    name: "Frostfire",
+    width: 64,
+    height: 64,
+    sprite: "content/art/spells/frostfire.png",
+    castType: "projectile",
+    targeted: false,
+    effects: [
+        "damage",
+        "haste"
+    ],
+    effectRadius: 150,
+    damageAmount: 400,
+    haste: -25,
+    cooldown: 10,
+    movementFunction: "linear",
+    acceleration: 50, 
+    velocity: 500, 
+    range: 600,
+}, {
+    name: "Unicorns!",
+    width: 128,
+    height: 64,
+    sprite: "content/art/spells/unicorn.png",
+    castType: "projectile",
+    targeted: false,
+    effects: [
+        "damage",
+    ],
+    effectRadius: 40,
+    damageAmount: 1,
+    pushbackForce: 150,
+    cooldown: 1500,
+    movementFunction: "linear",
+    acceleration: 1000, 
+    velocity: 1000, 
+    range: 2000,
 },
 ]

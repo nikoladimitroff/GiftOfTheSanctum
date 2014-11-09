@@ -88,21 +88,11 @@
         6,
     ]
 }, {
-    src: "art/spells/freeze.png",
-    framesPerRow: [
-        4, 4, 4, 4
-    ]
-}, {
     src: "art/spells/fireball.png",
     framesPerRow: [
         8
     ]
-}, {
-    src: "art/spells/electric_bolt.png",
-    framesPerRow: [
-        4
-    ]
-}, {
+},  {
     src: "art/spells/frostbolt.png",
     framesPerRow: [
         8
@@ -113,20 +103,29 @@
         6
     ]
 }, {
-    src: "art/spells/well.png",
-    framesPerRow: [
-        6
-    ]
-}, {
-    src: "art/spells/speedup.png",
-    framesPerRow: [
-       4, 4, 4, 4, 4, 4
-    ]
-}
-, {
     src: "art/spells/flamestrike.png",
     framesPerRow: [
         12
     ]
-}
+}, {
+    src: "art/spells/electric_bolt.png",
+    framesPerRow: [
+        4
+    ]
+}, {
+    src: "art/spells/deathbolt.png",
+    framesPerRow: [
+        50
+    ]
+}, {
+    src: "art/spells/frostfire.png",
+    framesPerRow: [
+        96
+    ]
+}, {
+    src: "art/spells/unicorn.png",
+    framesPerRow: [
+        16
+    ]
+},
 ]

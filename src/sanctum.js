@@ -146,7 +146,7 @@ sanctum.Game.prototype.handleInput = function () {
         !this.input.previousMouse.right) {
         player.velocity = this.input.mouse.absolute.subtract(player.position);
         Vector.normalize(player.velocity);
-        Vector.multiply(player.velocity, 100, player.velocity); // magic;
+        Vector.multiply(player.velocity, player.speed, player.velocity);
         player.playAnimation(Actions.walk, player.velocity.normalized());
     }
     else if (this.input.mouse.left && 
@@ -246,7 +246,7 @@ sanctum.Game.prototype.loop = function (timestamp) {
 
         this.platform.update(delta);
         this.physicsManager.update(this.objects);
-        this.effectManager.applyEffects(this.physicsManager);
+        this.effectManager.applyEffects(this.physicsManager, delta);
         this.effectManager.applyPlatformEffect(this.physicsManager,
                                                this.platform,
                                                this.playerCount
@@ -310,8 +310,7 @@ function startAll(playerCount, selfIndex, networkManager) {
     canvas = document.getElementById("game-canvas");
     game = new sanctum.Game(canvas.getContext("2d"), playerCount, selfIndex, networkManager);
     game.loadContent();
-    game.bindSpells("Fireball", "Freeze", "Frostbolt", 
-                    "Heal", "Speed up!", "Healing well");
+    game.bindSpells("Unicorns!", "Frostfire", "Heal", "Flamestrike", "Electric bolt", "Death bolt");
 
 }
 
