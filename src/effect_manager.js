@@ -9,8 +9,10 @@ sanctum.EffectManager = function () {
     this.spellCooldowns = [];
 };
 
-sanctum.EffectManager.prototype.init = function (spellLibrary, objects, platform) {
+sanctum.EffectManager.prototype.init = function (spellLibrary, obstacleLibrary, objects, platform) {
     this.spellLibrary = spellLibrary;
+    this.obstacleLibrary = obstacleLibrary;
+
     this.objects = objects;
     this.platform = platform;
     this.activeSpells = {};
@@ -29,6 +31,7 @@ sanctum.EffectManager.prototype.applyEffects = function (physics) {
             second = collisions[i].second;
 
         if (first instanceof sanctum.Character) {
+
         }
         
         if (second instanceof sanctum.Spell) {
@@ -51,11 +54,17 @@ sanctum.EffectManager.prototype.pulseSpell = function (spell, physics, hitTarget
             switch (effect) {
                 case 'damage':
                     target.health -= spell.damageAmount;
+                    break;
                 case 'pushback':
                     var hitDirection = target.position.subtract(spell.position);
                     Vector.normalize(hitDirection);
                     Vector.multiply(hitDirection, spell.pushbackForce, hitDirection);
                     physics.applyForce(target, hitDirection);
+                    break;
+                case 'spawn':
+                    var obstacle = this.obstacleLibrary[spell.spawnObject].clone();
+                    obstacle.position = spell.position.clone();
+                    this.objects.push(obstacle);
                     break;
             };
         }
@@ -94,6 +103,7 @@ sanctum.EffectManager.prototype.castSpell = function (characterId, spellName, ta
     this.spellCooldowns[characterId] = this.spellCooldowns[characterId] || {};
     this.spellCooldowns[characterId][spellName] = Date.now();
     this.activeSpells[spellInstance.id] = this.objects.length - 1;
+    spellInstance.casterId = characterId;
     return spellInstance;
 }
 

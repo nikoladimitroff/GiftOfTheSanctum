@@ -4,8 +4,7 @@ sanctum = sanctum || {};
 
 sanctum.EventTypes = {
     Spellcast: 0,
-    CharacterInfo: 1,
-    ObjectInfo: 2
+    ObjectInfo: 1
 };
 
 var process = process || null;
@@ -43,21 +42,11 @@ sanctum.NetworkManager.prototype.addSpellcast = function(spellName, target, cast
                         data: {spellName: spellName, target: target, caster: caster}});
 }
 
-sanctum.NetworkManager.prototype.addCharacterInfo = function(character, index) {
-    var characterInfo = {
-        position: character.position,
-        velocity: character.velocity,
-        id: index
-    };
-
-    this.buffer.push({t/*EventType*/: sanctum.EventTypes.CharacterInfo, 
-                        data: characterInfo });
-}
-
-sanctum.NetworkManager.prototype.addObject = function(object) {
+sanctum.NetworkManager.prototype.addObject = function(object, index) {
     var objectInfo = {
-        origin: object.origin,
-        id: object.id
+        position: object.position,
+        velocity: object.velocity,
+        id: index
     };
 
     this.buffer.push({t/*EventType*/: sanctum.EventTypes.ObjectInfo, 

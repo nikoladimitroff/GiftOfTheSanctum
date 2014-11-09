@@ -11,6 +11,12 @@ if(allPhysics) {
     Vector = allPhysics.Vector || Vector;
 }
 
+var allGameObjects = require("./game_objects");
+
+if(allGameObjects) {
+    sanctum.Obstacle = allGameObjects.Obstacle;
+}
+
 
 var window = window || {};
 
@@ -95,6 +101,7 @@ var OBJECTS = {
 var CHARACTERS = [
     "character_monk",
     "character_orc",
+    "character_archer"
 ];
 
 sanctum.Game.prototype.init = function () {
@@ -116,8 +123,9 @@ sanctum.Game.prototype.init = function () {
     }
 
     var spellLibrary = this.contentManager.getSpellLibrary();
+    var obstacleLibrary = this.contentManager.getLibrary(sanctum.Obstacle);
     
-    this.effectManager.init(spellLibrary, this.objects, this.platform);
+    this.effectManager.init(spellLibrary, obstacleLibrary, this.objects, this.platform);
     this.run(0);
 }
 
@@ -174,7 +182,7 @@ sanctum.Game.prototype.processNetworkData = function() {
     for (var i = 0; i < payload.length; i++) {
         var event = payload[i];
         switch (event.t) {
-            case sanctum.EventTypes.CharacterInfo:
+            case sanctum.EventTypes.ObjectInfo:
                 var player = this.objects[event.data.id];
                // var newPos = player.velocity.multiply(this.networkManager.updateTime)
                //                     .add(new Vector(event.data.position.x, event.data.position.y));
@@ -199,7 +207,7 @@ sanctum.Game.prototype.processNetworkData = function() {
                 break;
 
             case sanctum.EventTypes.Spellcast:
-                var spell = this.effectManager.castSpell(this.objects[event.data.caster],
+                var spell = this.effectManager.castSpell(event.data.caster,
                                                          event.data.spellName,
                                                          new Vector().set(event.data.target));
                 break;
@@ -237,8 +245,7 @@ sanctum.Game.prototype.loop = function (timestamp) {
     this.networkManager.lastUpdate += delta;
     if(this.networkManager.lastUpdate >= this.networkManager.updateTime) {
         if(!this.networkManager.isServer()) {
-            // this.networkManager.addObjectData(this.objects, this.playerCount);
-            this.networkManager.addCharacterInfo(this.objects[this.playerObjectIndex], this.playerObjectIndex);
+            this.networkManager.addObject(this.objects[this.playerObjectIndex], this.playerObjectIndex);
             this.networkManager.flush();
         }
         this.networkManager.lastUpdate = 0;        
