@@ -5,7 +5,6 @@ sanctum.Platform = require("./platform") || sanctum.Platform;
 var allGameObjects = require("./game_objects");
 
 if(allGameObjects) {
-    console.log(allGameObjects);
     sanctum.Character = allGameObjects.Character;
     sanctum.Spell = allGameObjects.Spell;
     sanctum.Obstacle = allGameObjects.Obstacle;

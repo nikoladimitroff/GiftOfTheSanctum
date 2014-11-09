@@ -45,8 +45,6 @@ RoomController.prototype.handlePlay = function() {
     $("#content").remove();
     $("body").append('<canvas id="game-canvas" width="800px" height="800px">Your browser does not support the canvas element. Consider upgrading your IE6.</canvas>');
     
-    console.log(sanctum);
-
     var networkManager = new sanctum.NetworkManager();
     networkManager.connect(null, client.socket);
 

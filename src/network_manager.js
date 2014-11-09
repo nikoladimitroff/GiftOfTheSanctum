@@ -20,6 +20,7 @@ sanctum.NetworkManager = function () {
     this.socket = null;
     this.sockets = [];
     this.updateQueue = [];
+    this.scores = {};
     this.buffer = [];
     this.pendingDeaths = [];
     this.deathIndex = 0;
@@ -38,6 +39,7 @@ sanctum.NetworkManager.prototype.connect = function(masterSocket, socket) {
 
     socket.on("update", this.handleUpdate.bind(this));
     socket.on("death", this.handleDeath.bind(this));
+    socket.on("scores", this.handleScores.bind(this));
 }
 
 sanctum.NetworkManager.prototype.addSpellcast = function(spellName, target, caster) {
@@ -49,6 +51,7 @@ sanctum.NetworkManager.prototype.addObject = function(object, index) {
     var objectInfo = {
         position: object.position,
         velocity: object.velocity,
+        score: object.score,
         id: index
     };
 
@@ -82,6 +85,7 @@ sanctum.NetworkManager.prototype.handleDeath = function(data) {
     if(this.masterSocket) {
         this.masterSocket.emit("death", data);
     } else {
+        console.log("client death");
         this.pendingDeaths.push(data.index);
     }
 }
@@ -93,6 +97,20 @@ sanctum.NetworkManager.prototype.getPendingDeaths = function() {
 sanctum.NetworkManager.prototype.sendDie = function(playerIndex, objects) {
     this.socket.emit("death", {index: playerIndex});
     objects[playerIndex].score = this.deathIndex++;
+    // this.socket.emit("scores", {index: playerIndex, score: objects[playerIndex].score});
+}
+
+sanctum.NetworkManager.prototype.handleScores = function(data) {
+    if(this.masterSocket) {
+        this.masterSocket.emit("scores", {index: data.index, score: data.score});
+    } else {
+        console.log(data);
+        this.scores[data.index] = {index: data.index, score: data.score};
+    }
+}
+
+sanctum.NetworkManager.prototype.getScores = function() {
+    return this.scores;
 }
 
 sanctum.NetworkManager.prototype.getLastUpdate = function() {

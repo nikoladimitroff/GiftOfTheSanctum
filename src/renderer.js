@@ -77,7 +77,6 @@ sanctum.Renderer.prototype.renderOverlay = function () {
 }
 
 sanctum.Renderer.prototype.renderPlatform = function (platform) {
-    console.log(platform.width);
     this.context.drawImage(platform.texture, 
                            0, 0, platform.texture.width, platform.texture.height,
                            0, 0,
@@ -111,7 +110,7 @@ sanctum.Renderer.prototype.renderPlatform = function (platform) {
                            destination.x, destination.y,
                            platform.width, platform.height);
     this.context.restore();
-}   
+}
 
 sanctum.Renderer.prototype.render = function (platform, gameObjects, dt) {
     var context = this.context;
