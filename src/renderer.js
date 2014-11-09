@@ -1,4 +1,14 @@
-var sanctum = sanctum || {};
+var sanctum = require("./all_sanctum") || sanctum;
+sanctum = sanctum || {};
+
+var allPhysics = require("./physics");
+var physics = physics || {};
+var Vector = Vector || {};
+
+if(allPhysics) {
+    physics = allPhysics.physics || physics;
+    Vector = allPhysics.Vector || Vector;
+}
 
 sanctum.Sprite = function (image, framesPerRow) {
     this.image = image;
@@ -19,9 +29,34 @@ sanctum.Sprite.prototype.clone = function () {
     return sprite;
 }
 
+sanctum.Camera = function(viewport, mapSize) {
+    this.viewport = viewport;
+    this.mapSize = mapSize;
+    this.position = new Vector();
+}
+
+sanctum.Camera.prototype.follow = function(target) {
+    if(target.x - this.viewport.x / 2 < 0) {
+        target.x = 0;
+    }
+    if(target.y - this.viewport.y / 2 < 0) {
+        target.y = 0;
+    }
+    if(target.x + this.viewport.x / 2 > this.mapSize.x) {
+        target.x = this.mapSize.x - this.viewport.x;
+    }
+    if(target.y + this.viewport.y / 2 > this.mapSize.y) {
+        this.target.y = this.mapSize.y - this.viewport.y;
+    }
+
+    this.position = target;
+}
+
 sanctum.Renderer = function (context) {
     this.context = context;
+    this.camera = new sanctum.Camera(new Vector(640, 480), new Vector(1000, 1000));
 }
+
 
 sanctum.Renderer.prototype.getViewportCenter = function () {
     return new Vector(this.context.canvas.width / 2,
@@ -71,6 +106,9 @@ sanctum.Renderer.prototype.renderPlatform = function (platform) {
 sanctum.Renderer.prototype.render = function (platform, gameObjects, dt) {
     var context = this.context;
     context.clearRect(0, 0, canvas.width, canvas.height);
+    context.save();
+    context.translate(this.camera.x, this.camera.y);
+
     this.renderPlatform(platform);
     for (var i = 0; i < gameObjects.length; i++) {
         var obj = gameObjects[i];
@@ -106,4 +144,10 @@ sanctum.Renderer.prototype.render = function (platform, gameObjects, dt) {
             sprite.lastFrameUpdate = 0;
         }            
     }
+    context.restore();
+}
+
+
+if(typeof module != "undefined" && module.exports) {
+    module.exports = sanctum.Renderer;
 }

@@ -1,4 +1,14 @@
-var sanctum = sanctum || {};
+var sanctum = require("./all_sanctum") || sanctum;
+sanctum = sanctum || {};
+
+var allPhysics = require("./physics");
+var physics = physics || {};
+var Vector = Vector || {};
+
+if(allPhysics) {
+    physics = allPhysics.physics || physics;
+    Vector = allPhysics.Vector || Vector;
+}
 
 function MouseData() {
     this.scroll = 0;
@@ -194,3 +204,8 @@ sanctum.InputManager.keyCodeToName = sanctum.InputManager.generateKeyCodeToNameM
 sanctum.InputManager.keyNameToCode = JSON.parse(sanctum.InputManager.generateKeyCodeToNameMapping().reduce(function(previous, current, index, array) {
     return previous.substring(0, previous.length - 1) + "\"" + array[index] + "\":" + index + ",}";
 }, "{}").replace(",}", "}"));
+
+
+if(typeof module != "undefined" && module.exports) {
+    module.exports = sanctum.InputManager;
+}

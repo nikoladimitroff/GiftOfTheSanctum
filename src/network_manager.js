@@ -1,4 +1,6 @@
-var sanctum = sanctum || {};
+var sanctum = require("./all_sanctum") || sanctum;
+
+sanctum = sanctum || {};
 
 sanctum.EventTypes = {
     Spellcast: 0,

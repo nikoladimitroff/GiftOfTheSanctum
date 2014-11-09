@@ -1,4 +1,6 @@
-var sanctum = sanctum || {};
+var sanctum = require("./all_sanctum") || sanctum;
+
+sanctum = sanctum || {};
 
 Actions = {
     walk: "walk",
@@ -10,8 +12,10 @@ Actions = {
     spellcast6: "spellcast6",
 };
 
-sanctum.Game = function (context, playerCount) {
-    Resizer.installHandler(context.canvas);
+sanctum.Game = function (context, playerCount, networkManager) {
+    if(!require("./all_sanctum")) {
+        Resizer.installHandler(context.canvas);
+    }
 
     this.objects = []; // The first playerCount indices hold the characters
     this.playerCount = playerCount;
@@ -21,11 +25,14 @@ sanctum.Game = function (context, playerCount) {
     this.spellBindings = {};
     this.keybindings = {};
 
+    console.log(sanctum);
+
     this.contentManager = new sanctum.ContentManager();
     this.physicsManager = new sanctum.PhysicsManager();
     this.effectManager = new sanctum.EffectManager();
     this.input = new sanctum.InputManager();
-    this.renderer = new sanctum.Renderer(context);     
+    this.renderer = new sanctum.Renderer(context);
+    this.networkManager = networkManager;
 };
 
 var OBJECTS = {
@@ -85,6 +92,11 @@ sanctum.Game.prototype.handleInput = function () {
     this.input.swap();
 }
 
+sanctum.Game.prototype.processNetworkData = function() {
+    var payload = this.networkManager.getLastUpdate();
+
+}
+
 sanctum.Game.prototype.bindSpells = function (cast1, cast2, cast3, cast4, cast5, cast6) {
     for (var i = 0; i < arguments.length; i++) { // magic, fix the number of casts
         this.spellBindings["spellcast" + (i + 1)] = arguments[i];
@@ -126,7 +138,7 @@ function startAll() {
 
 }
 
-startAll();
+// startAll();
 
 function testCast() {
     m = game.objects[0];
@@ -139,4 +151,4 @@ if(typeof module != "undefined" && module.exports) {
     module.exports = sanctum.Game;
 }
 
-startAll();
+// startAll();

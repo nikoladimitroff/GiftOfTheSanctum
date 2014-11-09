@@ -120,3 +120,7 @@ sanctum.EffectManager.prototype.cleanupEffects = function (playerCount) {
         }
     }
 }
+
+if(typeof module != "undefined" && module.exports) {
+    module.exports = sanctum.EffectManager;
+}

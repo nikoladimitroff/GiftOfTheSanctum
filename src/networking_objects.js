@@ -1,4 +1,5 @@
 var NetworkManager = require("./network_manager");
+var Game = require("./sanctum");
 
 var networking = networking || {};
 var MAX_PLAYERS = 8;
@@ -8,7 +9,6 @@ networking.token = function() {
 }
 
 networking.Player = function(id, name) {
-    // this.id = name + networking.token();
     this.id = id;
     this.name = name;
     this.roomId = null;
@@ -23,6 +23,8 @@ networking.Room = function(masterSocket) {
     this.players = [];
     this.masterSocket = masterSocket;
     this.networkManager = new NetworkManager();
+
+    this.game = null;
 
     this.masterSocket = this.masterSocket.of("/" + this.id);
 }
@@ -97,6 +99,7 @@ networking.Room.prototype.play = function(socket) {
     if(socket.id == this.hostId) {
         console.log("Game started.");
         this.isRunning = true;
+        this.game = new Game({}, this.players.length, this.networkManager);
 
         this.masterSocket.emit("play", {});
     }

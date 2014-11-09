@@ -8,6 +8,8 @@
 // };
 
 var require = function (moduleName) {
+	return null;
+	
     if (!moduleName) throw new Error("Could not load module: " + moduleName);
     return moduleName.exports || moduleName;
 }
