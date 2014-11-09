@@ -119,10 +119,11 @@ body {
 }
 
 .guide-img {
-    margin-left: 20px;
+    margin-left: 280px;
     margin-top: 50px;
-    width:200px;
-    height:350px;
+    width: 450px;
+    height: 150px;
+    align:center;
 }
 .room-button {
 
