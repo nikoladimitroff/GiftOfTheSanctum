@@ -145,6 +145,10 @@ sanctum.Renderer.prototype.render = function (platform, gameObjects, dt) {
         }            
     }
     context.restore();
+
+    if(game.objects[game.playerObjectIndex].dead) {
+        this.renderOverlay();
+    }
 }
 
 
