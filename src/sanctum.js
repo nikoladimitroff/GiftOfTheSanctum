@@ -100,9 +100,14 @@ var OBJECTS = {
 }
 
 var CHARACTERS = [
+    "character_archer",
+    "character_knight",
+    "character_mage",
     "character_monk",
+    "character_necro",
     "character_orc",
-    "character_archer"
+    "character_queen",
+    "character_rogue",
 ];
 
 sanctum.Game.prototype.init = function () {
