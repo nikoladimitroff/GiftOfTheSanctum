@@ -40,6 +40,7 @@ networking.Room.prototype.handleRoom = function() {
             socket.on("welcome", this.welcome.bind(this, socket));
             socket.on("leave", this.leave.bind(this, socket));
             socket.on("play", this.play.bind(this, socket));
+            socket.on("chat", this.chat.bind(this, socket))
             socket.on("disconnect", this.leave.bind(this, socket));
 
         }.bind(this));
@@ -71,6 +72,12 @@ networking.Room.prototype.welcome = function(socket, data) {
             this.masterSocket.emit("roomUpdated",
                 { players: this.players } );
         }
+    }
+}
+
+networking.Room.prototype.chat = function(socket, data) {
+    if(this.masterSocket.sockets.indexOf(socket) != -1) {
+        this.masterSocket.emit("chat", { message: data.message })
     }
 }
 
