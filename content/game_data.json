@@ -4,7 +4,86 @@
     spells: "spell_library.json",
     characters: [
         {
-            sprite: "art/characters/monk.png",
+            sprite: "art/characters/sprite/archer.png",
+            width: 64,
+            height: 64,
+            animations: {
+                walk: 8,
+                spellcast1: 0,
+                spellcast2: 4,
+            },
+            size: 0,
+            mass: 1,
+            health: 100,
+        }, {
+            sprite: "art/characters/sprite/knight.png",
+                        width: 64,
+            height: 64,
+            animations: {
+                walk: 8,
+                spellcast1: 0,
+                spellcast2: 4,
+            },
+            mass: 1,
+            health: 100,
+        }, {
+            sprite: "art/characters/sprite/mage.png",
+            width: 64,
+            height: 64,
+            animations: {
+                walk: 8,
+                spellcast1: 0,
+                spellcast2: 4,
+            },
+            mass: 1,
+            health: 100,
+        }, {
+            sprite: "art/characters/sprite/monk.png",
+            width: 64,
+            height: 64,
+            animations: {
+                walk: 8,
+                spellcast1: 0,
+                spellcast2: 4,
+            },
+            mass: 1,
+            health: 100,
+        }, {
+            sprite: "art/characters/sprite/necro.png",
+            width: 64,
+            height: 64,
+            animations: {
+                walk: 8,
+                spellcast1: 0,
+                spellcast2: 4,
+            },
+            size: 0,
+            mass: 1,
+            health: 100,
+        }, {
+            sprite: "art/characters/sprite/orc.png",
+            width: 64,
+            height: 64,
+            animations: {
+                walk: 8,
+                spellcast1: 0,
+                spellcast2: 4,
+            },
+            mass: 1,
+            health: 100,
+        }, {
+            sprite: "art/characters/sprite/queen.png",
+            width: 64,
+            height: 64,
+            animations: {
+                walk: 8,
+                spellcast1: 0,
+                spellcast2: 4,
+            },
+            mass: 1,
+            health: 100,
+        }, {
+            sprite: "art/characters/sprite/rogue.png",
             width: 64,
             height: 64,
             animations: {

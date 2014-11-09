@@ -126,6 +126,8 @@ function startAll() {
 
 }
 
+startAll();
+
 function testCast() {
     m = game.objects[0];
     e = game.effectManager;

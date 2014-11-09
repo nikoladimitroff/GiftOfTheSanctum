@@ -51,7 +51,7 @@
     ],
     effectRadius: 0,
     damageAmount: 5,
-	pushbackForce: 10,
+    pushbackForce: 10,
     haste: -5,
     cooldown: 10,
     movementFunction: "linear",
