@@ -2,6 +2,7 @@
     platform: "example_platform.json",
     sprites: "sprites.json",
     spells: "spell_library.json",
+    obstacles: "obstacles.json",
     characters: [
         {
             sprite: "art/characters/sprite/archer.png",

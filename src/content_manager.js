@@ -8,6 +8,7 @@ if(allGameObjects) {
     console.log(allGameObjects);
     sanctum.Character = allGameObjects.Character;
     sanctum.Spell = allGameObjects.Spell;
+    sanctum.Obstacle = allGameObjects.Obstacle;
 }
 
 var allPhysics = require("./physics");
@@ -64,6 +65,11 @@ sanctum.ContentManager.prototype.loadSpell = function (description) {
     this.contentCache[description.name] = new sanctum.Spell(sprite, description);
 };
 
+sanctum.ContentManager.prototype.loadObstacle = function (description) {
+    var sprite = this.get(description.sprite);
+    this.contentCache[description.name] = new sanctum.Obstacle(sprite, description);
+};
+
 sanctum.ContentManager.prototype.loadCharacter = function (description) {
     var url = description.sprite;
     var sprite = this.get(this.root + url);
@@ -83,7 +89,7 @@ sanctum.ContentManager.prototype.loadPlatform = function (description, isServer)
                                             description
                                             );
     }
-    
+
     this.contentCache[description.name] = platform;
 };
 
@@ -127,7 +133,11 @@ sanctum.ContentManager.prototype.loadGameData = function (gameDataPath, callback
 
                     self.fetchJSONFile(gameData.platform, function (platform) {
                         self.loadPlatform(platform);
-                        callback();
+
+                        self.fetchJSONFile(gameData.obstacles, function(obstacles) {
+                            obstacles.map(self.loadObstacle.bind(self));
+                            callback();                            
+                        })
                     });
                 });
             }
@@ -174,6 +184,18 @@ sanctum.ContentManager.prototype.getSpellLibrary = function () {
     }
     return spellLib;
 };
+
+sanctum.ContentManager.prototype.getLibrary = function(type) {
+    var lib = {};
+    for(var path in this.contentCache) {
+        var content = this.contentCache[path];
+        if(content instanceof type) {
+            lib[content.name] = content;
+        }
+    }
+
+    return lib;
+}
 
 if(typeof module != "undefined" && module.exports) {
     module.exports = sanctum.ContentManager;

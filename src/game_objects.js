@@ -45,6 +45,19 @@ sanctum.Character = function (sprite, description) {
     copyProperties(this, description);
 };
 
+sanctum.Obstacle = function(sprite, description) {
+    this.position = new Vector(300, 300);
+    this.velocity = new Vector(0, 0);
+    this.size = new Vector(description.width, description.height);
+    this.collisionRadius = Math.max(this.size.x, this.size.y) / 2;
+
+    this.sprite = sprite;
+    this.rotation = 0;
+    this.initialPosition = this.position.clone();
+
+    copyProperties(this, description);
+}
+
 sanctum.Spell = function (sprite, description) {
     // physics
     this.position = new Vector(300, 300);
@@ -66,7 +79,7 @@ sanctum.Spell = function (sprite, description) {
     
     this.id = ID_COUNTER++;
     
-    copyProperties(this, description);    
+    copyProperties(this, description);
 }
 
 sanctum.Character.prototype.clone = sanctum.Spell.prototype.clone = function () {
@@ -113,4 +126,5 @@ sanctum.Character.prototype.playAnimation = function (action, forward) {
 if(typeof module != "undefined" && module.exports) {
     module.exports.Character = sanctum.Character;
     module.exports.Spell = sanctum.Spell;
+    module.exports.Obstacle = sanctum.Obstacle;
 }
