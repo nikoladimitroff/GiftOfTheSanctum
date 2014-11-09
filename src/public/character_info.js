@@ -1,6 +1,7 @@
 $(document).ready(function () {
     $("#health_container").load("src/public/health_orb.html");
     $("#spell_info").load("src/public/spell_info.html");
+    $("#spell_shop").load("src/public/spell_shop.html");
     $("#health_orb").click(function(){
         var min = 41.5;
         var max = 57.6;
