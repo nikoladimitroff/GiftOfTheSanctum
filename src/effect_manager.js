@@ -29,7 +29,7 @@ sanctum.EffectManager.prototype.removeSpell = function (spellId) {
     return true;
 }
 
-sanctum.EffectManager.prototype.applyEffects = function (physics) {
+sanctum.EffectManager.prototype.applyEffects = function (physics, dt) {
     var collisions = physics.getCollisionPairs(this.objects);
     for (var i = 0; i < collisions.length; i++) {
         var first = collisions[i].first,
@@ -37,12 +37,20 @@ sanctum.EffectManager.prototype.applyEffects = function (physics) {
 
         if (first instanceof sanctum.Character &&
             second instanceof sanctum.Spell) {
-            this.pulseSpell(second, physics, first);
+            this.pulseSpell(second, physics, first, dt);
         }
     };
 };
 
-sanctum.EffectManager.prototype.pulseSpell = function (spell, physics, hitTarget) {
+sanctum.EffectManager.prototype.pulseSpell = function (spell, physics, hitTarget, dt) {
+	if (spell.castingType == CastType.instant) {
+		spell.lastUpdate = (spell.lastUpdate + dt) || dt;
+		if (spell.lastUpdate <= 1000) { // magic
+			return;
+		}
+	}
+	
+
     var targets = physics.getObjectsWithinRadius(this.objects,
                                                  spell.position,
                                                  spell.effectRadius);
@@ -85,7 +93,6 @@ sanctum.EffectManager.prototype.castSpell = function (characterId, spellName, ta
     var character = this.objects[characterId];
     var spellInstance = this.spellLibrary[spellName].clone();
     if (spellInstance.castType == CastType.projectile) {
-        spellInstance.velocity = character.velocity.clone();
         
         var center = character.getCenter();
         var offset = spellInstance.size.divide(2);
@@ -93,11 +100,15 @@ sanctum.EffectManager.prototype.castSpell = function (characterId, spellName, ta
         
         var distance = (spellInstance.collisionRadius + character.collisionRadius) * 1.1;
         spellInstance.position = center.subtract(offset).add(forward.multiply(distance));        
-        spellInstance.acceleration = forward.multiply(100); // magic
+        spellInstance.acceleration = forward.multiply(this.spellLibrary[spellName].startingAcceleration);
+        spellInstance.velocity = character.velocity.add(forward.multiply(this.spellLibrary[spellName].startingVelocity));
 
         spellInstance.rotation = - Math.PI / 2 +  Vector.right.angleTo360(forward);
     }
     if (spellInstance.castType == CastType.instant) {
+		var isInRange = this.spellLibrary[spellName].range > target.subtract(character.getCenter()).length();
+		if (!isInRange)
+			return null;
         spellInstance.position = target.subtract(spellInstance.size);
     }
     this.objects.push(spellInstance);

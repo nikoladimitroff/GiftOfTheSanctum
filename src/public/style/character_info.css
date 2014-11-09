@@ -1,8 +1,33 @@
+#spell_shop {
+    position: absolute;
+    top: 40%;
+    text-align: center;
+    left: 0px; 
+    height: 30%; 
+    width: 100%;
+    background-color: rgba(0, 255, 255, 0.5);
+    z-index: 1;
+}
+
+#spell_shop li {
+    display: inline;
+    list-style-type: none;
+    margin-right: 90px;
+}
+
+#spell_shop h2{
+    margin-left: 10%; 
+}
+
+#spell_shop li a {
+    background-color: blue;
+}
+
 #spell_info {
 	position: absolute;
 	top:20%; 
-    height:50%; 
-    width:100px;
+    height:80%; 
+    width:10%;
 	z-index: 1;
 	left: 10px;
 }
@@ -23,6 +48,8 @@
 #spell_info ul li {
 	width: 70px;
 	height: 70px;
+    background-color: blue;
+    margin-top: 10px;
 }
 
 #spell_info ul {
@@ -44,10 +71,11 @@
 	text-align: center;
 }
 
-.badge1 {
+.spell_badge {
    position: absolute;
 }
-.badge1[data-badge]:after {
+
+.spell_badge[data-badge]:after {
    content: attr(data-badge);
    position: absolute;
    top: -10px;

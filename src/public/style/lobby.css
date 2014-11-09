@@ -11,6 +11,7 @@ body {
 }
 
 .chat_container {
+    position: absolute;
     background-color: black;
     opacity: 0.5;
     color: white;
@@ -19,10 +20,11 @@ body {
     -webkit-border-radius:5px;
     border-radius:5px;
     border:1px solid #1a376b;
-    width: 400px;
-    height: 450px;
+    left: 65%;
+    top: 3%;
+    width: 30%;
+    height: 65%;
     vertical-align: top;
-    display:inline-block;
 }
 
 #chat, #chat_text, #chat_submit {
@@ -46,7 +48,6 @@ body {
 #lobby {
     width: 100%;
     height: 100%;
-    position: absolute;
     top: 0;
     left: 0;
     background: url("../../../content/art/lobby_wallpaper.jpg") #030708;
@@ -55,11 +56,12 @@ body {
 }
 
 .container {
-    margin-left: 13%;
-    margin-top: 3%;
+    width: auto;
+    height: auto;
 }
 
 .players {
+    position: absolute;
     background-color: black;
     opacity: 0.5;
     color: white;
@@ -68,8 +70,10 @@ body {
     -webkit-border-radius:5px;
     border-radius:5px;
     border:1px solid #1a376b;
-    width: 400px;
-    height: 450px;
+    left: 10%;
+    top: 3%;
+    width: 30%;
+    height: 65%;
     vertical-align: top;
     display:inline-block;
 }
@@ -108,22 +112,34 @@ body {
 }
 
 .buttons {
+    position: absolute;
+    left: 47%;
+    top: 3%;
+    width: 30%;
+    height: 65%;
     vertical-align: top;
-    display:inline-block;
-    margin-left: 20px;
-    margin-right: 20px;
 }
 
 .guide {
-    margin:auto;
+    position: absolute;
+    width: 100%;
+    left: 0%;
+    top: 75%;
+    height: 25%;
+}
+
+.guid div {
+    position: relative;
+    width: auto;
+    height: auto;
 }
 
 .guide-img {
-    margin-left: 280px;
-    margin-top: 20px;
-    width: 450px;
-    height: 150px;
-    align:center;
+    position: absolute;
+    top: 10%;
+    left: 20%;
+    width: 60%;
+    height: 80%;
 }
 .room-button {
 

@@ -38,6 +38,22 @@ Main.prototype.getRoom = function(socket, data) {
     }
 }
 
+Main.prototype.handleDisconnect = function(socket) {
+    if(this.players[socket.id]) {
+        var roomId = this.players[socket.id].roomId;
+        var room = this.rooms[roomId];
+        if(!room) {
+            return;
+        }
+        
+        room.game.disconnectCount = (room.game.disconnectCount + 1) || 1;
+        if(room.game.disconnectCount >= room.game.playerCount) {
+            console.log("deleting room");
+            delete this.rooms[roomId];
+        }
+    }
+}
+
 Main.prototype.start = function(io, socket) {
     this.sockets.push(socket);
     this.masterSocket = io;
@@ -45,6 +61,7 @@ Main.prototype.start = function(io, socket) {
     socket.emit("connected", { message: "Hi" });
     socket.on("getRoom", this.getRoom.bind(this, socket));
     socket.on("getPlayer", this.getPlayer.bind(this, socket));
+    socket.on("disconnect", this.handleDisconnect.bind(this, socket));
 }
 
 module.exports = new Main();

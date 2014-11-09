@@ -12,10 +12,15 @@
                 walk: 8,
                 spellcast1: 0,
                 spellcast2: 4,
+                spellcast3: 4,
+                spellcast4: 4,
+                spellcast5: 4,
+                spellcast6: 4,
             },
             size: 0,
             mass: 1,
-            health: 100,
+            health: 600,
+			speed: 330
         }, {
             sprite: "art/characters/sprite/knight.png",
                         width: 64,
@@ -23,10 +28,15 @@
             animations: {
                 walk: 8,
                 spellcast1: 0,
-                spellcast2: 4,
+                spellcast2: 0,
+                spellcast3: 0,
+                spellcast4: 0,
+                spellcast5: 0,
+                spellcast6: 0,
             },
             mass: 1,
-            health: 100,
+            health: 600,
+			speed: 330
         }, {
             sprite: "art/characters/sprite/mage.png",
             width: 64,
@@ -34,10 +44,15 @@
             animations: {
                 walk: 8,
                 spellcast1: 0,
-                spellcast2: 4,
+                spellcast2: 0,
+                spellcast3: 0,
+                spellcast4: 0,
+                spellcast5: 0,
+                spellcast6: 0,
             },
             mass: 1,
-            health: 100,
+            health: 600,
+			speed: 330
         }, {
             sprite: "art/characters/sprite/monk.png",
             width: 64,
@@ -45,10 +60,15 @@
             animations: {
                 walk: 8,
                 spellcast1: 0,
-                spellcast2: 4,
+                spellcast2: 0,
+                spellcast3: 0,
+                spellcast4: 0,
+                spellcast5: 0,
+                spellcast6: 0,
             },
             mass: 1,
-            health: 100,
+            health: 600,
+			speed: 330
         }, {
             sprite: "art/characters/sprite/necro.png",
             width: 64,
@@ -56,11 +76,16 @@
             animations: {
                 walk: 8,
                 spellcast1: 0,
-                spellcast2: 4,
+                spellcast2: 0,
+                spellcast3: 0,
+                spellcast4: 0,
+                spellcast5: 0,
+                spellcast6: 0,
             },
             size: 0,
             mass: 1,
-            health: 100,
+            health: 600,
+            speed: 330
         }, {
             sprite: "art/characters/sprite/orc.png",
             width: 64,
@@ -68,10 +93,15 @@
             animations: {
                 walk: 8,
                 spellcast1: 0,
-                spellcast2: 4,
+                spellcast2: 0,
+                spellcast3: 0,
+                spellcast4: 0,
+                spellcast5: 0,
+                spellcast6: 0,
             },
             mass: 1,
-            health: 100,
+            health: 600,
+			speed: 330
         }, {
             sprite: "art/characters/sprite/queen.png",
             width: 64,
@@ -79,10 +109,15 @@
             animations: {
                 walk: 8,
                 spellcast1: 0,
-                spellcast2: 4,
+                spellcast2: 0,
+                spellcast3: 0,
+                spellcast4: 0,
+                spellcast5: 0,
+                spellcast6: 0,
             },
             mass: 1,
-            health: 100,
+            health: 600,
+			speed: 330
         }, {
             sprite: "art/characters/sprite/rogue.png",
             width: 64,
@@ -90,10 +125,15 @@
             animations: {
                 walk: 8,
                 spellcast1: 0,
-                spellcast2: 4,
+                spellcast2: 0,
+                spellcast3: 0,
+                spellcast4: 0,
+                spellcast5: 0,
+                spellcast6: 0,
             },
             mass: 1,
-            health: 100,
+            health: 600,
+			speed: 330
         },
     ],
     keybindings: {
