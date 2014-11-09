@@ -44,11 +44,11 @@ sanctum.InputManager.prototype.init = function (camera) {
             this.completeKeyPress(args.keyCode);
         }
     }.bind(this), false);
-    
+
     window.addEventListener("keyup", function (args) {
         this.keyboard[args.keyCode] = false;
     }.bind(this), false);
-    
+
     window.addEventListener("mousedown", function (args) {
         switch (args.button) {
             case 0:
@@ -66,7 +66,11 @@ sanctum.InputManager.prototype.init = function (camera) {
             this.completeMouseDown(args.button);
         }
     }.bind(this), false);
-    
+
+    window.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+    }, false)
+
     window.addEventListener("mouseup", function (args) {
         switch (args.button) {
             case 0:
