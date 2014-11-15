@@ -19,7 +19,7 @@ sanctum.NetworkManager = function () {
     this.masterSocket = null;
     this.socket = null;
     this.sockets = [];
-    this.updateQueue = [];
+    this.updateQueue = {};
     this.scores = {};
     this.buffer = [];
     this.pendingDeaths = [];
@@ -59,11 +59,12 @@ sanctum.NetworkManager.prototype.addObject = function(object, index) {
                         data: objectInfo});
 }
 
-sanctum.NetworkManager.prototype.flush = function() {
+sanctum.NetworkManager.prototype.flush = function(objectId) {
     if(this.buffer.length > 0) {
-        if(!this.masterSocket) {
-            this.socket.emit("update", this.buffer);        
+        if(!this.isServer()) {
+            this.socket.emit("update", { data: this.buffer, id: objectId });
         } else {
+            //TODO: Currently not going here!
             this.masterSocket.emit("update", this.buffer);
         }
     }
@@ -78,11 +79,23 @@ sanctum.NetworkManager.prototype.addObjectData = function(objects, playerCount) 
 }
 
 sanctum.NetworkManager.prototype.handleUpdate = function(payload /*Array*/) {
-    this.updateQueue.push(payload);
+    if(this.isServer()) {
+        if(!this.updateQueue[payload.id]) {
+            this.updateQueue[payload.id] = [];
+        }
+        this.updateQueue[payload.id].push(payload.data);
+    } else {
+        for(var i = 0; i < payload.length; i++) {
+            if(!this.updateQueue[payload[i].id]) {
+                this.updateQueue[payload[i].id] = [];
+            }
+            this.updateQueue[payload[i].id].push(payload[i].data);
+        }
+    }
 }
 
 sanctum.NetworkManager.prototype.handleDeath = function(data) {
-    if(this.masterSocket) {
+    if(this.isServer()) {
         this.masterSocket.emit("death", data);
     } else {
         console.log("client death");
@@ -113,8 +126,11 @@ sanctum.NetworkManager.prototype.getScores = function() {
     return this.scores;
 }
 
-sanctum.NetworkManager.prototype.getLastUpdate = function() {
-    return this.updateQueue.shift();
+sanctum.NetworkManager.prototype.getLastUpdateFrom = function(objectId) {
+    if(!this.updateQueue[objectId]) {
+        return null;
+    }
+    return this.updateQueue[objectId].shift();
 }
 
 sanctum.NetworkManager.prototype.isServer = function() {
