@@ -39,7 +39,7 @@ sanctum.Character = function (sprite, description) {
     this.health = description.health;
 	this.speed = description.speed || 100;
     this.score = 0;
-    this.dead = false;
+    this.isDead = false;
     
     this.animations = description.animations;
     this.size = new Vector(description.width, description.height);

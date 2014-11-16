@@ -112,18 +112,11 @@ sanctum.Renderer.prototype.renderPlatform = function (platform) {
     this.context.restore();
 }
 
-sanctum.Renderer.prototype.render = function (platform, gameObjects, dt) {
+sanctum.Renderer.prototype.renderCollection = function (dt, gameObjects) {
     var context = this.context;
-    context.clearRect(0, 0, canvas.width, canvas.height);
 
-    context.save();
-    context.translate(-this.camera.position.x, -this.camera.position.y);
-
-    this.renderPlatform(platform);
     for (var i = 0; i < gameObjects.length; i++) {
         var obj = gameObjects[i];
-
-        if (!obj || obj.dead) continue;
         
         var sprite = obj.sprite;
         var frameX = sprite.frameIndex * sprite.frameWidth;
@@ -156,12 +149,26 @@ sanctum.Renderer.prototype.render = function (platform, gameObjects, dt) {
             sprite.lastFrameUpdate = 0;
         }            
     }
-    context.restore();
-
-    if(game.objects[game.playerObjectIndex].dead) {
-        this.renderOverlay();
-    }
 }
+
+sanctum.Renderer.prototype.render = function (dt, objectCollections, platform, shouldRenderOverlay) {
+    var context = this.context;
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    context.save();
+    context.translate(-this.camera.position.x, -this.camera.position.y);
+    
+    this.renderPlatform(platform);
+    for (var i = 0; i < objectCollections.length; i++) {
+        this.renderCollection(dt, objectCollections[i]);
+    }
+    
+    
+    if (shouldRenderOverlay)
+        this.renderOverlay();
+
+    context.restore();
+};
 
 
 if(typeof module != "undefined" && module.exports) {

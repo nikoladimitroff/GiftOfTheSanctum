@@ -6,33 +6,33 @@ var allPhysics = require("./physics");
 var physics = physics || {};
 var Vector = Vector || {};
 
-if(allPhysics) {
+if (allPhysics) {
     physics = allPhysics.physics || physics;
     Vector = allPhysics.Vector || Vector;
 }
 
 var allGameObjects = require("./game_objects");
 
-if(allGameObjects) {
+if (allGameObjects) {
     sanctum.Obstacle = allGameObjects.Obstacle;
 }
 
 
 var window = window || {};
 
-requestAnimationFrame = (function(){
-  return  window.requestAnimationFrame       ||
+requestAnimationFrame = (function () {
+    return window.requestAnimationFrame       ||
           window.webkitRequestAnimationFrame ||
-          window.mozRequestAnimationFrame
+          window.mozRequestAnimationFrame;
 })();
 
 function getRequestAnimationFrame() {
     var startTime = Date.now();
     return function requestServerFrame(callback) {
         setTimeout(function () {
-            callback(Date.now() - startTime)
+            callback(Date.now() - startTime);
         }, 1000 / 60);
-    }
+    };
 }
 
 Actions = {
@@ -45,48 +45,52 @@ Actions = {
     spellcast6: "spellcast6",
 };
 
-sanctum.Camera = function(viewport, platformSize) {
+sanctum.Camera = function (viewport, platformSize) {
     this.viewport = viewport;
     this.platformSize = platformSize;
     this.position = new Vector();
 }
 
-sanctum.Camera.prototype.follow = function(target) {
+sanctum.Camera.prototype.follow = function (target) {
     var position = this.position;
 
     position.x = target.x - this.viewport.x / 2;
     position.y = target.y - this.viewport.y / 2;
 
-    if(target.x - this.viewport.x / 2 < 0) {
+    if (target.x - this.viewport.x / 2 < 0) {
         position.x = 0;
     }
-    if(target.y - this.viewport.y / 2 < 0) {
+    if (target.y - this.viewport.y / 2 < 0) {
         position.y = 0;
     }
-    if(target.x + this.viewport.x / 2 > this.platformSize.x) {
+    if (target.x + this.viewport.x / 2 > this.platformSize.x) {
         position.x = this.platformSize.x - this.viewport.x;
     }
-    if(target.y + this.viewport.y / 2 > this.platformSize.y) {
+    if (target.y + this.viewport.y / 2 > this.platformSize.y) {
         position.y = this.platformSize.y - this.viewport.y;
     }
 
 }
 
 sanctum.Game = function (context, playerCount, selfIndex, networkManager) {
-    this.objects = []; // The first playerCount indices hold the characters
+    this.characters = [];
     this.playerCount = playerCount;
     this.previousTime = 0;
     this.deathsCount = 0;
-    this.playerObjectIndex = selfIndex;
+    this.playerIndex = selfIndex;
     this.nextAction = Actions.walk;
     this.spellBindings = {};
     this.keybindings = {};
+    this.events = {
+        roundOver: new Event(),
+    };
 
     if(!networkManager.isServer()) {
         this.input = new sanctum.InputManager();
         this.renderer = new sanctum.Renderer(context);
     }
 
+    this.uimanager = new sanctum.UIManager({}, this.events);
     this.contentManager = new sanctum.ContentManager();
     this.physicsManager = new sanctum.PhysicsManager();
     this.effectManager = new sanctum.EffectManager();
@@ -97,7 +101,7 @@ var OBJECTS = {
     "monk": "character_monk",
     "fireball": "content/art/spells/fireball.png",
     "platform": "Basic platform",
-}
+};
 
 var CHARACTERS = [
     "character_archer",
@@ -113,7 +117,7 @@ var CHARACTERS = [
 sanctum.Game.prototype.init = function () {
     this.platform = this.contentManager.get(OBJECTS["platform"]);
 
-    if(!this.networkManager.isServer()) {
+    if (!this.networkManager.isServer()) {
         var camera = new sanctum.Camera(new Vector(), this.platform.size);
         this.renderer.init(camera);
         this.input.init(camera);
@@ -124,16 +128,15 @@ sanctum.Game.prototype.init = function () {
 
     var center = new Vector(this.platform.size.x / 2, this.platform.size.y / 2);
 
-    for(var i = 0; i < this.playerCount; i++) {
+    for (var i = 0; i < this.playerCount; i++) {
         var player = this.contentManager.get(CHARACTERS[i]).clone();        
         player.position = playerPositions[i].add(center);
-        this.objects.push(player);
+        this.characters.push(player);
     }
 
     var spellLibrary = this.contentManager.getSpellLibrary();
-    var obstacleLibrary = this.contentManager.getLibrary(sanctum.Obstacle);
     
-    this.effectManager.init(spellLibrary, obstacleLibrary, this.objects, this.platform, this.playerCount);
+    this.effectManager.init(spellLibrary, this.characters, this.platform);
     this.run(0);
 }
 
@@ -141,21 +144,18 @@ sanctum.Game.prototype.loadContent = function () {
     this.contentManager.loadGameData("game_data.json", this.init.bind(this), this.networkManager.isServer());
 }
 
-sanctum.Game.prototype.resetRound = function() {
+sanctum.Game.prototype.reset = function() {
     console.log("reset");
-    var newObjects = [];
     var playerPositions = this.platform.generateVertices(this.playerCount, 50);
 
     for(var i = 0; i < this.playerCount; i++) {
-        var player = this.objects[i];
+        var player = this.characters[i];
         player.position = playerPositions[i];
         player.health = player.startingHealth;
-        player.dead = false;
-
-        newObjects.push(player);
+        player.isDead = false;
     }
-    this.effectManager.resetRound();
-    this.objects = newObjects;
+    this.effectManager.reset();
+    this.spells = [];
 }
 
 sanctum.Game.prototype.handleInput = function () {
@@ -165,7 +165,7 @@ sanctum.Game.prototype.handleInput = function () {
         }
     }
 
-    var player = this.objects[this.playerObjectIndex];
+    var player = this.characters[this.playerIndex];
     if (this.input.mouse.right && 
         !this.input.previousMouse.right) {
         player.velocity = this.input.mouse.absolute.subtract(player.position);
@@ -177,13 +177,13 @@ sanctum.Game.prototype.handleInput = function () {
              !this.input.previousMouse.left &&
              this.nextAction != Actions.walk) {
         var spellName = this.spellBindings[this.nextAction];
-        var spell = this.effectManager.castSpell(this.playerObjectIndex,
+        var spell = this.effectManager.castSpell(this.playerIndex,
                                                  spellName,
                                                  this.input.mouse.absolute);
         if (spell !== null) {
             var forward = spell.position.subtract(player.position).normalized();
             player.playAnimation(this.nextAction, forward);
-            this.networkManager.addSpellcast(spellName, this.input.mouse.absolute, this.playerObjectIndex);
+            this.networkManager.addSpellcast(spellName, this.input.mouse.absolute, this.playerIndex);
             var forward = spell.position.subtract(player.position).normalized();
             player.playAnimation(this.nextAction, forward);
         }
@@ -207,8 +207,8 @@ sanctum.Game.prototype.processNetworkData = function() {
         var event = payload[i];
         switch (event.t) {
             case sanctum.EventTypes.ObjectInfo:
-                var player = this.objects[event.data.id];
-                var canSkip = event.data.id == this.playerObjectIndex;
+                var player = this.characters[event.data.id];
+                var canSkip = event.data.id == this.playerIndex;
                 if(canSkip) {
                     continue;
                 }
@@ -220,7 +220,7 @@ sanctum.Game.prototype.processNetworkData = function() {
                 break;
 
             case sanctum.EventTypes.Spellcast:
-                var canSkip = event.data.caster == this.playerObjectIndex;
+                var canSkip = event.data.caster == this.playerIndex;
                 if(canSkip) {
                     continue;
                 }
@@ -240,10 +240,10 @@ sanctum.Game.prototype.processPendingDeaths = function() {
     }
 
     for(var i = 0; i < deaths.length; i++) {
-        var player = this.objects[deaths[i]];
-        if(!player.dead) {
+        var player = this.characters[deaths[i]];
+        if(!player.isDead) {
             this.deathsCount++;
-            player.dead = true;
+            player.isDead = true;
         }
     }
     this.networkManager.pendingDeaths = [];
@@ -264,51 +264,47 @@ sanctum.Game.prototype.loop = function (timestamp) {
 
         this.processPendingDeaths();
 
-        var me = this.objects[this.playerObjectIndex];
-        if (me.health <= 0 && !me.dead) {
-            this.networkManager.sendDie(this.playerObjectIndex, this.objects);
-            me.dead = true;
+        var me = this.characters[this.playerIndex];
+        if (me.health <= 0 && !me.isDead) {
+            this.networkManager.sendDie(this.playerIndex, this.objects);
+            this.characters[this.playerIndex].score = 123;
+            me.isDead = true;
             this.deathsCount++;
         }
 
-        if(this.deathsCount >= this.playerCount - 1) {
-            if(!this.objects[this.playerObjectIndex].dead) {
-                this.objects[this.playerObjectIndex].score += 7;
+        if(this.deathsCount >= this.characters.length - 1) {
+            if(!this.characters[this.playerIndex].isDead) {
+                this.characters[this.playerIndex].score += 7;
             }
 
-            this.resetRound();
-            $.get("src/public/background.html", function(html) {
-                $("body").append(html);
-                
-                // var scores = this.networkManager.getScores();
-                // console.log(scores);
-                scoreBoardShows(this.objects, this.playerCount);
-            }.bind(this));
-            return;
+            //this.reset();
+            //this.events.roundOver.fire(this.characters);
+           // return;
         }
 
         this.platform.update(delta);
-        this.physicsManager.update(this.objects);
+        this.physicsManager.update(this.effectManager.activeSpells);
         this.effectManager.applyEffects(this.physicsManager, delta);
-        this.effectManager.applyPlatformEffect(this.physicsManager,
-                                               this.platform,
-                                               this.playerCount
-                                               );
-        this.effectManager.cleanupEffects(this.playerCount);
+        this.effectManager.applyPlatformEffect(this.physicsManager, this.platform);
+        this.effectManager.cleanupEffects();
 
-        if(!me.dead) {
+        if(!me.isDead) {
             this.handleInput();
         }
-        var following = !me.dead ? this.playerObjectIndex : this.getMaxScorePlayerIndex();
+        var following = !me.isDead ? this.playerIndex : this.getMaxScorePlayerIndex();
 
-        this.renderer.camera.follow(this.objects[following].position);
-        this.renderer.render(this.platform, this.objects, delta);
+        this.renderer.camera.follow(this.characters[following].position);
+        this.renderer.render(delta, 
+                             [this.characters, this.effectManager.activeSpells],
+                             this.platform,
+                             this.characters[this.playerIndex].isDead
+                             );
     }
 
     this.networkManager.lastUpdate += delta;
     if(this.networkManager.lastUpdate >= this.networkManager.updateTime) {
         if(!this.networkManager.isServer()) {
-            this.networkManager.addObject(this.objects[this.playerObjectIndex], this.playerObjectIndex);
+            this.networkManager.addObject(this.characters[this.playerIndex], this.playerIndex);
             this.networkManager.flush();
         }
         this.networkManager.lastUpdate = 0;
@@ -327,10 +323,10 @@ sanctum.Game.prototype.loop = function (timestamp) {
 
 sanctum.Game.prototype.getMaxScorePlayerIndex = function() {
     var maxScoreIndex = 0;
-    var max = this.objects[0].score;
-    for(var i = 0; i < this.playerCount; i++) {
-        if(max < this.objects[i].score && !this.objects[i].dead) {
-            max = this.objects[i].score;
+    var max = this.characters[0].score;
+    for(var i = 1; i < this.characters.length; i++) {
+        if(max < this.characters[i].score && !this.characters[i].isDead) {
+            max = this.characters[i].score;
             maxScoreIndex = i;
         }
     }
@@ -343,7 +339,7 @@ sanctum.Game.prototype.run = function () {
     if (this.networkManager.isServer()) {
         sanctum.Game.mainGameLoop = this.loop.bind(this, 1000 / 60);
     }
-    //requestAnimationFrame = getRequestAnimationFrame();
+
     this.mainGameLoop(0);
 }
 
@@ -359,12 +355,6 @@ function startAll(playerCount, selfIndex, networkManager) {
 
 // startAll();
 
-function testCast() {
-    m = game.objects[0];
-    e = game.effectManager;
-    p = game.physicsManager;
-    game.objects.push(e.castSpell(m, "fireball", new Vector(0, 0)));
-}
 
 if(typeof module != "undefined" && module.exports) {
     module.exports = sanctum.Game;

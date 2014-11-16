@@ -23,7 +23,6 @@ sanctum.NetworkManager = function () {
     this.scores = {};
     this.buffer = [];
     this.pendingDeaths = [];
-    this.deathIndex = 0;
 };
 
 
@@ -96,8 +95,6 @@ sanctum.NetworkManager.prototype.getPendingDeaths = function() {
 
 sanctum.NetworkManager.prototype.sendDie = function(playerIndex, objects) {
     this.socket.emit("death", {index: playerIndex});
-    objects[playerIndex].score = this.deathIndex++;
-    // this.socket.emit("scores", {index: playerIndex, score: objects[playerIndex].score});
 }
 
 sanctum.NetworkManager.prototype.handleScores = function(data) {
