@@ -42,13 +42,16 @@ RoomController.prototype.updateHost = function(data) {
 }
 
 RoomController.prototype.handlePlay = function() {
-    $("#content").remove();
-    $("body").append('<canvas id="game-canvas" width="800px" height="800px">Your browser does not support the canvas element. Consider upgrading your IE6.</canvas>');
+    $.get("src/public/game_ui.html", function (html) {
+        $("#content").html(html);
     
-    var networkManager = new sanctum.NetworkManager();
-    networkManager.connect(null, client.socket);
+        var networkManager = new sanctum.NetworkManager();
+        networkManager.connect(null, client.socket);
 
-    startAll(this.players.length, this.findSelfIndex(), networkManager);
+        startAll(this.players.map(function (c) { return c.name; }), 
+                 this.findSelfIndex(), 
+                 networkManager);
+    }.bind(this));
 }
 
 RoomController.prototype.handleChat = function(data) {
