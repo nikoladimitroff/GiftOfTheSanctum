@@ -17,6 +17,8 @@ if (allGameObjects) {
     sanctum.Obstacle = allGameObjects.Obstacle;
 }
 
+var Event = Event || require("./utils/event.js")
+
 
 var window = window || {};
 
@@ -282,6 +284,7 @@ sanctum.Game.prototype.loop = function (timestamp) {
 
     if (!this.networkManager.isServer()) {
         this.platform.update(delta);
+        this.physicsManager.update(this.effectManager.characters);
         this.physicsManager.update(this.effectManager.activeSpells);
         this.effectManager.applyEffects(this.physicsManager, delta);
         this.effectManager.applyPlatformEffect(this.physicsManager, this.platform);
@@ -298,15 +301,15 @@ sanctum.Game.prototype.loop = function (timestamp) {
             currentPlayer.isDead = true;
         }
 
-//        if(this.deathsCount >= this.characters.length - 1) {
-//            if(!this.characters[this.playerIndex].isDead) {
-//                this.characters[this.playerIndex].score += this.deathsCount;
-//            }
+        if(this.deathsCount >= this.characters.length - 1) {
+            if(!this.characters[this.playerIndex].isDead) {
+                this.characters[this.playerIndex].score += this.deathsCount;
+            }
 
-            this.reset();
-            this.events.roundOver.fire(this.characters);
-            return;
-//        }
+//            this.reset();
+//            this.events.roundOver.fire(this.characters);
+//            return;
+        }
         
         if(!currentPlayer.isDead) {
             this.handleInput();

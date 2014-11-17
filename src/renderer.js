@@ -55,8 +55,32 @@ sanctum.Renderer.prototype.getViewportCenter = function () {
 }
 
 sanctum.Renderer.prototype.getPlatformCenter = function (platform) {
-    return new Vector(platform.width / 2,
-                      platform.height / 2);
+    return new Vector(-this.camera.position.x + platform.width / 2, 
+                      -this.camera.position.y + platform.height / 2);
+}
+
+
+sanctum.Renderer.prototype.getPlatformSourceVectors = function (platform) {
+    var platformRatio = new Vector(platform.texture.width / platform.width,
+                                   platform.texture.height / platform.height);
+
+    var position = this.camera.position.multiply(platformRatio);
+    if (position.x < 0)
+        position.x = 0;
+    if (position.y < 0)
+        position.y = 0;
+    
+    var size = this.camera.viewport.multiply(platformRatio);
+    
+    if (position.x + size.x > platform.texture.width)
+        size.x = Math.min(size.x - position.x, platform.texture.width);
+    if (position.y + size.y > platform.texture.height)
+        size.y = Math.min(size.y - position.y, platform.texture.height);
+
+    return {
+        position: position,
+        size: size,
+    };
 }
 
 sanctum.Renderer.prototype.renderCircle = function (obj) {
@@ -77,38 +101,41 @@ sanctum.Renderer.prototype.renderOverlay = function () {
 }
 
 sanctum.Renderer.prototype.renderPlatform = function (platform) {
+    var vectors = this.getPlatformSourceVectors(platform);
+    var sourcePosition = vectors.position;
+    var sourceSize = vectors.size;
+    
     this.context.drawImage(platform.texture, 
-                           0, 0, platform.texture.width, platform.texture.height,
+                           sourcePosition.x, sourcePosition.y,
+                           sourceSize.x, sourceSize.y,
                            0, 0,
-                           platform.width, platform.height);
+                           this.camera.viewport.x, this.camera.viewport.y
+                           );
 
     this.context.drawImage(platform.outsideTexture, 
                            0, 0, 
                            platform.outsideTexture.width, platform.outsideTexture.height,
                            0, 0,
-                           platform.size.x, platform.size.y
+                           this.camera.viewport.x, this.camera.viewport.y
                            );
     
     this.context.save();
     this.context.beginPath();
-    var canvasMid = this.getPlatformCenter(platform);
-    var point = platform.vertices[0].add(canvasMid);
+    var platformMid = this.getPlatformCenter(platform);
+    var point = platform.vertices[0].add(platformMid);
     this.context.moveTo(point.x, point.y);
     for (var i = 1; i < platform.vertices.length; i++) {
-        point = platform.vertices[i].add(canvasMid);
+        point = platform.vertices[i].add(platformMid);
         this.context.lineTo(point.x, point.y);
     }
-    this.context.clip();
     this.context.closePath();
-    var destination = canvasMid.clone();
-    destination.x -= platform.width / 2;
-    destination.y -= platform.height / 2;
+    this.context.clip();
     this.context.drawImage(platform.texture, 
-                           destination.x * platform.texture.width / platform.width, 
-                           destination.y * platform.texture.width / platform.width, 
-                           platform.texture.width, platform.texture.height,
-                           destination.x, destination.y,
-                           platform.width, platform.height);
+                           sourcePosition.x, sourcePosition.y, 
+                           sourceSize.x, sourceSize.y,
+                           0, 0,
+                           this.camera.viewport.x, this.camera.viewport.y
+                           );
     this.context.restore();
 }
 
@@ -155,10 +182,11 @@ sanctum.Renderer.prototype.render = function (dt, objectCollections, platform, s
     var context = this.context;
     context.clearRect(0, 0, canvas.width, canvas.height);
 
+    this.renderPlatform(platform);
+
     context.save();
     context.translate(-this.camera.position.x, -this.camera.position.y);
     
-    this.renderPlatform(platform);
     for (var i = 0; i < objectCollections.length; i++) {
         this.renderCollection(dt, objectCollections[i]);
     }

@@ -44,3 +44,8 @@ function removeAllChildren(node) {
     while (last = node.lastChild)
         node.removeChild(last);   
 }
+
+
+if(typeof module != "undefined" && module.exports) {
+    module.exports = sanctum.UIManager;
+}

@@ -108,7 +108,7 @@ networking.Room.prototype.play = function(socket) {
     if(socket.id == this.hostId) {
         console.log("Game started.");
         this.isRunning = true;
-        this.game = new Game({}, this.players.length, -1, this.networkManager);
+        this.game = new Game({}, this.players.map(function (c) { return c.name}), -1, this.networkManager);
         this.game.loadContent();
 
         this.masterSocket.emit("play", {});

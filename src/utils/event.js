@@ -20,3 +20,9 @@ Event.prototype.fire = function () {
         this.listeners[i].apply(undefined, arguments);
     }
 }
+
+
+if(typeof module != "undefined" && module.exports) {
+    module.exports = Event;
+}
+
