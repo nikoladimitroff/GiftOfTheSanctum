@@ -59,16 +59,16 @@ sanctum.Camera.prototype.follow = function (target) {
     position.x = target.x - this.viewport.x / 2;
     position.y = target.y - this.viewport.y / 2;
 
-    if (target.x - this.viewport.x / 2 < 0) {
+    if (position.x < 0) {
         position.x = 0;
     }
-    if (target.y - this.viewport.y / 2 < 0) {
+    if (position.y < 0) {
         position.y = 0;
     }
-    if (target.x + this.viewport.x / 2 > this.platformSize.x) {
+    if (position.x + this.viewport.x > this.platformSize.x) {
         position.x = this.platformSize.x - this.viewport.x;
     }
-    if (target.y + this.viewport.y / 2 > this.platformSize.y) {
+    if (position.y + this.viewport.y > this.platformSize.y) {
         position.y = this.platformSize.y - this.viewport.y;
     }
 
@@ -96,6 +96,7 @@ sanctum.Game = function (context, playerNames, selfIndex, networkManager) {
     this.ui = new sanctum.UIManager(this.model, this.events);
     this.contentManager = new sanctum.ContentManager();
     this.physicsManager = new sanctum.PhysicsManager();
+    this.playerManager = new sanctum.PlayerManager(this.characters);
     this.effectManager = new sanctum.EffectManager();
     this.networkManager = networkManager;
 };
@@ -175,9 +176,11 @@ sanctum.Game.prototype.handleInput = function () {
     var player = this.characters[this.playerIndex];
     if (this.input.mouse.right && 
         !this.input.previousMouse.right) {
-        player.velocity = this.input.mouse.absolute.subtract(player.position);
+        player.velocity = this.input.mouse.absolute.subtract(player.getCenter());
         Vector.normalize(player.velocity);
         Vector.multiply(player.velocity, player.speed, player.velocity);
+        var target = this.input.mouse.absolute;
+        player.target = target;
         player.playAnimation(Actions.walk, player.velocity.normalized());
     }
     else if (this.input.mouse.left && 
@@ -188,14 +191,13 @@ sanctum.Game.prototype.handleInput = function () {
                                                  spellName,
                                                  this.input.mouse.absolute);
         if (spell !== null) {
-            var forward = spell.position.subtract(player.position).normalized();
-            player.playAnimation(this.nextAction, forward);
+            var forward = spell.position.subtract(player.getCenter()).normalized();
             this.networkManager.addSpellcast(spellName, this.input.mouse.absolute, this.playerIndex);
-            var forward = spell.position.subtract(player.position).normalized();
             player.playAnimation(this.nextAction, forward);
         }
-        this.nextAction = Actions.walk;
+        this.nextAction = [Actions.walk, Actions.idle][player.velocity.lengthSquared() < 1e-3];
     }
+
     this.input.swap();
 }
 
@@ -289,6 +291,7 @@ sanctum.Game.prototype.loop = function (timestamp) {
         this.effectManager.applyEffects(this.physicsManager, delta);
         this.effectManager.applyPlatformEffect(this.physicsManager, this.platform);
         this.effectManager.cleanupEffects();
+        this.playerManager.update();
 
         this.updateModel();
         

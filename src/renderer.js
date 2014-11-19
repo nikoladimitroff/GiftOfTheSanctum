@@ -96,7 +96,7 @@ sanctum.Renderer.prototype.renderCircle = function (obj) {
 sanctum.Renderer.prototype.renderOverlay = function () {
     this.context.globalAlpha = 0.5;
     this.context.fillStyle = "#222";
-    this.context.fillRect(0, 0, canvas.width, canvas.height);
+    this.context.fillRect(0, 0, this.camera.viewport.x, this.camera.viewport.y);
     this.context.globalAlpha = 1;
 }
 
@@ -190,12 +190,11 @@ sanctum.Renderer.prototype.render = function (dt, objectCollections, platform, s
     for (var i = 0; i < objectCollections.length; i++) {
         this.renderCollection(dt, objectCollections[i]);
     }
-    
-    
-    if (shouldRenderOverlay)
-        this.renderOverlay();
 
     context.restore();
+
+    if (shouldRenderOverlay)
+        this.renderOverlay();
 };
 
 

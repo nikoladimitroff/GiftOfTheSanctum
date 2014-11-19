@@ -7,7 +7,7 @@
     height: 750,
 
     collapseIterations: 100, // The number of times parts of the platform crumble
-    collapseInterval: 1500, // The interval in ms after which the platform crumbles
+    collapseInterval: 1500, // The interval in ms after which the platform crumbles. Can't be less than ms per frame
 
     outsideTexture: "content/art/environment/fog_of_suddent_death.png",
     outsideDamage: 601,

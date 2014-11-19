@@ -138,8 +138,11 @@ Vector.angleBetween = function(a, b) {
   return a.angleTo(b);
 };
 
+Vector.zero = new Vector(0, 0);
 Vector.right = new Vector(1, 0);
 Vector.up = new Vector(0, 1);
+Vector.left = new Vector(-1, 0);
+Vector.down = new Vector(0, -1);
 
 var physics = (function (physics) {
     EulerIntegrator = function () { }
@@ -147,11 +150,9 @@ var physics = (function (physics) {
         for (var i = 0; i < states.length; i++) {
             var state = states[i];
             if (!state) continue;
-            if (!state.frictionless) {
-                Vector.multiply(state.acceleration, friction * dt, state.acceleration);
-                Vector.add(state.velocity,
-                           state.velocity.negated().multiply(0.01), // magic
-                           state.velocity)
+            if (!state.frictionless) /* disabled */ {
+                //var friction = state.velocity.divide(-state.mass);
+                //Vector.add(state.acceleration, friction, state.acceleration);
             }
             Vector.add(state.velocity, state.acceleration.multiply(dt), state.velocity);
             Vector.add(state.position, state.velocity.multiply(dt), state.position);
