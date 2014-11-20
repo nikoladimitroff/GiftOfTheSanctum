@@ -98,6 +98,7 @@ sanctum.Game = function (context, playerNames, selfIndex, networkManager) {
     this.physicsManager = new sanctum.PhysicsManager();
     this.playerManager = new sanctum.PlayerManager(this.characters);
     this.effectManager = new sanctum.EffectManager();
+    this.predictionManager = new sanctum.PredictionManager(this.characters[this.playerIndex]);
     this.networkManager = networkManager;
 };
 
@@ -202,44 +203,65 @@ sanctum.Game.prototype.handleInput = function () {
 }
 
 sanctum.Game.prototype.processNetworkData = function() {
-    var payload = this.networkManager.getLastUpdate();
-    if (!payload) {
+    var payload = [];
+    for(var i = 0; i < this.characters.length; i++) {
+        payload.push({
+            id: i,
+            data: this.networkManager.getLastUpdateFrom(i)
+        });
+    }
+
+    if (!payload) { //TODO: This might be useless ?!
         return;
     }
 
     if(this.networkManager.isServer()) {
+        payload = payload.filter(function(item) {
+            return item.data != null;
+        });
         this.networkManager.masterSocket.emit("update", payload);
         return;
     }
 
     for (var i = 0; i < payload.length; i++) {
-        var event = payload[i];
-        switch (event.t) {
-            case sanctum.EventTypes.ObjectInfo:
-                var player = this.characters[event.data.id];
-                var canSkip = event.data.id == this.playerIndex;
-                if(canSkip) {
-                    continue;
-                }
-                var evpos = new Vector().set(event.data.position);
-                var evvel = new Vector().set(event.data.velocity);
+        var playerPayload = payload[i].data;
 
-                player.position.set(evpos);
-                player.velocity.set(evvel);
-                break;
-
-            case sanctum.EventTypes.Spellcast:
-                var canSkip = event.data.caster == this.playerIndex;
-                if(canSkip) {
-                    continue;
-                }
-
-                var spell = this.effectManager.castSpell(event.data.caster,
-                                                         event.data.spellName,
-                                                         new Vector().set(event.data.target));
-                break;
+        if(!playerPayload) {
+            continue;
         }
-     }
+        // if(payload[i].id == this.playerIndex) {
+        //     continue;
+        // }
+
+        for(var j = 0; j < playerPayload.length; j++) {
+            var event = playerPayload[j];
+            switch (event.t) {
+                case sanctum.EventTypes.ObjectInfo:
+                    var player = this.characters[event.data.id];
+                    // var canSkip = event.data.id == this.playerIndex;
+                    // if (canSkip) {
+                    //     continue;
+                    // }
+                    var evpos = new Vector().set(event.data.position);
+                    var evvel = new Vector().set(event.data.velocity);
+
+                    player.position.set(evpos);
+                    player.velocity.set(evvel);
+                    break;
+
+                case sanctum.EventTypes.Spellcast:
+                    var canSkip = event.data.caster == this.playerIndex;
+                    if (canSkip) {
+                        continue;
+                    }
+
+                    var spell = this.effectManager.castSpell(event.data.caster,
+                                                             event.data.spellName,
+                                                             new Vector().set(event.data.target));
+                    break;
+            }
+        }
+    }
 }
 
 sanctum.Game.prototype.processPendingDeaths = function() {
@@ -330,8 +352,9 @@ sanctum.Game.prototype.loop = function (timestamp) {
     this.networkManager.lastUpdate += delta;
     if(this.networkManager.lastUpdate >= this.networkManager.updateTime) {
         if(!this.networkManager.isServer()) {
+            this.predictionManager.addInput(this.characters[this.playerIndex].position);
             this.networkManager.addObject(this.characters[this.playerIndex], this.playerIndex);
-            this.networkManager.flush();
+            this.networkManager.flush(this.playerIndex);
         }
         this.networkManager.lastUpdate = 0;
     }

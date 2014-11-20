@@ -7,7 +7,9 @@ var renderer = require("./renderer");
 var contentManager = require("./content_manager");
 var uiManager = require("./ui_manager");
 var playerManager = require("./player_manager");
+var predictionManager = require("./prediction_manager");
 
+sanctum.PredictionManager = predictionManager;
 sanctum.PhysicsManager = physicsManager;
 sanctum.EffectManager = effectManager;
 sanctum.ContentManager = contentManager;
