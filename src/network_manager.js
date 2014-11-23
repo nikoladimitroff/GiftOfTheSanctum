@@ -50,6 +50,7 @@ sanctum.NetworkManager.prototype.addObject = function(object, index) {
     var objectInfo = {
         position: object.position,
         velocity: object.velocity,
+        target: object.target,
         score: object.score,
         id: index
     };

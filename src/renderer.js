@@ -29,8 +29,11 @@ sanctum.Sprite.prototype.clone = function () {
     return sprite;
 }
 
-sanctum.Renderer = function (context) {
+sanctum.Renderer = function (context, debugRender) {
     this.context = context;
+    this.debugLineWidth = 4;
+    this.debugVectorScale = 100;
+    this.debugRender = debugRender || false;
 }
 
 sanctum.Renderer.prototype.init = function(camera) {
@@ -83,15 +86,56 @@ sanctum.Renderer.prototype.getPlatformSourceVectors = function (platform) {
     };
 }
 
-sanctum.Renderer.prototype.renderCircle = function (obj) {
+sanctum.Renderer.prototype.renderCircle = function (center, radius) {
     this.context.beginPath();
-    this.context.arc(obj.position.x + obj.size.x / 2, 
-                     obj.position.y + obj.size.y / 2, 
-                     obj.collisionRadius,
+    this.context.arc(center.x, 
+                     center.y, 
+                     radius,
                      0, 2 * Math.PI);
     this.context.closePath();
+    this.context.strokeColor = this.debugStrokeColor;
     this.context.stroke();
 }   
+
+sanctum.Renderer.prototype.renderVector = function (vector, position, color, offset) {
+    var arrowHeadLength = 10;
+    var fromX = position.x,
+        fromY = position.y;
+    
+    if (offset != undefined) {
+        fromX += offset.x;
+        fromY += offset.y;
+    }
+    var toX = fromX + vector.x * this.debugVectorScale,
+        toY = fromY + vector.y * this.debugVectorScale;
+    
+
+    var angle = Math.atan2(toY - fromY, toX - fromX);
+
+    this.context.save();
+    this.context.strokeStyle = this.context.fillStyle = color;
+    this.context.lineWidth = this.debugLineWidth;
+    
+    this.context.beginPath();
+    this.context.moveTo(fromX, fromY);
+    this.context.lineTo(toX, toY);
+    this.context.stroke();
+
+    this.context.beginPath();
+    this.context.moveTo(toX, toY);
+    this.context.lineTo(toX - arrowHeadLength * Math.cos(angle - Math.PI/7),
+                        toY - arrowHeadLength * Math.sin(angle - Math.PI/7));
+
+    this.context.lineTo(toX - arrowHeadLength*Math.cos(angle + Math.PI/7),
+                        toY - arrowHeadLength * Math.sin(angle + Math.PI/7));
+
+    this.context.lineTo(toX, toY);
+    this.context.lineTo(toX - arrowHeadLength * Math.cos(angle - Math.PI/7),
+                        toY - arrowHeadLength * Math.sin(angle - Math.PI/7));
+    this.context.stroke();
+    this.context.fill();
+    this.context.restore();
+}
 
 sanctum.Renderer.prototype.renderOverlay = function () {
     this.context.globalAlpha = 0.5;
@@ -165,7 +209,14 @@ sanctum.Renderer.prototype.renderCollection = function (dt, gameObjects) {
                           obj.size.y
                           );
                           
-        // this.renderCircle(obj);
+        if (this.debugRender) {
+            this.renderCircle(obj.position.add(obj.size.divide(2)), obj.collisionRadius);
+            this.renderVector(obj.totalVelocity, obj.position, "#cc0000");
+            this.renderVector(obj.acceleration, obj.position, "#0000cc", new Vector(0, obj.size.y / 3));
+            if (obj.target) {
+                this.renderCircle(obj.target, obj.collisionRadius);   
+            }
+        }
         
         context.restore();
 

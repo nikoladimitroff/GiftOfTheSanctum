@@ -1,11 +1,11 @@
 function Vector(x, y) {
-  this.x = x || 0;
-  this.y = y || 0;
+    this.x = x || 0;
+    this.y = y || 0;
 }
 
 Vector.prototype = {
   negated: function() {
-    return new Vector(-this.x, -this.y);
+      return new Vector(-this.x, -this.y);
   },
   add: function(v) {
     if (v instanceof Vector) return new Vector(this.x + v.x, this.y + v.y);
@@ -144,23 +144,74 @@ Vector.up = new Vector(0, 1);
 Vector.left = new Vector(-1, 0);
 Vector.down = new Vector(0, -1);
 
-var physics = (function (physics) {
-    EulerIntegrator = function () { }
-    EulerIntegrator.prototype.integrate = function (states, dt, friction) {
-        for (var i = 0; i < states.length; i++) {
-            var state = states[i];
-            if (!state) continue;
-            if (!state.frictionless) /* disabled */ {
-                //var friction = state.velocity.divide(-state.mass);
-                //Vector.add(state.acceleration, friction, state.acceleration);
-            }
-            Vector.add(state.velocity, state.acceleration.multiply(dt), state.velocity);
-            Vector.add(state.position, state.velocity.multiply(dt), state.position);
+var physics = {};
+physics.EulerIntegrator = function () {};
+physics.EulerIntegrator.prototype.integrate = function (states, dt, friction) {
+    for (var i = 0; i < states.length; i++) {
+        var state = states[i];
+
+        var friction = new Vector();
+        if (!state.frictionless && state.velocity.length() != 0) /* disabled */ {
+            var frictionCoefficient = 0.0003; // wood
+
+            friction = state.acceleration.multiply(-1 * frictionCoefficient * state.mass);
+            Vector.add(state.acceleration, friction, state.acceleration);
         }
+        Vector.add(state.velocity, state.acceleration.multiply(dt), state.velocity);
+
+        var movementVelocity = physics.Steering[state.movementFunction](state);
+        var totalVelocity = state.velocity.add(movementVelocity).multiply(dt);
+        state.totalVelocity = totalVelocity;
+        Vector.add(state.position, totalVelocity, state.position);
+
+
+        var epsilon = 10;
+        if (state.velocity.lengthSquared() <= epsilon * epsilon)
+            state.velocity.set(0, 0);
+        if (state.acceleration.lengthSquared() <= epsilon * epsilon)
+            state.acceleration.set(0, 0);
     }
-    physics.EulerIntegrator = EulerIntegrator;
-    return physics;
-})(physics || {});
+}
+
+
+physics.Steering = {};
+function tryStopMovement(obj) {
+    var dist = obj.getCenter().subtract(obj.target).lengthSquared();
+    var radius = obj.collisionRadius * 0.5;  /* magic */
+    if (dist < radius * radius) {
+        obj.target = null;
+        return true;
+    }
+    return false;
+}
+
+physics.Steering.linear = function (obj) {
+    if (obj.target) {
+        if (tryStopMovement(obj)) return Vector.zero;
+
+        var velocity = obj.target.subtract(obj.size.divide(2)).subtract(obj.position);
+        Vector.normalize(velocity);
+        Vector.multiply(velocity, obj.speed, velocity);
+        return velocity;
+    }
+    return Vector.zero;
+};
+
+physics.Steering.arrive = function (obj) {
+    if (obj.target) {
+        if (tryStopMovement(obj)) return Vector.zero;
+
+        var toTarget = obj.target.subtract(obj.size.divide(2)).subtract(obj.position);
+        var dist = toTarget.length();
+
+        var decelerationTweaker = 1.5; // magic
+        var speed = dist / decelerationTweaker;
+        speed = Math.min(speed, obj.speed);
+        Vector.multiply(toTarget, speed / dist, toTarget);
+        return toTarget;
+    }
+    return Vector.zero;
+};
 
 
 if(typeof module != "undefined" && module.exports) {

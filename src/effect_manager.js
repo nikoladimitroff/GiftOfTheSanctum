@@ -81,6 +81,7 @@ sanctum.EffectManager.prototype.pulseSpell = function (spell, physics, hitTarget
                     Vector.normalize(hitDirection);
                     Vector.multiply(hitDirection, spell.pushbackForce, hitDirection);
                     physics.applyForce(target, hitDirection);
+                    target.target = null;
                     break;
             };
         }

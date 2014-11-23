@@ -19,7 +19,10 @@ sanctum.PhysicsManager = function (friction) {
 }
 
 sanctum.PhysicsManager.prototype.update = function (objects) {
-    this.integrator.integrate(objects, this.fixedStep, this.friction);
+    var microsteps = 2;
+    for (var i = 0; i < microsteps; i++) {
+        this.integrator.integrate(objects, this.fixedStep / microsteps, this.friction);
+    }
 };
 
 function Pair(first, second) {
@@ -27,17 +30,14 @@ function Pair(first, second) {
     this.second = second;
 }
 
-sanctum.PhysicsManager.prototype.getCollisionPairs = function (objects) {
+sanctum.PhysicsManager.prototype.getCollisionPairs = function (group1, group2) {
     this.collisions = [];
-    for (var i = 0; i < objects.length; i++) {
-        var first = objects[i];
-        if (!first) continue;
-        
+    for (var i = 0; i < group1.length; i++) {
+        var first = group1[i];
         var firstCenter = first.getCenter();
-        for (var j = i + 1; j < objects.length; j++) {
-            var second = objects[j];
 
-            if (!second) continue;
+        for (var j = 0; j < group2.length; j++) {
+            var second = group2[j];
 
             var secondCenter = second.getCenter();
             var distance = firstCenter.subtract(secondCenter).length();
@@ -58,8 +58,6 @@ sanctum.PhysicsManager.prototype.getObjectsWithinRadius = function (objects, poi
     for (var i = 0; i < objects.length; i++) {
         var obj = objects[i];
         
-        if (!obj) continue;
-        
         var center = obj.position.add(obj.size.divide(2));
         var distance = center.subtract(point).length();
         var radiusSum = obj.collisionRadius + radius;
@@ -70,7 +68,7 @@ sanctum.PhysicsManager.prototype.getObjectsWithinRadius = function (objects, poi
 }
 
 sanctum.PhysicsManager.prototype.applyForce = function (object, force) {
-    Vector.add(object.acceleration, force.divide(object.mass), object.acceleration);
+    Vector.add(object.force, force, object.force);
 }
 
 

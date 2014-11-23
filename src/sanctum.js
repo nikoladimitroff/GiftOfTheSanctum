@@ -90,13 +90,13 @@ sanctum.Game = function (context, playerNames, selfIndex, networkManager) {
 
     if(!networkManager.isServer()) {
         this.input = new sanctum.InputManager();
-        this.renderer = new sanctum.Renderer(context);
+        this.renderer = new sanctum.Renderer(context, true);
     }
 
     this.ui = new sanctum.UIManager(this.model, this.events);
     this.contentManager = new sanctum.ContentManager();
     this.physicsManager = new sanctum.PhysicsManager();
-    this.playerManager = new sanctum.PlayerManager(this.characters);
+    this.playerManager = new sanctum.PlayerManager(this.characters, this.physicsManager);
     this.effectManager = new sanctum.EffectManager();
     this.networkManager = networkManager;
 };
@@ -176,12 +176,8 @@ sanctum.Game.prototype.handleInput = function () {
     var player = this.characters[this.playerIndex];
     if (this.input.mouse.right && 
         !this.input.previousMouse.right) {
-        player.velocity = this.input.mouse.absolute.subtract(player.getCenter());
-        Vector.normalize(player.velocity);
-        Vector.multiply(player.velocity, player.speed, player.velocity);
-        var target = this.input.mouse.absolute;
-        player.target = target;
-        player.playAnimation(Actions.walk, player.velocity.normalized());
+        this.playerManager.moveTo(player, this.input.mouse.absolute);
+        player.playAnimation(Actions.walk, player.totalVelocity.normalized());
     }
     else if (this.input.mouse.left && 
              !this.input.previousMouse.left &&
@@ -221,11 +217,12 @@ sanctum.Game.prototype.processNetworkData = function() {
                 if(canSkip) {
                     continue;
                 }
-                var evpos = new Vector().set(event.data.position);
-                var evvel = new Vector().set(event.data.velocity);
 
-                player.position.set(evpos);
-                player.velocity.set(evvel);
+                player.position.set(event.data.position);
+                player.velocity.set(event.data.velocity);
+                if (event.data.target) {
+                    player.target = new Vector(event.data.target.x, event.data.target.y);
+                }
                 break;
 
             case sanctum.EventTypes.Spellcast:
@@ -283,15 +280,14 @@ sanctum.Game.prototype.updateModel = function () {
 sanctum.Game.mainGameLoop = function () {};
 sanctum.Game.prototype.loop = function (timestamp) {
     var delta = (timestamp - this.previousTime) || 1000 / 60;
-
     if (!this.networkManager.isServer()) {
         this.platform.update(delta);
+        this.playerManager.update();
         this.physicsManager.update(this.effectManager.characters);
         this.physicsManager.update(this.effectManager.activeSpells);
         this.effectManager.applyEffects(this.physicsManager, delta);
         this.effectManager.applyPlatformEffect(this.physicsManager, this.platform);
         this.effectManager.cleanupEffects();
-        this.playerManager.update();
 
         this.updateModel();
         

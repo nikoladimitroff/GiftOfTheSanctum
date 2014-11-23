@@ -133,6 +133,7 @@
     targeted: false,
     effects: [
         "damage",
+        "pushback",
     ],
     effectRadius: 40,
     damageAmount: 1,

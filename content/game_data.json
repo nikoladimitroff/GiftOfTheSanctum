@@ -20,7 +20,7 @@
             size: 0,
             mass: 1,
             health: 600,
-			speed: 330
+			speed: 100
         }, {
             sprite: "art/characters/sprite/knight.png",
                         width: 64,
