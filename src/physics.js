@@ -44,6 +44,12 @@ Vector.prototype = {
   max: function() {
     return Math.max(this.x, this.y);
   },
+  rotate: function(angle) {
+    var cos = Math.cos(angle),
+        sin = Math.sin(angle);
+    return new Vector(this.x * cos - this.y * sin,
+                      this.x * sin + this.y * cos);
+  },
   angleTo: function(a) {
     return Math.acos(this.dot(a) / (this.length() * a.length()));
   },
@@ -76,7 +82,10 @@ Vector.prototype = {
     }
     this.x = x; this.y = y;
     return this;
-  }
+  },
+  toString: function() {
+    return "(" + this.x + ", " + this.y + ")";
+  },
 };
 
 
@@ -116,6 +125,14 @@ Vector.normalize = function(a) {
   a.y /= length;
   return a;
 };
+Vector.rotate = function(a, b, angle) {
+    var cos = Math.cos(angle),
+        sin = Math.sin(angle);
+    var x = a.x,
+        y = a.y;
+    b.set(x * cos - y * sin, x * sin + y * cos);
+    return b;
+},
 Vector.fromAngles = function(phi) {
   return new Vector(Math.cos(phi), Math.sin(phi));
 };
@@ -144,6 +161,58 @@ Vector.up = new Vector(0, 1);
 Vector.left = new Vector(-1, 0);
 Vector.down = new Vector(0, -1);
 
+Matrix = function (m11, m12, m13, m21, m22, m23, m31, m32, m33) {  
+    this.m11 = m11 || 0;
+    this.m12 = m12 || 0;
+    this.m13 = m13 || 0;
+    this.m21 = m21 || 0;
+    this.m22 = m22 || 0;
+    this.m23 = m23 || 0;
+};
+
+Matrix.prototype = {
+    multiply: function  (m) {
+        if (m instanceof Matrix) 
+            return new Matrix(this.m11 * m.m11 + this.m12 * m.m21,
+                              this.m11 * m.m12 + this.m12 * m.m22,
+                              this.m11 * m.m13 + this.m12 * m.m23 + this.m13,
+                              this.m21 * m.m11 + this.m22 * m.m21,
+                              this.m21 * m.m12 + this.m22 * m.m22,
+                              this.m21 * m.m13 + this.m22 * m.m23 + this.m23);  
+        else
+            throw new Error("Scalar multiplication not implemented!");
+                              
+    },
+    transform: function (v) {
+        return new Vector(this.m11 * v.x + this.m12 * v.y + this.m13,
+                          this.m21 * v.x + this.m22 * v.y + this.m23);
+    },
+    invert: function () {
+        var inverseDet = 1 / (this.m11 * this.m22 - this.m12 * this.m21);
+
+        return new Matrix(this.m22 * inverseDet, 
+                          -this.m12 * inverseDet,
+                          (this.m12 * this.m23 - this.m13 * this.m22) * inverseDet,
+                          -this.m21 * inverseDet,
+                          this.m11 * inverseDet,
+                          -(this.m11 * this.m23 - this.m13 * this.m21) * inverseDet);
+    }
+};
+
+Matrix.fromRotation = function (angle) {
+    var cos = Math.cos(angle),
+        sin = Math.sin(angle);
+
+    return new Matrix(cos, -sin, 0,
+                      sin, cos, 0);
+};
+
+
+Matrix.fromTranslation = function (translation) {
+    return new Matrix(1, 0, translation.x,
+                      0, 1, translation.y);
+};
+
 var physics = {};
 physics.EulerIntegrator = function () {};
 physics.EulerIntegrator.prototype.integrate = function (states, dt, friction) {
@@ -158,7 +227,6 @@ physics.EulerIntegrator.prototype.integrate = function (states, dt, friction) {
             Vector.add(state.acceleration, friction, state.acceleration);
         }
         Vector.add(state.velocity, state.acceleration.multiply(dt), state.velocity);
-
         var movementVelocity = physics.Steering[state.movementFunction](state);
         var totalVelocity = state.velocity.add(movementVelocity).multiply(dt);
         state.totalVelocity = totalVelocity;
@@ -209,6 +277,73 @@ physics.Steering.arrive = function (obj) {
         speed = Math.min(speed, obj.speed);
         Vector.multiply(toTarget, speed / dist, toTarget);
         return toTarget;
+    }
+    return Vector.zero;
+};
+
+
+Math.sign = Math.sign || function(x) {
+    return x / Math.abs(x) || 0;   
+};
+
+physics.Steering.quadratic = function (obj) {
+    if (obj.target) {
+        if (tryStopMovement(obj)) {
+            delete obj.coeffiecients;
+            return Vector.zero;
+        }
+        if (!obj.coefficients) {
+            var center = obj.getCenter();
+            var toCenter = center.subtract(obj.target);
+            var angle = Math.PI - Math.atan2(toCenter.y, toCenter.x);
+            
+            var rotation = Matrix.fromRotation(angle);
+            var translation = Vector.lerp(rotation.transform(center), rotation.transform(obj.target), 0.5)
+            var totalTransform = rotation;
+            totalTransform.m13 = -translation.x;
+            totalTransform.m23 = -translation.y;
+            
+            var transformedCenter = totalTransform.transform(center),
+                transformedTarget = totalTransform.transform(obj.target);
+
+            var x1 = Math.min(transformedCenter.x, transformedTarget.x),
+                y1 = 0,
+                x2 = Math.max(transformedCenter.x, transformedTarget.x),
+                y2 = 0;
+            
+            var a = 2 * ((angle >= 0 && angle < Math.PI / 2) || (angle >= Math.PI && angle < 3 * Math.PI / 2)) - 1,
+                b = (-x1 - x2) / a,
+                c = x1 * x2 / a,
+                scale = 1 / (x2 - x1),
+                halfPlaneX = -Math.sign(transformedCenter.x - transformedTarget.x);
+                
+
+            obj.coefficients = {
+                a: a,
+                b: b,
+                c: c,
+                transform: totalTransform,
+                scale: scale,
+                halfPlaneX: halfPlaneX          
+            }
+        }
+        
+        var a = obj.coefficients.a,
+            b = obj.coefficients.b,
+            c = obj.coefficients.c,
+            scale = obj.coefficients.scale,
+            matrix = obj.coefficients.transform,
+            halfPlaneX = obj.coefficients.halfPlaneX;
+        
+        var center = obj.getCenter();
+        var transformedCenter= matrix.transform(center);
+        var epsilon = 1;
+        var x = transformedCenter.x + epsilon * halfPlaneX;
+        var y = (a * x * x + b * x + c) * scale;
+        var p = new Vector(x, y);
+        var dir = matrix.invert().transform(p).subtract(center).normalized();
+
+        return dir.multiply(obj.speed);
     }
     return Vector.zero;
 };

@@ -86,14 +86,14 @@ sanctum.Renderer.prototype.getPlatformSourceVectors = function (platform) {
     };
 }
 
-sanctum.Renderer.prototype.renderCircle = function (center, radius) {
+sanctum.Renderer.prototype.renderCircle = function (center, radius, color) {
     this.context.beginPath();
     this.context.arc(center.x, 
                      center.y, 
                      radius,
                      0, 2 * Math.PI);
     this.context.closePath();
-    this.context.strokeColor = this.debugStrokeColor;
+    this.context.strokeColor = color || "black";
     this.context.stroke();
 }   
 
@@ -232,7 +232,6 @@ sanctum.Renderer.prototype.renderCollection = function (dt, gameObjects) {
 sanctum.Renderer.prototype.render = function (dt, objectCollections, platform, shouldRenderOverlay) {
     var context = this.context;
     context.clearRect(0, 0, canvas.width, canvas.height);
-
     this.renderPlatform(platform);
 
     context.save();

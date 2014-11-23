@@ -19,10 +19,11 @@ sanctum.PhysicsManager = function (friction) {
 }
 
 sanctum.PhysicsManager.prototype.update = function (objects) {
-    var microsteps = 2;
-    for (var i = 0; i < microsteps; i++) {
-        this.integrator.integrate(objects, this.fixedStep / microsteps, this.friction);
-    }
+//    var microsteps = 2;
+//    for (var i = 0; i < microsteps; i++) {
+//        this.integrator.integrate(objects, this.fixedStep / microsteps, this.friction);
+//    }
+    this.integrator.integrate(objects, this.fixedStep, this.friction);
 };
 
 function Pair(first, second) {

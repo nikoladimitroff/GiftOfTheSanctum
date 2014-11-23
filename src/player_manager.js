@@ -13,6 +13,7 @@ sanctum.PlayerManager.prototype.update = function () {
 
 sanctum.PlayerManager.prototype.moveTo = function (player, target) {
     player.target = target.clone();
+    delete player.coefficients;
     //player.velocity = target.subtract(player.size.divide(2)).subtract(player.position);
     //Vector.normalize(player.velocity);
     //Vector.multiply(player.velocity, player.speed, player.velocity);   
