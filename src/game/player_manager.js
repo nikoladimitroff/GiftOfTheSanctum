@@ -1,18 +1,17 @@
 "use strict";
-var sanctum = sanctum || {};
 
-sanctum.PlayerManager = function (characters, physicsManager) {
+var PlayerManager = function (characters, physicsManager) {
     this.characters = characters;
     this.physics = physicsManager;
 };
 
-sanctum.PlayerManager.prototype.update = function () {
+PlayerManager.prototype.update = function () {
     for (var i = 0; i < this.characters.length; i++) {
         var character = this.characters[i];
     }
 };
 
-sanctum.PlayerManager.prototype.moveTo = function (player, target) {
+PlayerManager.prototype.moveTo = function (player, target) {
     player.target = target.clone();
     delete player.coefficients;
     //player.velocity = target.subtract(player.size.divide(2)).subtract(player.position);
@@ -21,6 +20,4 @@ sanctum.PlayerManager.prototype.moveTo = function (player, target) {
 }
 
 
-if(typeof module != "undefined" && module.exports) {
-    module.exports = sanctum.PlayerManager;
-}
+module.exports = PlayerManager;

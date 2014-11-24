@@ -1,4 +1,9 @@
-node_modules\.bin\lessc src\game_client\style\main.less > src\game_client\style\main.css
-node_modules\.bin\jscs src\* --config=jscs.json
-node_modules\.bin\browserify src\sanctum.js -o client.js --debug
-
+@echo off
+echo Build started...
+echo Building js code
+start "" /w /b node_modules\.bin\browserify src\game_client\client.js -o distr\client.js
+echo Building css
+start "" /w /b node_modules\.bin\lessc src\game_client\style\main.less > distr\main.css
+echo Copying fonts
+robocopy src\game_client\style\fonts distr\fonts > nul
+echo Build complete!

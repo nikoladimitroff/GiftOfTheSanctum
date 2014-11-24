@@ -1,6 +1,5 @@
 "use strict";
 var networking = require("./networking_objects.js");
-var networkManager = require("./network_manager");
 
 var Main = function() {
     this.sockets = [];

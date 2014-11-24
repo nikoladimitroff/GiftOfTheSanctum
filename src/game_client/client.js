@@ -1,4 +1,6 @@
 "use strict";
+var NetworkManager = require("../game/network_manager");
+
 var Client = function() {
     this.socket = null;
     this.playerId = null;
@@ -7,7 +9,7 @@ var Client = function() {
 }
 
 Client.prototype.start = function() {
-	this.socket = io.connect("", { port: sanctum.NetworkManager.port, transports: ["websocket"] });
+	this.socket = io.connect("", { port: NetworkManager.port, transports: ["websocket"] });
 
 	this.load("src/game_client/main.html");
 }

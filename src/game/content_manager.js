@@ -1,26 +1,12 @@
 "use strict";
-var sanctum = sanctum || {};
 
-sanctum.Platform = require("./platform") || sanctum.Platform;
+var Platform = require("./platform");
 
 var allGameObjects = require("./game_objects");
+var Character = allGameObjects.Character,
+    Spell = allGameObjects.Spell;
 
-if(allGameObjects) {
-    sanctum.Character = allGameObjects.Character;
-    sanctum.Spell = allGameObjects.Spell;
-    sanctum.Obstacle = allGameObjects.Obstacle;
-}
-
-var allPhysics = require("./physics");
-var physics = physics || {};
-var Vector = Vector || {};
-
-if(allPhysics) {
-    physics = allPhysics.physics || physics;
-    Vector = allPhysics.Vector || Vector;
-}
-
-// console.log(sanctum);
+var Vector = require("./math/vector");
 
 var fs = require("fs");
 
@@ -34,7 +20,7 @@ function getFilenameWithoutExtension(path) {
     return filename.substring(0, filename.lastIndexOf("."));
 }
 
-sanctum.ContentManager = function () {
+var ContentManager = function () {
     this.contentCache = {};
     this.loading = 0;
     this.loaded = 0;
@@ -42,7 +28,7 @@ sanctum.ContentManager = function () {
     this.root = "content/"
 }
 
-sanctum.ContentManager.prototype.loadSprite = function (description) {
+ContentManager.prototype.loadSprite = function (description) {
     var path = this.root + description.src;
     if (this.contentCache[path])
         return this.contentCache[path];
@@ -50,7 +36,7 @@ sanctum.ContentManager.prototype.loadSprite = function (description) {
     var image = new Image();
     var framesPerRow = description.framesPerRow;
     image.onload = function () {
-        this.contentCache[path] = new sanctum.Sprite(image, framesPerRow);
+        this.contentCache[path] = new Sprite(image, framesPerRow);
         this.loaded++;
         if (this.loaded == this.loading) {
             this.onload();
@@ -60,31 +46,31 @@ sanctum.ContentManager.prototype.loadSprite = function (description) {
     this.loading++;
 };
 
-sanctum.ContentManager.prototype.loadSpell = function (description) {
+ContentManager.prototype.loadSpell = function (description) {
     var sprite = this.get(description.sprite);
-    this.contentCache[description.name] = new sanctum.Spell(sprite, description);
+    this.contentCache[description.name] = new Spell(sprite, description);
 };
 
-sanctum.ContentManager.prototype.loadObstacle = function (description) {
+ContentManager.prototype.loadObstacle = function (description) {
     var sprite = this.get(description.sprite);
-    this.contentCache[description.name] = new sanctum.Obstacle(sprite, description);
+    this.contentCache[description.name] = new Obstacle(sprite, description);
 };
 
-sanctum.ContentManager.prototype.loadCharacter = function (description) {
+ContentManager.prototype.loadCharacter = function (description) {
     var url = description.sprite;
     var sprite = this.get(this.root + url);
-    var character = new sanctum.Character(sprite, description);
+    var character = new Character(sprite, description);
     var name = "character_" + getFilenameWithoutExtension(url);
     console.log(name);
     this.contentCache[name] = character;
 };
 
-sanctum.ContentManager.prototype.loadPlatform = function (description, isServer) {
+ContentManager.prototype.loadPlatform = function (description, isServer) {
     var platform;
     if(isServer) {
-        platform = new sanctum.Platform({}, {}, description);
+        platform = new Platform({}, {}, description);
     } else {
-        var platform = new sanctum.Platform(this.get(description.texture).image,
+        var platform = new Platform(this.get(description.texture).image,
                                             this.get(description.outsideTexture).image,
                                             description
                                             );
@@ -94,11 +80,11 @@ sanctum.ContentManager.prototype.loadPlatform = function (description, isServer)
 };
 
 
-sanctum.ContentManager.prototype.loadKeybindings = function (keybindings) {
+ContentManager.prototype.loadKeybindings = function (keybindings) {
     this.contentCache["keybindings"] = keybindings;
 };
 
-sanctum.ContentManager.prototype.fetchJSONFile = function (path, callback) {
+ContentManager.prototype.fetchJSONFile = function (path, callback) {
     var xhr = new XMLHttpRequest();
     path = this.root + path;
     xhr.onreadystatechange = function() {
@@ -116,7 +102,7 @@ sanctum.ContentManager.prototype.fetchJSONFile = function (path, callback) {
     xhr.send();
 }
 
-sanctum.ContentManager.prototype.loadGameData = function (gameDataPath, callback, isServer) {
+ContentManager.prototype.loadGameData = function (gameDataPath, callback, isServer) {
     if(isServer) {
         this.loadGameDataServer(gameDataPath, callback);
         return;
@@ -146,7 +132,7 @@ sanctum.ContentManager.prototype.loadGameData = function (gameDataPath, callback
     });
 }
 
-sanctum.ContentManager.prototype.loadGameDataServer = function (gameDataPath, callback) {
+ContentManager.prototype.loadGameDataServer = function (gameDataPath, callback) {
     var self = this;
 
     var gameData = this.fetchJSONServer(gameDataPath);
@@ -162,7 +148,7 @@ sanctum.ContentManager.prototype.loadGameDataServer = function (gameDataPath, ca
     callback();
 }
 
-sanctum.ContentManager.prototype.fetchJSONServer = function(path) {
+ContentManager.prototype.fetchJSONServer = function(path) {
     var stringData = fs.readFileSync(this.root + path, "utf8");
     var data = eval("Object(" + stringData + ")");
 
@@ -170,22 +156,22 @@ sanctum.ContentManager.prototype.fetchJSONServer = function(path) {
 }
 
 
-sanctum.ContentManager.prototype.get = function (path) {
+ContentManager.prototype.get = function (path) {
     return this.contentCache[path];
 };
 
-sanctum.ContentManager.prototype.getSpellLibrary = function () {
+ContentManager.prototype.getSpellLibrary = function () {
     var spellLib = {};
     for (var path in this.contentCache) {
         var content = this.contentCache[path];
-        if (content instanceof sanctum.Spell) {
+        if (content instanceof Spell) {
             spellLib[content.name] = content;
         }
     }
     return spellLib;
 };
 
-sanctum.ContentManager.prototype.getLibrary = function(type) {
+ContentManager.prototype.getLibrary = function(type) {
     var lib = {};
     for(var path in this.contentCache) {
         var content = this.contentCache[path];
@@ -197,6 +183,4 @@ sanctum.ContentManager.prototype.getLibrary = function(type) {
     return lib;
 }
 
-if(typeof module != "undefined" && module.exports) {
-    module.exports = sanctum.ContentManager;
-}
+module.exports = ContentManager;

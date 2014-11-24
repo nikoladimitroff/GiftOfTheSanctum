@@ -1,25 +1,16 @@
 "use strict";
-var sanctum = require("./all_sanctum") || sanctum;
 
-sanctum = sanctum || {};
+var Vector = require("./math/vector");
+var integrators = require("./math/integrators");
 
-var allPhysics = require("./physics");
-var physics = physics || {};
-var Vector = Vector || {};
-
-if(allPhysics) {
-    physics = allPhysics.physics || physics;
-    Vector = allPhysics.Vector || Vector;
-}
-
-sanctum.PhysicsManager = function (friction) {
-    this.integrator = new physics.EulerIntegrator();
+var PhysicsManager = function (friction) {
+    this.integrator = new integrators.Euler();
     this.fixedStep = 1 / 60;
     this.friction = friction || 0.4;
     this.collisions = [];
 }
 
-sanctum.PhysicsManager.prototype.update = function (objects) {
+PhysicsManager.prototype.update = function (objects) {
 //    var microsteps = 2;
 //    for (var i = 0; i < microsteps; i++) {
 //        this.integrator.integrate(objects, this.fixedStep / microsteps, this.friction);
@@ -32,7 +23,7 @@ function Pair(first, second) {
     this.second = second;
 }
 
-sanctum.PhysicsManager.prototype.getCollisionPairs = function (group1, group2) {
+PhysicsManager.prototype.getCollisionPairs = function (group1, group2) {
     this.collisions = [];
     for (var i = 0; i < group1.length; i++) {
         var first = group1[i];
@@ -52,7 +43,7 @@ sanctum.PhysicsManager.prototype.getCollisionPairs = function (group1, group2) {
     return this.collisions;
 };
 
-sanctum.PhysicsManager.prototype.getObjectsWithinRadius = function (objects, point, radius) {
+PhysicsManager.prototype.getObjectsWithinRadius = function (objects, point, radius) {
     if (radius == 0)
         return [];
 
@@ -69,17 +60,15 @@ sanctum.PhysicsManager.prototype.getObjectsWithinRadius = function (objects, poi
     return neighbours;
 }
 
-sanctum.PhysicsManager.prototype.applyForce = function (object, force) {
+PhysicsManager.prototype.applyForce = function (object, force) {
     Vector.add(object.force, force, object.force);
 }
 
 
-sanctum.PhysicsManager.prototype.circleIntersects = function (center1, radius1, center2, radius2) {
+PhysicsManager.prototype.circleIntersects = function (center1, radius1, center2, radius2) {
     var distance = center1.subtract(center2).length();
     var radiusSum = radius1 + radius2;
     return distance <= radiusSum;
 }
 
-if(typeof module != "undefined" && module.exports) {
-    module.exports = sanctum.PhysicsManager;
-}
+module.exports = PhysicsManager;

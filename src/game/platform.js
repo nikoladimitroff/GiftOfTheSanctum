@@ -1,16 +1,7 @@
 "use strict";
-var sanctum = sanctum || {};
+var Vector = require("./math/vector");
 
-var allPhysics = require("./physics");
-var physics = physics || {};
-var Vector = Vector || {};
-
-if(allPhysics) {
-    physics = allPhysics.physics || physics;
-    Vector = allPhysics.Vector || Vector;
-}
-
-sanctum.Platform = function (texture, outsideTexture, description) {
+var Platform = function (texture, outsideTexture, description) {
     this.outsideDamage = description.outsideDamage;
 
     var sides = description.sides;
@@ -32,7 +23,7 @@ sanctum.Platform = function (texture, outsideTexture, description) {
 };
 
 
-sanctum.Platform.prototype.update = function (dt) {
+Platform.prototype.update = function (dt) {
     this.lastCollapse += dt;
     if (this.collapseIterationsLeft && this.lastCollapse >= this.collapseInterval) {
         this.radius -= this.collapseRadiusReduction;
@@ -42,7 +33,7 @@ sanctum.Platform.prototype.update = function (dt) {
     }
 };
 
-sanctum.Platform.prototype.generateVertices = function (sides, radius) {
+Platform.prototype.generateVertices = function (sides, radius) {
     var vertices = [];
     for (var i = 0; i < sides; i++) {
         var angle = Math.PI / 10 + i * 2 * Math.PI / sides;
@@ -54,6 +45,4 @@ sanctum.Platform.prototype.generateVertices = function (sides, radius) {
     return vertices;
 };
 
-if (typeof module != "undefined" && module.exports) {
-    module.exports = sanctum.Platform;
-}
+module.exports = Platform;

@@ -1,15 +1,5 @@
 "use strict";
-var sanctum = require("./all_sanctum") || sanctum;
-sanctum = sanctum || {};
-
-var allPhysics = require("./physics");
-var physics = physics || {};
-var Vector = Vector || {};
-
-if(allPhysics) {
-    physics = allPhysics.physics || physics;
-    Vector = allPhysics.Vector || Vector;
-}
+var Vector = require("./math/vector");
 
 function MouseData() {
     this.scroll = 0;
@@ -27,7 +17,7 @@ MouseData.prototype.copyFrom = function (data) {
     this.absolute.set(data.absolute);
 }
 
-sanctum.InputManager = function () {
+var InputManager = function () {
     this.mouse = new MouseData();
     this.previousMouse = new MouseData();
     this.keyboard = [];
@@ -37,7 +27,7 @@ sanctum.InputManager = function () {
     this.completeMouseDown = function () {};
 }
 
-sanctum.InputManager.prototype.init = function (camera) {
+InputManager.prototype.init = function (camera) {
     window.addEventListener("keydown", function (args) {
         this.keyboard[args.keyCode] = true;
         // If we are awaiting key detection, raise the event
@@ -102,7 +92,7 @@ sanctum.InputManager.prototype.init = function (camera) {
     window.addEventListener("DOMMouseScroll", onscroll);
 }
 
-sanctum.InputManager.prototype.detectMouseDown = function (callback) {
+InputManager.prototype.detectMouseDown = function (callback) {
     // Create a new object and asign our complete key press delegate to call its completed method
     this.completeMouseDown = function () {
         callback();
@@ -110,20 +100,20 @@ sanctum.InputManager.prototype.detectMouseDown = function (callback) {
     }.bind(this);
 };
 
-sanctum.InputManager.prototype.swap = function () {
+InputManager.prototype.swap = function () {
     this.previousKeyboard = Array.apply(Array, this.keyboard);
     this.previousMouse.copyFrom(this.mouse);
 }
 
-sanctum.InputManager.prototype.keyCodeToKeyName = function(keyCode) {
-    return sanctum.InputManager.keyCodeToName[keyCode];
+InputManager.prototype.keyCodeToKeyName = function(keyCode) {
+    return InputManager.keyCodeToName[keyCode];
 }
 
-sanctum.InputManager.prototype.keyNameToKeyCode = function(keyName) {
-    return sanctum.InputManager.keyNameToCode[keyName];
+InputManager.prototype.keyNameToKeyCode = function(keyName) {
+    return InputManager.keyNameToCode[keyName];
 }
 
-sanctum.InputManager.generateKeyCodeToNameMapping = function (){
+InputManager.generateKeyCodeToNameMapping = function (){
     var nonLetters = [];
     nonLetters[8] = "Backspace";
     nonLetters[9] = "Tab";
@@ -204,13 +194,11 @@ sanctum.InputManager.generateKeyCodeToNameMapping = function (){
     return nonLetters;
 }
 
-sanctum.InputManager.keyCodeToName = sanctum.InputManager.generateKeyCodeToNameMapping();
+InputManager.keyCodeToName = InputManager.generateKeyCodeToNameMapping();
 // A small hack to shorten coding. Use Array.reduce to create an object that maps each key name to its keycode
-sanctum.InputManager.keyNameToCode = JSON.parse(sanctum.InputManager.generateKeyCodeToNameMapping().reduce(function(previous, current, index, array) {
+InputManager.keyNameToCode = JSON.parse(InputManager.generateKeyCodeToNameMapping().reduce(function(previous, current, index, array) {
     return previous.substring(0, previous.length - 1) + "\"" + array[index] + "\":" + index + ",}";
 }, "{}").replace(",}", "}"));
 
 
-if(typeof module != "undefined" && module.exports) {
-    module.exports = sanctum.InputManager;
-}
+module.exports = InputManager;

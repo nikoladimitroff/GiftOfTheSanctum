@@ -1,15 +1,11 @@
 "use strict";
-var sanctum = require("./all_sanctum") || sanctum;
 
-sanctum = sanctum || {};
-
-sanctum.UIManager = function (model, events) {
+var UIManager = function (model, events) {
     this.model = model;
     events.roundOver.addEventListener(this.showScoreboard.bind(this));
-
 };
 
-sanctum.UIManager.prototype.init = function () {
+UIManager.prototype.init = function () {
     this.scoreboard = document.querySelector("#scoreboard");
 
     var innerHTML = "<span></span><img></img><span></span>";
@@ -23,11 +19,8 @@ sanctum.UIManager.prototype.init = function () {
 var avatar_images = ["archer.png", "knight.png", "mage.png", "monk.png",
      "necro.png", "orc.png", "queen.png", "rogue.png"];
 
-var scoreBoardDissapear = function(){
-   document.getElementById("my-element").remove();
-}
 
-sanctum.UIManager.prototype.showScoreboard = function () {
+UIManager.prototype.showScoreboard = function () {
     $(this.scoreboard).toggle();
     var playerLabels = this.scoreboard.children;
 
@@ -47,6 +40,4 @@ function removeAllChildren(node) {
 }
 
 
-if(typeof module != "undefined" && module.exports) {
-    module.exports = sanctum.UIManager;
-}
+module.exports = UIManager;

@@ -1,14 +1,5 @@
 "use strict";
-var sanctum = sanctum || {};
-
-var allPhysics = require("./physics");
-var physics = physics || {};
-var Vector = Vector || {};
-
-if(allPhysics) {
-    physics = allPhysics.physics || physics;
-    Vector = allPhysics.Vector || Vector;
-}
+var Vector = require("./math/vector");
 
 var ID_COUNTER = 0;
 
@@ -30,7 +21,7 @@ function copyProperties(object, description) {
     }
 }
 
-sanctum.Character = function (sprite, description) {
+var Character = function (sprite, description) {
     this.position = new Vector(210, 210);
     this.velocity = new Vector(0, 0);
     this.acceleration = new Vector(0, 0);
@@ -52,7 +43,7 @@ sanctum.Character = function (sprite, description) {
 };
 
 
-sanctum.Spell = function (sprite, description) {
+var Spell = function (sprite, description) {
     // physics
     this.position = new Vector();
     this.velocity = new Vector(0, 0);
@@ -79,7 +70,7 @@ sanctum.Spell = function (sprite, description) {
     copyProperties(this, description);
 }
 
-sanctum.Character.prototype.clone = sanctum.Spell.prototype.clone = function () {
+Character.prototype.clone = Spell.prototype.clone = function () {
     var clone = new this.constructor({}, {});
     clone.position = this.position.clone();
     clone.velocity = this.velocity.clone();
@@ -90,19 +81,20 @@ sanctum.Character.prototype.clone = sanctum.Spell.prototype.clone = function () 
     clone.collisionRadius = this.collisionRadius;
     clone.id = ID_COUNTER++;
 
-    if (this.constructor == sanctum.Spell) {
+    if (this.constructor == Spell) {
         clone.timestamp = Date.now();
         clone.initialPosition = this.position.clone();
     }
 
     copyProperties(clone, this);
     return clone;
-}
- sanctum.Character.prototype.getCenter = sanctum.Spell.prototype.getCenter = function () {
+};
+
+Character.prototype.getCenter = Spell.prototype.getCenter = function () {
     return this.position.add(this.size.divide(2));
 };
 
-sanctum.Character.prototype.playAnimation = function (action, forward) {
+Character.prototype.playAnimation = function (action, forward) {
     var angle = Vector.right.angleTo360(forward);
     var animationOffset = 0;
     if (angle >= Math.PI / 4 && angle <  3 * Math.PI / 4) {
@@ -120,8 +112,6 @@ sanctum.Character.prototype.playAnimation = function (action, forward) {
     this.sprite.activeAnimation = this.animations[action] + animationOffset;
 };
 
-if(typeof module != "undefined" && module.exports) {
-    module.exports.Character = sanctum.Character;
-    module.exports.Spell = sanctum.Spell;
-    module.exports.Obstacle = sanctum.Obstacle;
-}
+
+module.exports.Character = Character;
+module.exports.Spell = Spell;

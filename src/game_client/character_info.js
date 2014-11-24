@@ -1,4 +1,5 @@
 "use strict";
+
 $(document).ready(function () {
     $("#health_container").load("src/game_client/health_orb.html");
     $("#spell_info").load("src/game_client/spell_info.html");

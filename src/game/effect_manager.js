@@ -1,16 +1,15 @@
 "use strict";
-var sanctum = sanctum || {};
 
 var CastType = {
     projectile: "projectile",
     instant: "instant",
 };
 
-sanctum.EffectManager = function () {
+var EffectManager = function () {
     this.spellCooldowns = [];
 };
 
-sanctum.EffectManager.prototype.init = function (spellLibrary, characters, platform) {
+EffectManager.prototype.init = function (spellLibrary, characters, platform) {
     this.spellLibrary = spellLibrary;
 
     this.characters = characters;
@@ -19,12 +18,12 @@ sanctum.EffectManager.prototype.init = function (spellLibrary, characters, platf
     this.spellCooldowns = characters.map(function () { return {}; });
 };
 
-sanctum.EffectManager.prototype.reset = function () {
+EffectManager.prototype.reset = function () {
     this.activeSpells = [];
     this.spellCooldowns = this.characters.map(function () { return {}; });
 };
 
-sanctum.EffectManager.prototype.removeSpell = function (spellId, index) {
+EffectManager.prototype.removeSpell = function (spellId, index) {
     if (index !== undefined && this.activeSpells[index].id == spellId) {
         this.activeSpells[index] = this.activeSpells[this.activeSpells.length - 1];
         this.activeSpells.pop();
@@ -41,20 +40,20 @@ sanctum.EffectManager.prototype.removeSpell = function (spellId, index) {
     return false;
 };
 
-sanctum.EffectManager.prototype.applyEffects = function (physics, dt) {
+EffectManager.prototype.applyEffects = function (physics, dt) {
     var collisions = physics.getCollisionPairs(this.characters, this.activeSpells);
     for (var i = 0; i < collisions.length; i++) {
         var first = collisions[i].first,
             second = collisions[i].second;
 
-        if (first instanceof sanctum.Character &&
-            second instanceof sanctum.Spell) {
+        if (first instanceof Character &&
+            second instanceof Spell) {
             this.pulseSpell(second, physics, first, dt);
         }
     };
 };
 
-sanctum.EffectManager.prototype.pulseSpell = function (spell, physics, hitTarget, dt) {
+EffectManager.prototype.pulseSpell = function (spell, physics, hitTarget, dt) {
 	if (spell.castingType == CastType.instant) {
 		spell.lastUpdate = (spell.lastUpdate + dt) || dt;
 		if (spell.lastUpdate <= 1000) { // magic
@@ -91,7 +90,7 @@ sanctum.EffectManager.prototype.pulseSpell = function (spell, physics, hitTarget
         this.removeSpell(spell.id);
 }
 
-sanctum.EffectManager.prototype.castSpell = function (characterId, spellName, target, physics) {
+EffectManager.prototype.castSpell = function (characterId, spellName, target, physics) {
     var timeSinceLastCast = Date.now() - this.spellCooldowns[characterId][spellName];
     if (timeSinceLastCast <= this.spellLibrary[spellName].cooldown) {
         return null;
@@ -125,7 +124,7 @@ sanctum.EffectManager.prototype.castSpell = function (characterId, spellName, ta
     return spellInstance;
 }
 
-sanctum.EffectManager.prototype.applyPlatformEffect = function (physics) {
+EffectManager.prototype.applyPlatformEffect = function (physics) {
     var center = this.platform.size.divide(2);
     for (var i = 0; i < this.characters.length; i++) {
         var player = this.characters[i];
@@ -135,12 +134,12 @@ sanctum.EffectManager.prototype.applyPlatformEffect = function (physics) {
     }
 }
 
-sanctum.EffectManager.prototype.cleanupEffects = function () {
+EffectManager.prototype.cleanupEffects = function () {
     var now = Date.now();
     for (var i = 0; i < this.activeSpells.length; i++) {
         var object = this.activeSpells[i];
 
-        if (object instanceof sanctum.Spell) {
+        if (object instanceof Spell) {
             var spell = object;
             var removeInstantSpell = spell.castType == CastType.instant &&
                                      now - spell.timestamp >= object.duration;
@@ -161,5 +160,5 @@ sanctum.EffectManager.prototype.cleanupEffects = function () {
 }
 
 if(typeof module != "undefined" && module.exports) {
-    module.exports = sanctum.EffectManager;
+    module.exports = EffectManager;
 }

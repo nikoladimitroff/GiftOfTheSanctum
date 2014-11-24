@@ -1,17 +1,7 @@
 "use strict";
-var sanctum = require("./all_sanctum") || sanctum;
-sanctum = sanctum || {};
+var Vector = require("./math/vector");
 
-var allPhysics = require("./physics");
-var physics = physics || {};
-var Vector = Vector || {};
-
-if(allPhysics) {
-    physics = allPhysics.physics || physics;
-    Vector = allPhysics.Vector || Vector;
-}
-
-sanctum.Sprite = function (image, framesPerRow) {
+var Sprite = function (image, framesPerRow) {
     this.image = image;
     this.framesPerRow = framesPerRow;
     var maxFrames = Math.max.apply(undefined, framesPerRow);
@@ -22,22 +12,22 @@ sanctum.Sprite = function (image, framesPerRow) {
     this.lastFrameUpdate = 0;
 }
 
-sanctum.Sprite.prototype.clone = function () {
-    var sprite = new sanctum.Sprite({}, []);
+Sprite.prototype.clone = function () {
+    var sprite = new Sprite({}, []);
     for (var prop in sprite) {
         sprite[prop] = this[prop];
     }
     return sprite;
 }
 
-sanctum.Renderer = function (context, debugRender) {
+var Renderer = function (context, debugRender) {
     this.context = context;
     this.debugLineWidth = 4;
     this.debugVectorScale = 100;
     this.debugRender = debugRender || false;
 }
 
-sanctum.Renderer.prototype.init = function(camera) {
+Renderer.prototype.init = function(camera) {
     this.camera = camera;
 
     var onresize = function() {
@@ -53,18 +43,18 @@ sanctum.Renderer.prototype.init = function(camera) {
 }
 
 
-sanctum.Renderer.prototype.getViewportCenter = function () {
+Renderer.prototype.getViewportCenter = function () {
     return new Vector(this.context.canvas.width / 2,
                       this.context.canvas.height / 2);
 }
 
-sanctum.Renderer.prototype.getPlatformCenter = function (platform) {
+Renderer.prototype.getPlatformCenter = function (platform) {
     return new Vector(-this.camera.position.x + platform.width / 2,
                       -this.camera.position.y + platform.height / 2);
 }
 
 
-sanctum.Renderer.prototype.getPlatformSourceVectors = function (platform) {
+Renderer.prototype.getPlatformSourceVectors = function (platform) {
     var platformRatio = new Vector(platform.texture.width / platform.width,
                                    platform.texture.height / platform.height);
 
@@ -87,7 +77,7 @@ sanctum.Renderer.prototype.getPlatformSourceVectors = function (platform) {
     };
 }
 
-sanctum.Renderer.prototype.renderCircle = function (center, radius, color) {
+Renderer.prototype.renderCircle = function (center, radius, color) {
     this.context.beginPath();
     this.context.arc(center.x,
                      center.y,
@@ -98,7 +88,7 @@ sanctum.Renderer.prototype.renderCircle = function (center, radius, color) {
     this.context.stroke();
 }
 
-sanctum.Renderer.prototype.renderVector = function (vector, position, color, offset) {
+Renderer.prototype.renderVector = function (vector, position, color, offset) {
     var arrowHeadLength = 10;
     var fromX = position.x,
         fromY = position.y;
@@ -138,14 +128,14 @@ sanctum.Renderer.prototype.renderVector = function (vector, position, color, off
     this.context.restore();
 }
 
-sanctum.Renderer.prototype.renderOverlay = function () {
+Renderer.prototype.renderOverlay = function () {
     this.context.globalAlpha = 0.5;
     this.context.fillStyle = "#222";
     this.context.fillRect(0, 0, this.camera.viewport.x, this.camera.viewport.y);
     this.context.globalAlpha = 1;
 }
 
-sanctum.Renderer.prototype.renderPlatform = function (platform) {
+Renderer.prototype.renderPlatform = function (platform) {
     var vectors = this.getPlatformSourceVectors(platform);
     var sourcePosition = vectors.position;
     var sourceSize = vectors.size;
@@ -184,7 +174,7 @@ sanctum.Renderer.prototype.renderPlatform = function (platform) {
     this.context.restore();
 }
 
-sanctum.Renderer.prototype.renderCollection = function (dt, gameObjects) {
+Renderer.prototype.renderCollection = function (dt, gameObjects) {
     var context = this.context;
 
     for (var i = 0; i < gameObjects.length; i++) {
@@ -230,7 +220,7 @@ sanctum.Renderer.prototype.renderCollection = function (dt, gameObjects) {
     }
 }
 
-sanctum.Renderer.prototype.render = function (dt, objectCollections, platform, shouldRenderOverlay) {
+Renderer.prototype.render = function (dt, objectCollections, platform, shouldRenderOverlay) {
     var context = this.context;
     context.clearRect(0, 0, canvas.width, canvas.height);
     this.renderPlatform(platform);
@@ -250,5 +240,5 @@ sanctum.Renderer.prototype.render = function (dt, objectCollections, platform, s
 
 
 if(typeof module != "undefined" && module.exports) {
-    module.exports.Renderer = sanctum.Renderer;
+    module.exports.Renderer = Renderer;
 }
