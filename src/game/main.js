@@ -11,7 +11,7 @@ var Main = function() {
 }
 
 Main.prototype.firstFreeRoom = function() {
-    for(roomId in this.rooms) {
+    for(var roomId in this.rooms) {
         if(this.rooms[roomId].isFree()) {
             return this.rooms[roomId];
         }

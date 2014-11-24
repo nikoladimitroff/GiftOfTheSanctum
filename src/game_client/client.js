@@ -9,7 +9,7 @@ var Client = function() {
 Client.prototype.start = function() {
 	this.socket = io.connect("", { port: sanctum.NetworkManager.port, transports: ["websocket"] });
 
-	this.load("src/public/main.html");
+	this.load("src/game_client/main.html");
 }
 
 Client.prototype.load = function(path) {

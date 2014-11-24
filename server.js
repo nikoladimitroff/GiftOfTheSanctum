@@ -8,9 +8,9 @@ app.use(express.static(__dirname));
 // app.use(express.static(__dirname + "/src"));
 
 var http = require("http");
-var network = require("./src/network_manager.js");
+var network = require("./src/game/network_manager.js");
 
-var main = require("./src/main");
+var main = require("./src/game/main");
 
 var server = http.createServer(app).listen(network.port);
 

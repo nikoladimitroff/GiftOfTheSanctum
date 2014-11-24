@@ -18,12 +18,12 @@ if (allGameObjects) {
     sanctum.Obstacle = allGameObjects.Obstacle;
 }
 
-var Event = Event || require("./utils/event.js")
+var Event = Event || require("../utils/event.js")
 
 
 var window = window || {};
 
-requestAnimationFrame = (function () {
+window.requestAnimationFrame = (function () {
     return window.requestAnimationFrame       ||
           window.webkitRequestAnimationFrame ||
           window.mozRequestAnimationFrame;
@@ -38,7 +38,7 @@ function getRequestAnimationFrame() {
     };
 }
 
-Actions = {
+var Actions = {
     walk: "walk",
     spellcast1: "spellcast1",
     spellcast2: "spellcast2",
@@ -289,6 +289,12 @@ sanctum.Game.mainGameLoop = function () {};
 sanctum.Game.prototype.loop = function (timestamp) {
     var delta = (timestamp - this.previousTime) || 1000 / 60;
     if (!this.networkManager.isServer()) {
+
+        var currentPlayer = this.characters[this.playerIndex];
+        if(!currentPlayer.isDead) {
+            this.handleInput();
+        }
+
         this.platform.update(delta);
         this.playerManager.update();
         this.physicsManager.update(this.effectManager.characters);
@@ -301,7 +307,6 @@ sanctum.Game.prototype.loop = function (timestamp) {
 
         this.processPendingDeaths();
 
-        var currentPlayer = this.characters[this.playerIndex];
         if (currentPlayer.health <= 0 && !currentPlayer.isDead) {
             this.networkManager.sendDie(this.playerIndex, this.objects);
             this.characters[this.playerIndex].score = this.deathsCount++;
@@ -317,11 +322,6 @@ sanctum.Game.prototype.loop = function (timestamp) {
 //            this.events.roundOver.fire(this.characters);
 //            return;
         }
-
-        if(!currentPlayer.isDead) {
-            this.handleInput();
-        }
-
         var following = !currentPlayer.isDead ? this.playerIndex : this.getMaxScorePlayerIndex();
         this.renderer.camera.follow(this.characters[following].position);
         this.renderer.render(delta,

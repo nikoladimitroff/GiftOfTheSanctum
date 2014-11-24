@@ -44,7 +44,7 @@ sanctum.Platform.prototype.update = function (dt) {
 
 sanctum.Platform.prototype.generateVertices = function (sides, radius) {
     var vertices = [];
-    for (i = 0; i < sides; i++) {
+    for (var i = 0; i < sides; i++) {
         var angle = Math.PI / 10 + i * 2 * Math.PI / sides;
         var nextVertex = new Vector(radius * Math.cos(angle),
                                     radius * Math.sin(angle));

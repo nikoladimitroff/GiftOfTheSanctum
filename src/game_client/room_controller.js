@@ -43,7 +43,7 @@ RoomController.prototype.updateHost = function(data) {
 }
 
 RoomController.prototype.handlePlay = function() {
-    $.get("src/public/game_ui.html", function (html) {
+    $.get("src/game_client/game_ui.html", function (html) {
         $("#content").html(html);
     
         var networkManager = new sanctum.NetworkManager();

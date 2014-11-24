@@ -162,7 +162,7 @@ Vector.up = new Vector(0, 1);
 Vector.left = new Vector(-1, 0);
 Vector.down = new Vector(0, -1);
 
-Matrix = function (m11, m12, m13, m21, m22, m23, m31, m32, m33) {
+var Matrix = function (m11, m12, m13, m21, m22, m23, m31, m32, m33) {
     this.m11 = m11 || 0;
     this.m12 = m12 || 0;
     this.m13 = m13 || 0;

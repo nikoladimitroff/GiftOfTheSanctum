@@ -31,7 +31,7 @@ FirstPageController.bindListeners = function() {
         client.playerId = data.playerId;
         client.playerName = data.playerName;
         
-        client.load("src/public/please_wait.html");
+        client.load("src/game_client/please_wait.html");
     });
 }
 
