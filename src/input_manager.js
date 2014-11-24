@@ -1,3 +1,4 @@
+"use strict";
 var sanctum = require("./all_sanctum") || sanctum;
 sanctum = sanctum || {};
 
@@ -31,7 +32,7 @@ sanctum.InputManager = function () {
     this.previousMouse = new MouseData();
     this.keyboard = [];
     this.previousKeyboard = [];
-    
+
     this.completeKeyPress = function () {};
     this.completeMouseDown = function () {};
 }
@@ -192,7 +193,7 @@ sanctum.InputManager.generateKeyCodeToNameMapping = function (){
         nonLetters[i + 0x41] = String.fromCharCode(i + 0x41);
     }
 
-    // Space 
+    // Space
     nonLetters[0x20] = "Space";
 
     // Numbers

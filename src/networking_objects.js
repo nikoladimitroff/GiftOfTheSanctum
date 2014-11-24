@@ -1,3 +1,4 @@
+"use strict";
 var NetworkManager = require("./network_manager");
 var Game = require("./sanctum");
 
@@ -64,7 +65,7 @@ networking.Room.prototype.welcome = function(socket, data) {
         var isHost = this.hostId == data.playerId;
 
         if(player) {
-            socket.emit("welcome", { message: "Welcome, " + player.name, 
+            socket.emit("welcome", { message: "Welcome, " + player.name,
                 isHost: isHost, players: this.players });
 
             console.log(this.players);
@@ -93,7 +94,7 @@ networking.Room.prototype.leave = function(socket, data) {
                 this.hostId = this.players[0].id;
                 this.sockets[0].emit("updateHost", {isHost: true});
             }
-            
+
 
             this.masterSocket.emit("leave",
                 { roomClosed: this.players.length == 0, });

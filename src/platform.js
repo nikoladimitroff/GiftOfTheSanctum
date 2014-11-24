@@ -1,3 +1,4 @@
+"use strict";
 var sanctum = sanctum || {};
 
 var allPhysics = require("./physics");
@@ -53,6 +54,6 @@ sanctum.Platform.prototype.generateVertices = function (sides, radius) {
     return vertices;
 };
 
-if(typeof module != "undefined" && module.exports) {
+if (typeof module != "undefined" && module.exports) {
     module.exports = sanctum.Platform;
 }

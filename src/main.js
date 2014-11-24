@@ -1,3 +1,4 @@
+"use strict";
 var networking = require("./networking_objects.js");
 var networkManager = require("./network_manager");
 
@@ -21,7 +22,7 @@ Main.prototype.getPlayer = function(socket, data) {
     if(data && data.playerName) {
         var player = new networking.Player(socket.id, data.playerName);
         this.players[player.id] = player;
-        
+
         socket.emit("getPlayer", { playerId: player.id, playerName: player.name });
     }
 }

@@ -1,3 +1,4 @@
+"use strict";
 var RoomController = function() {
     this.players = [];
     this.avatar_images = ["archer.png", "knight.png", "mage.png", "monk.png",

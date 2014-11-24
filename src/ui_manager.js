@@ -1,3 +1,4 @@
+"use strict";
 var sanctum = require("./all_sanctum") || sanctum;
 
 sanctum = sanctum || {};
@@ -5,7 +6,7 @@ sanctum = sanctum || {};
 sanctum.UIManager = function (model, events) {
     this.model = model;
     events.roundOver.addEventListener(this.showScoreboard.bind(this));
-    
+
 };
 
 sanctum.UIManager.prototype.init = function () {
@@ -25,7 +26,7 @@ var avatar_images = ["archer.png", "knight.png", "mage.png", "monk.png",
 var scoreBoardDissapear = function(){
    document.getElementById("my-element").remove();
 }
-        
+
 sanctum.UIManager.prototype.showScoreboard = function () {
     $(this.scoreboard).toggle();
     var playerLabels = this.scoreboard.children;
@@ -42,7 +43,7 @@ sanctum.UIManager.prototype.showScoreboard = function () {
 function removeAllChildren(node) {
     var last;
     while (last = node.lastChild)
-        node.removeChild(last);   
+        node.removeChild(last);
 }
 
 

@@ -1,4 +1,6 @@
-Resizer = {
+"use strict";
+
+var Resizer = {
     installHandler: function installHandler(canvas) {
         function onresize() {
                 canvas.width = window.innerWidth;

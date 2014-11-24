@@ -1,3 +1,4 @@
+"use strict";
 var AzureManager = (function () {
     function AzureManager() {
         this.client = new WindowsAzure.MobileServiceClient("https://sanctum.azure-mobile.net/", "ocEkaITOYwFARmtTRoufiEoXHsWBcL20");

@@ -1,3 +1,4 @@
+"use strict";
 var sanctum = require("./all_sanctum") || sanctum;
 
 sanctum = sanctum || {};
@@ -43,8 +44,8 @@ sanctum.PhysicsManager.prototype.getCollisionPairs = function (group1, group2) {
             var secondCenter = second.getCenter();
             var distance = firstCenter.subtract(secondCenter).length();
             var radiusSum = first.collisionRadius + second.collisionRadius;
-                                   
-            if (distance < radiusSum) 
+
+            if (distance < radiusSum)
                 this.collisions.push(new Pair(first, second));
         }
     }
@@ -58,11 +59,11 @@ sanctum.PhysicsManager.prototype.getObjectsWithinRadius = function (objects, poi
     var neighbours = [];
     for (var i = 0; i < objects.length; i++) {
         var obj = objects[i];
-        
+
         var center = obj.position.add(obj.size.divide(2));
         var distance = center.subtract(point).length();
         var radiusSum = obj.collisionRadius + radius;
-        if (distance < radiusSum) 
+        if (distance < radiusSum)
             neighbours.push(obj);
     }
     return neighbours;

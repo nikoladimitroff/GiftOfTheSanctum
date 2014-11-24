@@ -1,3 +1,4 @@
+"use strict";
 var sanctum = sanctum || {};
 
 var allPhysics = require("./physics");
@@ -20,14 +21,14 @@ function copyProperties(object, description) {
         "effects", "effectRadius", "damageAmount", "pushbackForce",
         "animations"
     ];
-    
+
     for (var i = 0; i < copyableProperties.length; i++) {
         var prop = copyableProperties[i];
         if (description[prop] !== undefined) {
             object[prop] = description[prop];
         }
     }
-}   
+}
 
 sanctum.Character = function (sprite, description) {
     this.position = new Vector(210, 210);
@@ -41,12 +42,12 @@ sanctum.Character = function (sprite, description) {
     this.score = 0;
     this.isDead = false;
     this.movementFunction = "linear";
-    
+
     this.animations = description.animations;
     this.size = new Vector(description.width, description.height);
-    
+
     this.collisionRadius = Math.max(this.size.x, this.size.y) / 2;
-    
+
     copyProperties(this, description);
 };
 
@@ -62,19 +63,19 @@ sanctum.Spell = function (sprite, description) {
     this.frictionless = true;
     this.size = new Vector(description.width, description.height);
     this.collisionRadius = Math.max(this.size.x, this.size.y) / 2;
-    
+
     // rendering
     this.sprite = sprite;
     this.rotation = 0;
-    
+
     // stamps and stuff
     this.initialPosition = this.position.clone();
     this.timestamp = Date.now();
-    
+
     this.cooldown = description.cooldown;
-    
+
     this.id = ID_COUNTER++;
-    
+
     copyProperties(this, description);
 }
 
@@ -88,13 +89,13 @@ sanctum.Character.prototype.clone = sanctum.Spell.prototype.clone = function () 
 
     clone.collisionRadius = this.collisionRadius;
     clone.id = ID_COUNTER++;
-    
+
     if (this.constructor == sanctum.Spell) {
         clone.timestamp = Date.now();
         clone.initialPosition = this.position.clone();
     }
-    
-    copyProperties(clone, this);    
+
+    copyProperties(clone, this);
     return clone;
 }
  sanctum.Character.prototype.getCenter = sanctum.Spell.prototype.getCenter = function () {

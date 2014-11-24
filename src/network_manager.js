@@ -1,3 +1,4 @@
+"use strict";
 var sanctum = require("./all_sanctum") || sanctum;
 
 sanctum = sanctum || {};
@@ -42,7 +43,7 @@ sanctum.NetworkManager.prototype.connect = function(masterSocket, socket) {
 }
 
 sanctum.NetworkManager.prototype.addSpellcast = function(spellName, target, caster) {
-    this.buffer.push({t/*EventType*/: sanctum.EventTypes.Spellcast, 
+    this.buffer.push({t/*EventType*/: sanctum.EventTypes.Spellcast,
                         data: {spellName: spellName, target: target, caster: caster}});
 }
 
@@ -55,14 +56,14 @@ sanctum.NetworkManager.prototype.addObject = function(object, index) {
         id: index
     };
 
-    this.buffer.push({t/*EventType*/: sanctum.EventTypes.ObjectInfo, 
+    this.buffer.push({t/*EventType*/: sanctum.EventTypes.ObjectInfo,
                         data: objectInfo});
 }
 
 sanctum.NetworkManager.prototype.flush = function() {
     if(this.buffer.length > 0) {
         if(!this.masterSocket) {
-            this.socket.emit("update", this.buffer);        
+            this.socket.emit("update", this.buffer);
         } else {
             this.masterSocket.emit("update", this.buffer);
         }

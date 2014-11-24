@@ -1,3 +1,4 @@
+"use strict";
 var sanctum = sanctum || {};
 
 sanctum.PlayerManager = function (characters, physicsManager) {
@@ -16,7 +17,7 @@ sanctum.PlayerManager.prototype.moveTo = function (player, target) {
     delete player.coefficients;
     //player.velocity = target.subtract(player.size.divide(2)).subtract(player.position);
     //Vector.normalize(player.velocity);
-    //Vector.multiply(player.velocity, player.speed, player.velocity);   
+    //Vector.multiply(player.velocity, player.speed, player.velocity);
 }
 
 

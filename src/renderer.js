@@ -1,3 +1,4 @@
+"use strict";
 var sanctum = require("./all_sanctum") || sanctum;
 sanctum = sanctum || {};
 
@@ -58,7 +59,7 @@ sanctum.Renderer.prototype.getViewportCenter = function () {
 }
 
 sanctum.Renderer.prototype.getPlatformCenter = function (platform) {
-    return new Vector(-this.camera.position.x + platform.width / 2, 
+    return new Vector(-this.camera.position.x + platform.width / 2,
                       -this.camera.position.y + platform.height / 2);
 }
 
@@ -72,9 +73,9 @@ sanctum.Renderer.prototype.getPlatformSourceVectors = function (platform) {
         position.x = 0;
     if (position.y < 0)
         position.y = 0;
-    
+
     var size = this.camera.viewport.multiply(platformRatio);
-    
+
     if (position.x + size.x > platform.texture.width)
         size.x = Math.min(size.x - position.x, platform.texture.width);
     if (position.y + size.y > platform.texture.height)
@@ -88,34 +89,34 @@ sanctum.Renderer.prototype.getPlatformSourceVectors = function (platform) {
 
 sanctum.Renderer.prototype.renderCircle = function (center, radius, color) {
     this.context.beginPath();
-    this.context.arc(center.x, 
-                     center.y, 
+    this.context.arc(center.x,
+                     center.y,
                      radius,
                      0, 2 * Math.PI);
     this.context.closePath();
     this.context.strokeColor = color || "black";
     this.context.stroke();
-}   
+}
 
 sanctum.Renderer.prototype.renderVector = function (vector, position, color, offset) {
     var arrowHeadLength = 10;
     var fromX = position.x,
         fromY = position.y;
-    
+
     if (offset != undefined) {
         fromX += offset.x;
         fromY += offset.y;
     }
     var toX = fromX + vector.x * this.debugVectorScale,
         toY = fromY + vector.y * this.debugVectorScale;
-    
+
 
     var angle = Math.atan2(toY - fromY, toX - fromX);
 
     this.context.save();
     this.context.strokeStyle = this.context.fillStyle = color;
     this.context.lineWidth = this.debugLineWidth;
-    
+
     this.context.beginPath();
     this.context.moveTo(fromX, fromY);
     this.context.lineTo(toX, toY);
@@ -148,21 +149,21 @@ sanctum.Renderer.prototype.renderPlatform = function (platform) {
     var vectors = this.getPlatformSourceVectors(platform);
     var sourcePosition = vectors.position;
     var sourceSize = vectors.size;
-    
-    this.context.drawImage(platform.texture, 
+
+    this.context.drawImage(platform.texture,
                            sourcePosition.x, sourcePosition.y,
                            sourceSize.x, sourceSize.y,
                            0, 0,
                            this.camera.viewport.x, this.camera.viewport.y
                            );
 
-    this.context.drawImage(platform.outsideTexture, 
-                           0, 0, 
+    this.context.drawImage(platform.outsideTexture,
+                           0, 0,
                            platform.outsideTexture.width, platform.outsideTexture.height,
                            0, 0,
                            this.camera.viewport.x, this.camera.viewport.y
                            );
-    
+
     this.context.save();
     this.context.beginPath();
     var platformMid = this.getPlatformCenter(platform);
@@ -174,8 +175,8 @@ sanctum.Renderer.prototype.renderPlatform = function (platform) {
     }
     this.context.closePath();
     this.context.clip();
-    this.context.drawImage(platform.texture, 
-                           sourcePosition.x, sourcePosition.y, 
+    this.context.drawImage(platform.texture,
+                           sourcePosition.x, sourcePosition.y,
                            sourceSize.x, sourceSize.y,
                            0, 0,
                            this.camera.viewport.x, this.camera.viewport.y
@@ -188,36 +189,36 @@ sanctum.Renderer.prototype.renderCollection = function (dt, gameObjects) {
 
     for (var i = 0; i < gameObjects.length; i++) {
         var obj = gameObjects[i];
-        
+
         var sprite = obj.sprite;
         var frameX = sprite.frameIndex * sprite.frameWidth;
         var frameY = sprite.activeAnimation * sprite.frameHeight;
-        
+
         context.save();
         var center = obj.getCenter();
         context.translate(center.x, center.y);
         context.rotate(obj.rotation);
         context.translate(-center.x, -center.y);
-        
-        context.drawImage(sprite.image, 
+
+        context.drawImage(sprite.image,
                           frameX, frameY,
-                          sprite.frameWidth, 
+                          sprite.frameWidth,
                           sprite.frameHeight,
                           obj.position.x,
                           obj.position.y,
                           obj.size.x,
                           obj.size.y
                           );
-                          
+
         if (this.debugRender) {
             this.renderCircle(obj.position.add(obj.size.divide(2)), obj.collisionRadius);
             this.renderVector(obj.totalVelocity, obj.position, "#cc0000");
             this.renderVector(obj.acceleration, obj.position, "#0000cc", new Vector(0, obj.size.y / 3));
             if (obj.target) {
-                this.renderCircle(obj.target, obj.collisionRadius);   
+                this.renderCircle(obj.target, obj.collisionRadius);
             }
         }
-        
+
         context.restore();
 
         var msPerFrame = 1000 / sprite.framesPerRow[sprite.activeAnimation];
@@ -225,7 +226,7 @@ sanctum.Renderer.prototype.renderCollection = function (dt, gameObjects) {
         if (sprite.lastFrameUpdate > msPerFrame) {
             sprite.frameIndex = (sprite.frameIndex + 1) % sprite.framesPerRow[sprite.activeAnimation];
             sprite.lastFrameUpdate = 0;
-        }            
+        }
     }
 }
 
@@ -236,7 +237,7 @@ sanctum.Renderer.prototype.render = function (dt, objectCollections, platform, s
 
     context.save();
     context.translate(-this.camera.position.x, -this.camera.position.y);
-    
+
     for (var i = 0; i < objectCollections.length; i++) {
         this.renderCollection(dt, objectCollections[i]);
     }

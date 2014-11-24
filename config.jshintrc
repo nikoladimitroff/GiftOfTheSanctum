@@ -1,0 +1,17 @@
+{
+  "undef": true,
+  "unused": true,
+  "predef": [ "browser", "node" ],
+  "maxlen": 80,
+  "camelcase": true,
+  "freeze": true,
+  "immed": true,
+  "indent": 4,
+  "latedef": "nofunc",
+  "newcap": true,
+  "noarg": true,
+  "nonew": true,
+  "quotmark": "double",
+  "strict": true,
+  "globalstrict": true,
+}
