@@ -1,5 +1,9 @@
 "use strict";
 
+var Vector = require("./math/vector");
+var Character = require("./game_objects").Character,
+    Spell = require("./game_objects").Spell;
+
 var CastType = {
     projectile: "projectile",
     instant: "instant",

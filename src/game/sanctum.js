@@ -6,6 +6,7 @@ var Renderer = require("./renderer");
 var ContentManager = require("./content_manager");
 var UIManager = require("./ui_manager");
 var PlayerManager = require("./player_manager");
+var NetworkManager = require("./network_manager");
 
 var Vector = require("./math/vector");
 var Event = require("../utils/event.js")
@@ -55,7 +56,7 @@ Camera.prototype.follow = function (target) {
 
 }
 
-var Sanctum = function (context, playerNames, selfIndex, networkManager) {
+var Sanctum = function (playerNames, selfIndex, networkManager, context) {
     this.characters = playerNames;
     this.previousTime = 0;
     this.deathsCount = 0;
@@ -76,6 +77,7 @@ var Sanctum = function (context, playerNames, selfIndex, networkManager) {
 
     this.ui = new UIManager(this.model, this.events);
     this.content = new ContentManager();
+    console.log(this.content, ContentManager);
     this.physics = new PhysicsManager();
     this.playerManager = new PlayerManager(this.characters,
                                            this.physics);
@@ -132,9 +134,9 @@ Sanctum.prototype.init = function () {
 }
 
 Sanctum.prototype.loadContent = function () {
-    this.content.loadSanctumData("game_data.json",
-                                     this.init.bind(this), 
-                                     this.network.isServer());
+    this.content.loadGameData("game_data.json",
+                              this.init.bind(this), 
+                              this.network.isServer());
 }
 
 Sanctum.prototype.reset = function() {
@@ -199,7 +201,7 @@ Sanctum.prototype.processNetworkData = function() {
     for (var i = 0; i < payload.length; i++) {
         var event = payload[i];
         switch (event.t) {
-            case EventTypes.ObjectInfo:
+            case NetworkManager.EventTypes.ObjectInfo:
                 var player = this.characters[event.data.id];
                 var canSkip = event.data.id == this.playerIndex;
                 if(canSkip) {
@@ -213,7 +215,7 @@ Sanctum.prototype.processNetworkData = function() {
                 }
                 break;
 
-            case EventTypes.Spellcast:
+            case NetworkManager.EventTypes.Spellcast:
                 var canSkip = event.data.caster == this.playerIndex;
                 if(canSkip) {
                     continue;
@@ -353,9 +355,8 @@ Sanctum.prototype.run = function () {
     this.mainSanctumLoop(0);
 };
 
-Sanctum.startNewGame = function (players, selfIndex, networkManager) {
-    canvas = document.getElementById("game-canvas");
-    game = new Sanctum(canvas.getContext("2d"), players, selfIndex, networkManager);
+Sanctum.startNewGame = function (players, selfIndex, networkManager, renderingContext) {
+    var game = new Sanctum(players, selfIndex, networkManager, renderingContext);
     game.loadContent();
     game.bindSpells("Unicorns!", "Frostfire", "Heal", "Flamestrike", "Electric bolt", "Death bolt");
     

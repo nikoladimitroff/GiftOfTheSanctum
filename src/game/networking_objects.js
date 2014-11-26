@@ -109,7 +109,7 @@ networking.Room.prototype.play = function(socket) {
     if(socket.id == this.hostId) {
         console.log("Game started.");
         this.isRunning = true;
-        this.game = Sanctum.startNewGame({}, this.players.map(function (c) { return c.name}), -1, this.networkManager);
+        this.game = Sanctum.startNewGame(this.players.map(function (c) { return c.name}), -1, this.networkManager);
 
         this.masterSocket.emit("play", {});
     }

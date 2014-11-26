@@ -5,6 +5,7 @@ var Platform = require("./platform");
 var allGameObjects = require("./game_objects");
 var Character = allGameObjects.Character,
     Spell = allGameObjects.Spell;
+var Sprite = require("./sprite");
 
 var Vector = require("./math/vector");
 

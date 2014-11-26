@@ -1,10 +1,5 @@
 "use strict";
 
-var EventTypes = {
-    Spellcast: 0,
-    ObjectInfo: 1
-};
-
 var process = process || null;
 
 var NetworkManager = function () {
@@ -26,6 +21,12 @@ var NetworkManager = function () {
 
 NetworkManager.port = (process && process.env && process.env.PORT) || 8080;
 
+
+NetworkManager.EventTypes = {
+    Spellcast: 0,
+    ObjectInfo: 1
+};
+
 NetworkManager.prototype.connect = function(masterSocket, socket) {
     if(!masterSocket) {
         this.socket = socket;
@@ -40,7 +41,7 @@ NetworkManager.prototype.connect = function(masterSocket, socket) {
 };
 
 NetworkManager.prototype.addSpellcast = function(spellName, target, caster) {
-    this.buffer.push({t/*EventType*/: EventTypes.Spellcast,
+    this.buffer.push({t/*EventType*/: NetworkManager.EventTypes.Spellcast,
                         data: {spellName: spellName, target: target, caster: caster}});
 };
 
@@ -53,7 +54,7 @@ NetworkManager.prototype.addObject = function(object, index) {
         id: index
     };
 
-    this.buffer.push({t/*EventType*/: EventTypes.ObjectInfo,
+    this.buffer.push({t/*EventType*/: NetworkManager.EventTypes.ObjectInfo,
                         data: objectInfo});
 };
 

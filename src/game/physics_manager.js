@@ -61,7 +61,7 @@ PhysicsManager.prototype.getObjectsWithinRadius = function (objects, point, radi
 }
 
 PhysicsManager.prototype.applyForce = function (object, force) {
-    Vector.add(object.force, force, object.force);
+    Vector.add(object.acceleration, force.divide(object.mass), object.acceleration);
 }
 
 

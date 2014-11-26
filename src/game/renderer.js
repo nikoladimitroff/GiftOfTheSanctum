@@ -1,24 +1,6 @@
 "use strict";
 var Vector = require("./math/vector");
-
-var Sprite = function (image, framesPerRow) {
-    this.image = image;
-    this.framesPerRow = framesPerRow;
-    var maxFrames = Math.max.apply(undefined, framesPerRow);
-    this.frameWidth = image.width / maxFrames;
-    this.frameHeight = image.height / framesPerRow.length;
-    this.activeAnimation = 0;
-    this.frameIndex = 0;
-    this.lastFrameUpdate = 0;
-}
-
-Sprite.prototype.clone = function () {
-    var sprite = new Sprite({}, []);
-    for (var prop in sprite) {
-        sprite[prop] = this[prop];
-    }
-    return sprite;
-}
+var Sprite = require("./sprite");
 
 var Renderer = function (context, debugRender) {
     this.context = context;
@@ -222,7 +204,7 @@ Renderer.prototype.renderCollection = function (dt, gameObjects) {
 
 Renderer.prototype.render = function (dt, objectCollections, platform, shouldRenderOverlay) {
     var context = this.context;
-    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
     this.renderPlatform(platform);
 
     context.save();
@@ -239,6 +221,4 @@ Renderer.prototype.render = function (dt, objectCollections, platform, shouldRen
 };
 
 
-if(typeof module != "undefined" && module.exports) {
-    module.exports.Renderer = Renderer;
-}
+module.exports = Renderer;

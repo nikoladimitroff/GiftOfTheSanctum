@@ -1,4 +1,6 @@
 "use strict";
+var Vector = require("./vector");
+
 var steering = {};
 function tryStopMovement(obj) {
     var dist = obj.getCenter().subtract(obj.target).lengthSquared();

@@ -1,4 +1,7 @@
 "use strict";
+var Vector = require("./vector");
+var steering = require("./steering");
+
 var integrators = {};
 
 integrators.Euler = function () {};
@@ -14,7 +17,7 @@ integrators.Euler.prototype.integrate = function (states, dt, friction) {
             Vector.add(state.acceleration, friction, state.acceleration);
         }
         Vector.add(state.velocity, state.acceleration.multiply(dt), state.velocity);
-        var movementVelocity = physics.Steering[state.movementFunction](state);
+        var movementVelocity = steering[state.movementFunction](state);
         var totalVelocity = state.velocity.add(movementVelocity).multiply(dt);
         state.totalVelocity = totalVelocity;
         Vector.add(state.position, totalVelocity, state.position);
