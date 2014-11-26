@@ -1,7 +1,12 @@
 {
   "name": "GoS",
   "dependencies": {
+    "browserify": "^6.3.3",
     "express": "^4.10.1",
-    "socket.io": "~1.2.0"
+    "jscs": "^1.7.3",
+    "jshint": "^2.5.10",
+    "less": "^2.1.0",
+    "socket.io": "~1.2.0",
+    "watchify": "^2.1.1"
   }
 }
