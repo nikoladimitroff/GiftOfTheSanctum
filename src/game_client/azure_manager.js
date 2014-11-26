@@ -1,7 +1,9 @@
 "use strict";
 var AzureManager = (function () {
     function AzureManager() {
-        this.client = new WindowsAzure.MobileServiceClient("https://sanctum.azure-mobile.net/", "ocEkaITOYwFARmtTRoufiEoXHsWBcL20");
+        var url = "https://sanctum.azure-mobile.net/",
+            key = "ocEkaITOYwFARmtTRoufiEoXHsWBcL20";
+        this.client = new WindowsAzure.MobileServiceClient(url, key);
         this.userInfo = this.client.getTable("userinfo");
     }
     Object.defineProperty(AzureManager.prototype, "loggedIn", {
@@ -16,20 +18,21 @@ var AzureManager = (function () {
     });
 
     AzureManager.prototype.login = function (callback) {
-        this.client.login("microsoftaccount").done(this.loadInformation.bind(this, callback), function (error) {
+        var onsuccess = this.loadInformation.bind(this, callback);
+        this.client.login("microsoftaccount").done(onsuccess, function (error) {
             return console.log(error);
         });
     };
 
     AzureManager.prototype.loadInformation = function (updateCallback) {
-        var _this = this;
+        var self = this;
         var id = this.client.currentUser.userId;
         this.userInfo.read().done(function (result) {
             if (result && result[0]) {
                 updateCallback(result[0]);
             } else {
-                _this.userInfo.insert({
-                    id: _this.client.currentUser.id
+                self.userInfo.insert({
+                    id: self.client.currentUser.id
                 });
             }
         }, function (error) {

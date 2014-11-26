@@ -1,4 +1,8 @@
 {
+    "requireCurlyBraces": [
+        "try",
+        "catch"
+    ],
     "requireSpaceAfterKeywords": [
         "do",
         "for",
@@ -35,6 +39,7 @@
     },
     "disallowSpacesInCallExpression": true,
     "disallowSpacesInsideArrayBrackets": "all",
+    "disallowSpacesInsideObjectBrackets": "all",
     "disallowQuotedKeysInObjects": true,
     "disallowSpaceAfterObjectKeys": true,
     "requireSpaceBeforeObjectValues": true,
@@ -73,5 +78,7 @@
     "validateLineBreaks": "CRLF",
     "validateQuoteMarks": { "mark": "\"", "escape": true },
     "validateIndentation": 4,
-    "validateParameterSeparator": ", "
+    "validateParameterSeparator": ", ",
+    "requireCapitalizedComments": true,
+    "safeContextKeyword": ["self"]
 }

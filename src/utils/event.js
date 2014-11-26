@@ -14,16 +14,12 @@ Event.prototype.removeEventListener = function (callback) {
             this.listeners.pop();
         }
     }
-}
+};
 
 Event.prototype.fire = function () {
     for (var i = 0; i < this.listeners.length; i++) {
         this.listeners[i].apply(undefined, arguments);
     }
-}
+};
 
-
-if(typeof module != "undefined" && module.exports) {
-    module.exports = Event;
-}
-
+module.exports = Event;

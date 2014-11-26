@@ -86,9 +86,9 @@ var Sanctum = function (playerNames, selfIndex, networkManager, context) {
 };
 
 var OBJECTS = {
-    "monk": "character_monk",
-    "fireball": "content/art/spells/fireball.png",
-    "platform": "Basic platform",
+    monk: "character_monk",
+    fireball: "content/art/spells/fireball.png",
+    platform: "Basic platform",
 };
 
 var CHARACTERS = [
@@ -106,7 +106,7 @@ Sanctum.prototype.init = function () {
     this.platform = this.content.get(OBJECTS["platform"]);
 
     var playerPositions = this.platform.generateVertices(this.characters.length,
-                                                         50); // magic
+                                                         50); // Magic
 
     var center = new Vector(this.platform.size.x / 2, this.platform.size.y / 2);
 
@@ -135,16 +135,16 @@ Sanctum.prototype.init = function () {
 
 Sanctum.prototype.loadContent = function () {
     this.content.loadGameData("game_data.json",
-                              this.init.bind(this), 
+                              this.init.bind(this),
                               this.network.isServer());
 }
 
-Sanctum.prototype.reset = function() {
+Sanctum.prototype.reset = function () {
     console.log("reset");
     var playerPositions = this.platform.generateVertices(this.characters.length,
-                                                         50); // magic
+                                                         50); // Magic
 
-    for(var i = 0; i < this.characters.length; i++) {
+    for (var i = 0; i < this.characters.length; i++) {
         var player = this.characters[i];
         player.position = playerPositions[i];
         player.health = player.startingHealth;
@@ -164,36 +164,40 @@ Sanctum.prototype.handleInput = function () {
     var player = this.characters[this.playerIndex];
     if (this.input.mouse.right &&
         !this.input.previousMouse.right) {
+
         this.playerManager.moveTo(player, this.input.mouse.absolute);
         player.playAnimation(Actions.walk, player.totalVelocity.normalized());
     }
     else if (this.input.mouse.left &&
              !this.input.previousMouse.left &&
              this.nextAction != Actions.walk) {
+
         var spellName = this.spellBindings[this.nextAction];
         var spell = this.effects.castSpell(this.playerIndex,
                                                  spellName,
                                                  this.input.mouse.absolute);
         if (spell !== null) {
-            var forward = spell.position.subtract(player.getCenter()).normalized();
+            var forward = spell.position.subtract(player.getCenter());
+            Vector.normalize(forward);
             this.network.addSpellcast(spellName,
                                              this.input.mouse.absolute,
                                              this.playerIndex);
             player.playAnimation(this.nextAction, forward);
         }
-        this.nextAction = [Actions.walk, Actions.idle][player.velocity.lengthSquared() < 1e-3];
+        var isWalking = player.velocity.lengthSquared() < 1e-3;
+        this.nextAction = [Actions.walk, Actions.idle][isWalking];
     }
 
     this.input.swap();
 }
 
-Sanctum.prototype.processNetworkData = function() {
+Sanctum.prototype.processNetworkData = function () {
     var payload = this.network.getLastUpdate();
     if (!payload) {
         return;
     }
 
-    if(this.network.isServer()) {
+    if (this.network.isServer()) {
         this.network.masterSocket.emit("update", payload);
         return;
     }
@@ -204,40 +208,41 @@ Sanctum.prototype.processNetworkData = function() {
             case NetworkManager.EventTypes.ObjectInfo:
                 var player = this.characters[event.data.id];
                 var canSkip = event.data.id == this.playerIndex;
-                if(canSkip) {
+                if (canSkip) {
                     continue;
                 }
 
                 player.position.set(event.data.position);
                 player.velocity.set(event.data.velocity);
                 if (event.data.target) {
-                    player.target = new Vector(event.data.target.x, event.data.target.y);
+                    player.target = new Vector(event.data.target.x,
+                                               event.data.target.y);
                 }
                 break;
 
             case NetworkManager.EventTypes.Spellcast:
                 var canSkip = event.data.caster == this.playerIndex;
-                if(canSkip) {
+                if (canSkip) {
                     continue;
                 }
-
+                var target = new Vector(event.data.target);
                 var spell = this.effects.castSpell(event.data.caster,
-                                                         event.data.spellName,
-                                                         new Vector().set(event.data.target));
+                                                   event.data.spellName,
+                                                   target);
                 break;
         }
-     }
+    }
 }
 
-Sanctum.prototype.processPendingDeaths = function() {
+Sanctum.prototype.processPendingDeaths = function () {
     var deaths = this.network.getPendingDeaths();
-    if(!deaths || deaths.length < 1) {
+    if (!deaths || deaths.length < 1) {
         return;
     }
 
-    for(var i = 0; i < deaths.length; i++) {
+    for (var i = 0; i < deaths.length; i++) {
         var player = this.characters[deaths[i]];
-        if(!player.isDead) {
+        if (!player.isDead) {
             this.deathsCount++;
             player.isDead = true;
         }
@@ -245,8 +250,10 @@ Sanctum.prototype.processPendingDeaths = function() {
     this.network.pendingDeaths = [];
 }
 
-Sanctum.prototype.bindSpells = function (cast1, cast2, cast3, cast4, cast5, cast6) {
-    for (var i = 0; i < arguments.length; i++) { // magic, fix the number of casts
+Sanctum.prototype.bindSpells = function (cast1, cast2, cast3,
+                                         cast4, cast5, cast6) {
+
+    for (var i = 0; i < arguments.length; i++) { // Magic, fix the number of casts
         this.spellBindings["spellcast" + (i + 1)] = arguments[i];
     }
 };
@@ -273,7 +280,7 @@ Sanctum.prototype.loop = function (timestamp) {
     if (!this.network.isServer()) {
 
         var currentPlayer = this.characters[this.playerIndex];
-        if(!currentPlayer.isDead) {
+        if (!currentPlayer.isDead) {
             this.handleInput();
         }
 
@@ -295,28 +302,31 @@ Sanctum.prototype.loop = function (timestamp) {
             currentPlayer.isDead = true;
         }
 
-        if(this.deathsCount >= this.characters.length - 1) {
-            if(!this.characters[this.playerIndex].isDead) {
+        if (this.deathsCount >= this.characters.length - 1) {
+            if (!this.characters[this.playerIndex].isDead) {
                 this.characters[this.playerIndex].score += this.deathsCount;
             }
 
-//            this.reset();
-//            this.events.roundOver.fire(this.characters);
-//            return;
+/* Enable this to end the round
+            this.reset();
+            this.events.roundOver.fire(this.characters);
+            return;
+*/
         }
-        var following = !currentPlayer.isDead ? this.playerIndex : this.getMaxScorePlayerIndex();
+        var following = !currentPlayer.isDead ?
+                        this.playerIndex : this.getMaxScorePlayerIndex();
         this.renderer.camera.follow(this.characters[following].position);
         this.renderer.render(delta,
                              [this.characters, this.effects.activeSpells],
                              this.platform,
-                             this.characters[this.playerIndex].isDead
-                             );
+                             this.characters[this.playerIndex].isDead);
     }
 
     this.network.lastUpdate += delta;
-    if(this.network.lastUpdate >= this.network.updateTime) {
-        if(!this.network.isServer()) {
-            this.network.addObject(this.characters[this.playerIndex], this.playerIndex);
+    if (this.network.lastUpdate >= this.network.updateTime) {
+        if (!this.network.isServer()) {
+            var player = this.characters[this.player];
+            this.network.addObject(player, this.playerIndex);
             this.network.flush();
         }
         this.network.lastUpdate = 0;
@@ -333,11 +343,11 @@ Sanctum.prototype.loop = function (timestamp) {
     }
 }
 
-Sanctum.prototype.getMaxScorePlayerIndex = function() {
+Sanctum.prototype.getMaxScorePlayerIndex = function () {
     var maxScoreIndex = 0;
     var max = this.characters[0].score;
-    for(var i = 1; i < this.characters.length; i++) {
-        if(max < this.characters[i].score && !this.characters[i].isDead) {
+    for (var i = 1; i < this.characters.length; i++) {
+        if (max < this.characters[i].score && !this.characters[i].isDead) {
             max = this.characters[i].score;
             maxScoreIndex = i;
         }
@@ -355,11 +365,12 @@ Sanctum.prototype.run = function () {
     this.mainSanctumLoop(0);
 };
 
-Sanctum.startNewGame = function (players, selfIndex, networkManager, renderingContext) {
-    var game = new Sanctum(players, selfIndex, networkManager, renderingContext);
+Sanctum.startNewGame = function (players, selfIndex, networkManager, context) {
+    var game = new Sanctum(players, selfIndex, networkManager, context);
     game.loadContent();
-    game.bindSpells("Unicorns!", "Frostfire", "Heal", "Flamestrike", "Electric bolt", "Death bolt");
-    
+    game.bindSpells("Unicorns!", "Frostfire", "Heal",
+                    "Flamestrike", "Electric bolt", "Death bolt");
+
     return game;
 }
 

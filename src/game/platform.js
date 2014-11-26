@@ -25,9 +25,12 @@ var Platform = function (texture, outsideTexture, description) {
 
 Platform.prototype.update = function (dt) {
     this.lastCollapse += dt;
-    if (this.collapseIterationsLeft && this.lastCollapse >= this.collapseInterval) {
+    if (this.collapseIterationsLeft &&
+        this.lastCollapse >= this.collapseInterval) {
+
         this.radius -= this.collapseRadiusReduction;
-        this.vertices = this.generateVertices(this.vertices.length, this.radius);
+        this.vertices = this.generateVertices(this.vertices.length,
+                                              this.radius);
         this.collapseIterationsLeft--;
         this.lastCollapse = 0;
     }

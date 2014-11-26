@@ -16,20 +16,22 @@ UIManager.prototype.init = function () {
     }
 };
 
-var avatar_images = ["archer.png", "knight.png", "mage.png", "monk.png",
-     "necro.png", "orc.png", "queen.png", "rogue.png"];
+var AVATAR_IMAGES = ["archer.png", "knight.png", "mage.png", "monk.png",
+                     "necro.png", "orc.png", "queen.png", "rogue.png"];
 
 
 UIManager.prototype.showScoreboard = function () {
     $(this.scoreboard).toggle();
     var playerLabels = this.scoreboard.children;
 
-    for(var i = 0; i < this.model.scores.length; i++) {
+    for (var i = 0; i < this.model.scores.length; i++) {
         var labelIndex = i + 1;
-        playerLabels[labelIndex].children[0].textContent = this.model.scores[i].name;
-        var imgSource = "content/art/characters/scoreboard/" + avatar_images[this.model.scores[i].id];
-        playerLabels[labelIndex].children[1].src = imgSource;
-        playerLabels[labelIndex].children[2].textContent = this.model.scores[i].score;
+        var children = playerLabel[labelIndex].children;
+        children[0].textContent = this.model.scores[i].name;
+        var imgSource = "content/art/characters/scoreboard/" +
+                        AVATAR_IMAGES[this.model.scores[i].id];
+        children[1].src = imgSource;
+        children[2].textContent = this.model.scores[i].score;
     }
 };
 

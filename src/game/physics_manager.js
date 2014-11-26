@@ -11,10 +11,6 @@ var PhysicsManager = function (friction) {
 }
 
 PhysicsManager.prototype.update = function (objects) {
-//    var microsteps = 2;
-//    for (var i = 0; i < microsteps; i++) {
-//        this.integrator.integrate(objects, this.fixedStep / microsteps, this.friction);
-//    }
     this.integrator.integrate(objects, this.fixedStep, this.friction);
 };
 
@@ -43,7 +39,10 @@ PhysicsManager.prototype.getCollisionPairs = function (group1, group2) {
     return this.collisions;
 };
 
-PhysicsManager.prototype.getObjectsWithinRadius = function (objects, point, radius) {
+PhysicsManager.prototype.getObjectsWithinRadius = function (objects,
+                                                            point,
+                                                            radius) {
+
     if (radius == 0)
         return [];
 
@@ -51,7 +50,7 @@ PhysicsManager.prototype.getObjectsWithinRadius = function (objects, point, radi
     for (var i = 0; i < objects.length; i++) {
         var obj = objects[i];
 
-        var center = obj.position.add(obj.size.divide(2));
+        var center = obj.position.getCenter();
         var distance = center.subtract(point).length();
         var radiusSum = obj.collisionRadius + radius;
         if (distance < radiusSum)
@@ -61,11 +60,15 @@ PhysicsManager.prototype.getObjectsWithinRadius = function (objects, point, radi
 }
 
 PhysicsManager.prototype.applyForce = function (object, force) {
-    Vector.add(object.acceleration, force.divide(object.mass), object.acceleration);
+    Vector.add(object.acceleration,
+               force.divide(object.mass),
+               object.acceleration);
 }
 
 
-PhysicsManager.prototype.circleIntersects = function (center1, radius1, center2, radius2) {
+PhysicsManager.prototype.circleIntersects = function (center1, radius1,
+                                                      center2, radius2) {
+
     var distance = center1.subtract(center2).length();
     var radiusSum = radius1 + radius2;
     return distance <= radiusSum;

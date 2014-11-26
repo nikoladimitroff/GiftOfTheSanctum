@@ -9,10 +9,10 @@ var Renderer = function (context, debugRender) {
     this.debugRender = debugRender || false;
 }
 
-Renderer.prototype.init = function(camera) {
+Renderer.prototype.init = function (camera) {
     this.camera = camera;
 
-    var onresize = function() {
+    var onresize = function () {
         this.context.canvas.width = window.innerWidth;
         this.context.canvas.height = window.innerHeight;
         window.aspect = this.context.canvas.width / this.context.canvas.height;
@@ -96,15 +96,15 @@ Renderer.prototype.renderVector = function (vector, position, color, offset) {
 
     this.context.beginPath();
     this.context.moveTo(toX, toY);
-    this.context.lineTo(toX - arrowHeadLength * Math.cos(angle - Math.PI/7),
-                        toY - arrowHeadLength * Math.sin(angle - Math.PI/7));
+    this.context.lineTo(toX - arrowHeadLength * Math.cos(angle - Math.PI / 7),
+                        toY - arrowHeadLength * Math.sin(angle - Math.PI / 7));
 
-    this.context.lineTo(toX - arrowHeadLength*Math.cos(angle + Math.PI/7),
-                        toY - arrowHeadLength * Math.sin(angle + Math.PI/7));
+    this.context.lineTo(toX - arrowHeadLength * Math.cos(angle + Math.PI / 7),
+                        toY - arrowHeadLength * Math.sin(angle + Math.PI / 7));
 
     this.context.lineTo(toX, toY);
-    this.context.lineTo(toX - arrowHeadLength * Math.cos(angle - Math.PI/7),
-                        toY - arrowHeadLength * Math.sin(angle - Math.PI/7));
+    this.context.lineTo(toX - arrowHeadLength * Math.cos(angle - Math.PI / 7),
+                        toY - arrowHeadLength * Math.sin(angle - Math.PI / 7));
     this.context.stroke();
     this.context.fill();
     this.context.restore();
@@ -131,7 +131,8 @@ Renderer.prototype.renderPlatform = function (platform) {
 
     this.context.drawImage(platform.outsideTexture,
                            0, 0,
-                           platform.outsideTexture.width, platform.outsideTexture.height,
+                           platform.outsideTexture.width,
+                           platform.outsideTexture.height,
                            0, 0,
                            this.camera.viewport.x, this.camera.viewport.y
                            );
@@ -183,9 +184,10 @@ Renderer.prototype.renderCollection = function (dt, gameObjects) {
                           );
 
         if (this.debugRender) {
-            this.renderCircle(obj.position.add(obj.size.divide(2)), obj.collisionRadius);
-            this.renderVector(obj.totalVelocity, obj.position, "#cc0000");
-            this.renderVector(obj.acceleration, obj.position, "#0000cc", new Vector(0, obj.size.y / 3));
+            this.renderCircle(obj.getCenter(), obj.collisionRadius);
+            this.renderVector(obj.totalVelocity, obj.position, "red");
+            var offset = new Vector(0, obj.size.y / 3);
+            this.renderVector(obj.acceleration, obj.position, "blue", offset);
             if (obj.target) {
                 this.renderCircle(obj.target, obj.collisionRadius);
             }
@@ -196,13 +198,18 @@ Renderer.prototype.renderCollection = function (dt, gameObjects) {
         var msPerFrame = 1000 / sprite.framesPerRow[sprite.activeAnimation];
         sprite.lastFrameUpdate += dt;
         if (sprite.lastFrameUpdate > msPerFrame) {
-            sprite.frameIndex = (sprite.frameIndex + 1) % sprite.framesPerRow[sprite.activeAnimation];
+            var animationLength = sprite.framesPerRow[sprite.activeAnimation];
+            sprite.frameIndex = (sprite.frameIndex + 1) % animationLength;
             sprite.lastFrameUpdate = 0;
         }
     }
 }
 
-Renderer.prototype.render = function (dt, objectCollections, platform, shouldRenderOverlay) {
+Renderer.prototype.render = function (dt,
+                                      objectCollections,
+                                      platform,
+                                      shouldRenderOverlay) {
+
     var context = this.context;
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
     this.renderPlatform(platform);
