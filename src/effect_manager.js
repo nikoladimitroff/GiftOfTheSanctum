@@ -1,3 +1,4 @@
+"use strict";
 var sanctum = sanctum || {};
 
 var CastType = {
@@ -29,7 +30,7 @@ sanctum.EffectManager.prototype.removeSpell = function (spellId, index) {
         this.activeSpells.pop();
         return true;
     }
-    
+
     for (var i = 0; i < this.activeSpells.length; i++) {
         if (this.activeSpells[i].id == spellId) {
             this.activeSpells[i] = this.activeSpells[this.activeSpells.length - 1];
@@ -60,7 +61,7 @@ sanctum.EffectManager.prototype.pulseSpell = function (spell, physics, hitTarget
 			return;
 		}
 	}
-	
+
 
     var targets = physics.getObjectsWithinRadius(this.characters,
                                                  spell.position,
@@ -81,6 +82,7 @@ sanctum.EffectManager.prototype.pulseSpell = function (spell, physics, hitTarget
                     Vector.normalize(hitDirection);
                     Vector.multiply(hitDirection, spell.pushbackForce, hitDirection);
                     physics.applyForce(target, hitDirection);
+                    target.target = null;
                     break;
             };
         }
@@ -90,7 +92,7 @@ sanctum.EffectManager.prototype.pulseSpell = function (spell, physics, hitTarget
 }
 
 sanctum.EffectManager.prototype.castSpell = function (characterId, spellName, target, physics) {
-    var timeSinceLastCast = Date.now() - this.spellCooldowns[characterId][spellName]; 
+    var timeSinceLastCast = Date.now() - this.spellCooldowns[characterId][spellName];
     if (timeSinceLastCast <= this.spellLibrary[spellName].cooldown) {
         return null;
     }
@@ -98,13 +100,13 @@ sanctum.EffectManager.prototype.castSpell = function (characterId, spellName, ta
     var character = this.characters[characterId];
     var spellInstance = this.spellLibrary[spellName].clone();
     if (spellInstance.castType == CastType.projectile) {
-        
+
         var center = character.getCenter();
         var offset = spellInstance.size.divide(2);
         var forward = target.subtract(center).normalized();
-        
+
         var distance = (spellInstance.collisionRadius + character.collisionRadius) * 1.1;
-        spellInstance.position = center.subtract(offset).add(forward.multiply(distance));        
+        spellInstance.position = center.subtract(offset).add(forward.multiply(distance));
         spellInstance.acceleration = forward.multiply(this.spellLibrary[spellName].startingAcceleration);
         spellInstance.velocity = character.velocity.add(forward.multiply(this.spellLibrary[spellName].startingVelocity));
 
@@ -117,7 +119,7 @@ sanctum.EffectManager.prototype.castSpell = function (characterId, spellName, ta
         spellInstance.position = target.subtract(spellInstance.size);
     }
     this.activeSpells.push(spellInstance);
-    
+
     this.spellCooldowns[characterId][spellName] = Date.now();
     spellInstance.casterId = characterId;
     return spellInstance;
@@ -137,7 +139,7 @@ sanctum.EffectManager.prototype.cleanupEffects = function () {
     var now = Date.now();
     for (var i = 0; i < this.activeSpells.length; i++) {
         var object = this.activeSpells[i];
-        
+
         if (object instanceof sanctum.Spell) {
             var spell = object;
             var removeInstantSpell = spell.castType == CastType.instant &&

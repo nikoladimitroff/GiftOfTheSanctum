@@ -1,3 +1,4 @@
+"use strict";
 var sanctum = sanctum || {};
 
 sanctum.Platform = require("./platform") || sanctum.Platform;
@@ -112,7 +113,7 @@ sanctum.ContentManager.prototype.fetchJSONFile = function (path, callback) {
         }
     };
     xhr.open('GET', path);
-    xhr.send(); 
+    xhr.send();
 }
 
 sanctum.ContentManager.prototype.loadGameData = function (gameDataPath, callback, isServer) {
@@ -122,11 +123,11 @@ sanctum.ContentManager.prototype.loadGameData = function (gameDataPath, callback
     }
 
     var self = this;
-    this.fetchJSONFile(gameDataPath, function (gameData) {    
+    this.fetchJSONFile(gameDataPath, function (gameData) {
         self.fetchJSONFile(gameData.sprites, function (sprites) {
             self.onload = function () {
                 this.loadKeybindings(gameData.keybindings);
-                gameData.characters.map(self.loadCharacter.bind(self));                
+                gameData.characters.map(self.loadCharacter.bind(self));
                 self.fetchJSONFile(gameData.spells, function (spellLibrary) {
                     spellLibrary.map(self.loadSpell.bind(self));
 
@@ -135,7 +136,7 @@ sanctum.ContentManager.prototype.loadGameData = function (gameDataPath, callback
 
                         self.fetchJSONFile(gameData.obstacles, function(obstacles) {
                             obstacles.map(self.loadObstacle.bind(self));
-                            callback();                            
+                            callback();
                         })
                     });
                 });
@@ -148,7 +149,7 @@ sanctum.ContentManager.prototype.loadGameData = function (gameDataPath, callback
 sanctum.ContentManager.prototype.loadGameDataServer = function (gameDataPath, callback) {
     var self = this;
 
-    var gameData = this.fetchJSONServer(gameDataPath);    
+    var gameData = this.fetchJSONServer(gameDataPath);
     gameData.characters.map(self.loadCharacter.bind(self));
 
     var spellLibrary = this.fetchJSONServer(gameData.spells);

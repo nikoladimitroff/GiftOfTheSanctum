@@ -1,3 +1,4 @@
+"use strict";
 var Client = function() {
     this.socket = null;
     this.playerId = null;

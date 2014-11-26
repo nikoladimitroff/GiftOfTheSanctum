@@ -1,3 +1,4 @@
+"use strict";
 $(document).ready(function () {
     $("#health_container").load("src/public/health_orb.html");
     $("#spell_info").load("src/public/spell_info.html");

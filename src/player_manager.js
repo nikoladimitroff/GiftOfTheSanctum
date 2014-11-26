@@ -1,22 +1,24 @@
+"use strict";
 var sanctum = sanctum || {};
 
-sanctum.PlayerManager = function (characters) {
+sanctum.PlayerManager = function (characters, physicsManager) {
     this.characters = characters;
+    this.physics = physicsManager;
 };
 
 sanctum.PlayerManager.prototype.update = function () {
     for (var i = 0; i < this.characters.length; i++) {
         var character = this.characters[i];
-        if (character.target) {
-            var dist = character.getCenter().subtract(character.target).lengthSquared();
-            if (dist < character.collisionRadius * character.collisionRadius) {
-                character.target = null;
-                character.velocity.set(0, 0);
-            }
-        }
     }
 };
 
+sanctum.PlayerManager.prototype.moveTo = function (player, target) {
+    player.target = target.clone();
+    delete player.coefficients;
+    //player.velocity = target.subtract(player.size.divide(2)).subtract(player.position);
+    //Vector.normalize(player.velocity);
+    //Vector.multiply(player.velocity, player.speed, player.velocity);
+}
 
 
 if(typeof module != "undefined" && module.exports) {

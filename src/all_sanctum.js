@@ -1,3 +1,4 @@
+"use strict";
 var sanctum = {};
 
 var physicsManager = require("./physics_manager");

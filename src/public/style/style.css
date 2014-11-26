@@ -23,8 +23,7 @@ html, body, canvas {
 	top: 0;
 	left: 0;
 	background: url("../../../content/art/home_wallpaper.jpg") #030708;
-	background-position: center;
-	background-repeat: no-repeat;	
+    background-size: 100%;
 }
 
 #login-form {

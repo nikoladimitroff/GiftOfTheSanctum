@@ -1,3 +1,4 @@
+"use strict";
 var sanctum = sanctum || {};
 
 var allPhysics = require("./physics");
@@ -13,21 +14,21 @@ var ID_COUNTER = 0;
 
 function copyProperties(object, description) {
     var copyableProperties = [
-        "name", "health", "speed",
+        "name", "health", "speed", "movementFunction",
         "mass",
         "rotation",
         "castType", "range", "duration",
         "effects", "effectRadius", "damageAmount", "pushbackForce",
         "animations"
     ];
-    
+
     for (var i = 0; i < copyableProperties.length; i++) {
         var prop = copyableProperties[i];
         if (description[prop] !== undefined) {
             object[prop] = description[prop];
         }
     }
-}   
+}
 
 sanctum.Character = function (sprite, description) {
     this.position = new Vector(210, 210);
@@ -40,51 +41,41 @@ sanctum.Character = function (sprite, description) {
 	this.speed = description.speed || 100;
     this.score = 0;
     this.isDead = false;
-    
+    this.movementFunction = "linear";
+
     this.animations = description.animations;
     this.size = new Vector(description.width, description.height);
-    
+
     this.collisionRadius = Math.max(this.size.x, this.size.y) / 2;
-    
+
     copyProperties(this, description);
 };
 
-sanctum.Obstacle = function(sprite, description) {
-    this.position = new Vector(300, 300);
-    this.velocity = new Vector(0, 0);
-    this.size = new Vector(description.width, description.height);
-    this.collisionRadius = Math.max(this.size.x, this.size.y) / 2;
-
-    this.sprite = sprite;
-    this.rotation = 0;
-    this.initialPosition = this.position.clone();
-
-    copyProperties(this, description);
-}
 
 sanctum.Spell = function (sprite, description) {
     // physics
-    this.position = new Vector(300, 300);
+    this.position = new Vector();
     this.velocity = new Vector(0, 0);
     this.acceleration = new Vector(0, 0);
 	this.startingVelocity = description.velocity || 0;
 	this.startingAcceleration = description.acceleration || 0;
+    this.movementFunction = description.movementFunction || "linear";
     this.frictionless = true;
     this.size = new Vector(description.width, description.height);
     this.collisionRadius = Math.max(this.size.x, this.size.y) / 2;
-    
+
     // rendering
     this.sprite = sprite;
     this.rotation = 0;
-    
+
     // stamps and stuff
     this.initialPosition = this.position.clone();
     this.timestamp = Date.now();
-    
+
     this.cooldown = description.cooldown;
-    
+
     this.id = ID_COUNTER++;
-    
+
     copyProperties(this, description);
 }
 
@@ -98,13 +89,13 @@ sanctum.Character.prototype.clone = sanctum.Spell.prototype.clone = function () 
 
     clone.collisionRadius = this.collisionRadius;
     clone.id = ID_COUNTER++;
-    
+
     if (this.constructor == sanctum.Spell) {
         clone.timestamp = Date.now();
         clone.initialPosition = this.position.clone();
     }
-    
-    copyProperties(clone, this);    
+
+    copyProperties(clone, this);
     return clone;
 }
  sanctum.Character.prototype.getCenter = sanctum.Spell.prototype.getCenter = function () {

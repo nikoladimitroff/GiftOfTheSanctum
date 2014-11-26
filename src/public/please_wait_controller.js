@@ -1,3 +1,4 @@
+"use strict";
 client.socket.on('getRoom', function(data) {  
     client.roomId = data.roomId;
 

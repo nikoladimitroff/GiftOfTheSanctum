@@ -1,3 +1,4 @@
+"use strict";
 var sanctum = require("./all_sanctum") || sanctum;
 sanctum = sanctum || {};
 
@@ -23,7 +24,7 @@ MouseData.prototype.copyFrom = function (data) {
     this.left = data.left;
     this.middle = data.middle;
     this.right = data.right;
-    this.absolute = data.absolute.clone();
+    this.absolute.set(data.absolute);
 }
 
 sanctum.InputManager = function () {
@@ -31,7 +32,7 @@ sanctum.InputManager = function () {
     this.previousMouse = new MouseData();
     this.keyboard = [];
     this.previousKeyboard = [];
-    
+
     this.completeKeyPress = function () {};
     this.completeMouseDown = function () {};
 }
@@ -86,8 +87,8 @@ sanctum.InputManager.prototype.init = function (camera) {
     }.bind(this), false);
 
     window.addEventListener("mousemove", function(args) {
-        this.mouse.absolute.x = camera.position.x + args.x;
-        this.mouse.absolute.y = camera.position.y + args.y;
+        this.mouse.absolute.x = camera.position.x + args.clientX;
+        this.mouse.absolute.y = camera.position.y + args.clientY;
     }.bind(this), false);
 
     var onscroll = function (args) {
@@ -192,7 +193,7 @@ sanctum.InputManager.generateKeyCodeToNameMapping = function (){
         nonLetters[i + 0x41] = String.fromCharCode(i + 0x41);
     }
 
-    // Space 
+    // Space
     nonLetters[0x20] = "Space";
 
     // Numbers
