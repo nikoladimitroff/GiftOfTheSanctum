@@ -29,7 +29,7 @@ var Character = function (sprite, description) {
     this.rotation = 0;
     this.startingHealth = description.health;
     this.health = description.health;
-	this.speed = description.speed || 100;
+    this.speed = description.speed || 100;
     this.score = 0;
     this.isDead = false;
     this.movementFunction = "linear";
@@ -48,8 +48,8 @@ var Spell = function (sprite, description) {
     this.position = new Vector();
     this.velocity = new Vector(0, 0);
     this.acceleration = new Vector(0, 0);
-	this.startingVelocity = description.velocity || 0;
-	this.startingAcceleration = description.acceleration || 0;
+    this.startingVelocity = description.velocity || 0;
+    this.startingAcceleration = description.acceleration || 0;
     this.movementFunction = description.movementFunction || "linear";
     this.frictionless = true;
     this.size = new Vector(description.width, description.height);
@@ -68,7 +68,7 @@ var Spell = function (sprite, description) {
     this.id = ID_COUNTER++;
 
     copyProperties(this, description);
-}
+};
 
 Character.prototype.clone = Spell.prototype.clone = function () {
     var clone = new this.constructor({}, {});

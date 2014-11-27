@@ -9,6 +9,6 @@ $(document).ready(function () {
         var max = 57.6;
         var factor = (max - min) / 100;
         var result = (min + factor * Math.random());
-        $(this).animate({"background-position-y": result + "%"}, 500)
+        $(this).animate({"background-position-y": result + "%"}, 500);
     });
 });

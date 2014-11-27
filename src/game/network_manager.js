@@ -27,10 +27,11 @@ NetworkManager.EventTypes = {
     ObjectInfo: 1
 };
 
-NetworkManager.prototype.connect = function(masterSocket, socket) {
-    if(!masterSocket) {
+NetworkManager.prototype.connect = function (masterSocket, socket) {
+    if (!masterSocket) {
         this.socket = socket;
-    } else {
+    }
+    else {
         this.sockets.push(socket);
         this.masterSocket = masterSocket;
     }
@@ -40,12 +41,14 @@ NetworkManager.prototype.connect = function(masterSocket, socket) {
     socket.on("scores", this.handleScores.bind(this));
 };
 
-NetworkManager.prototype.addSpellcast = function(spellName, target, caster) {
-    this.buffer.push({t/*EventType*/: NetworkManager.EventTypes.Spellcast,
-                        data: {spellName: spellName, target: target, caster: caster}});
+NetworkManager.prototype.addSpellcast = function (spellName, target, caster) {
+    this.buffer.push({
+        t: NetworkManager.EventTypes.Spellcast, /* EventType */
+        data: {spellName: spellName, target: target, caster: caster}
+    });
 };
 
-NetworkManager.prototype.addObject = function(object, index) {
+NetworkManager.prototype.addObject = function (object, index) {
     var objectInfo = {
         position: object.position,
         velocity: object.velocity,
@@ -54,15 +57,16 @@ NetworkManager.prototype.addObject = function(object, index) {
         id: index
     };
 
-    this.buffer.push({t/*EventType*/: NetworkManager.EventTypes.ObjectInfo,
-                        data: objectInfo});
+    this.buffer.push({t: NetworkManager.EventTypes.ObjectInfo, /* EventType */
+                      data: objectInfo});
 };
 
-NetworkManager.prototype.flush = function() {
-    if(this.buffer.length > 0) {
-        if(!this.masterSocket) {
+NetworkManager.prototype.flush = function () {
+    if (this.buffer.length > 0) {
+        if (!this.masterSocket) {
             this.socket.emit("update", this.buffer);
-        } else {
+        }
+        else {
             this.masterSocket.emit("update", this.buffer);
         }
     }
@@ -70,52 +74,55 @@ NetworkManager.prototype.flush = function() {
     this.buffer = [];
 };
 
-NetworkManager.prototype.addObjectData = function(objects, playerCount) {
-    for(var i = 0; i < playerCount; i++) {
+NetworkManager.prototype.addObjectData = function (objects, playerCount) {
+    for (var i = 0; i < playerCount; i++) {
         this.addCharacterInfo(objects[i], i);
     }
 };
 
-NetworkManager.prototype.handleUpdate = function(payload /*Array*/) {
+NetworkManager.prototype.handleUpdate = function (payload /*Array*/) {
     this.updateQueue.push(payload);
 };
 
-NetworkManager.prototype.handleDeath = function(data) {
-    if(this.masterSocket) {
+NetworkManager.prototype.handleDeath = function (data) {
+    if (this.masterSocket) {
         this.masterSocket.emit("death", data);
-    } else {
+    }
+    else {
         console.log("client death");
         this.pendingDeaths.push(data.index);
     }
 };
 
-NetworkManager.prototype.getPendingDeaths = function() {
+NetworkManager.prototype.getPendingDeaths = function () {
     return this.pendingDeaths;
 };
 
-NetworkManager.prototype.sendDie = function(playerIndex, objects) {
+NetworkManager.prototype.sendDie = function (playerIndex /*,  objects */) {
     this.socket.emit("death", {index: playerIndex});
 };
 
-NetworkManager.prototype.handleScores = function(data) {
-    if(this.masterSocket) {
-        this.masterSocket.emit("scores", {index: data.index, score: data.score});
-    } else {
+NetworkManager.prototype.handleScores = function (data) {
+    if (this.masterSocket) {
+        var payload = {index: data.index, score: data.score};
+        this.masterSocket.emit("scores", payload);
+    }
+    else {
         console.log(data);
         this.scores[data.index] = {index: data.index, score: data.score};
     }
 };
 
-NetworkManager.prototype.getScores = function() {
+NetworkManager.prototype.getScores = function () {
     return this.scores;
 };
 
-NetworkManager.prototype.getLastUpdate = function() {
+NetworkManager.prototype.getLastUpdate = function () {
     return this.updateQueue.shift();
 };
 
-NetworkManager.prototype.isServer = function() {
-    return this.masterSocket != null;
+NetworkManager.prototype.isServer = function () {
+    return this.masterSocket !== null;
 };
 
 module.exports = NetworkManager;

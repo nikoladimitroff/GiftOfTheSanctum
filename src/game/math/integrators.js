@@ -9,14 +9,15 @@ integrators.Euler.prototype.integrate = function (states, dt, friction) {
     for (var i = 0; i < states.length; i++) {
         var state = states[i];
 
-        var friction = new Vector();
-        if (!state.frictionless && state.velocity.length() != 0) /* disabled */ {
-            var frictionCoefficient = 0.0003; // wood
+        if (!state.frictionless && state.velocity.length() !== 0) /* disabled */ {
 
-            friction = state.acceleration.multiply(-1 * frictionCoefficient * state.mass);
-            Vector.add(state.acceleration, friction, state.acceleration);
+            var frictionMagnitude = -1 * friction * state.mass;
+            var frictionForce = state.acceleration.multiply(frictionMagnitude);
+            Vector.add(state.acceleration, frictionForce, state.acceleration);
         }
-        Vector.add(state.velocity, state.acceleration.multiply(dt), state.velocity);
+        Vector.add(state.velocity,
+                   state.acceleration.multiply(dt),
+                   state.velocity);
         var movementVelocity = steering[state.movementFunction](state);
         var totalVelocity = state.velocity.add(movementVelocity).multiply(dt);
         state.totalVelocity = totalVelocity;
@@ -29,7 +30,6 @@ integrators.Euler.prototype.integrate = function (states, dt, friction) {
         if (state.acceleration.lengthSquared() <= epsilon * epsilon)
             state.acceleration.set(0, 0);
     }
-}
-
+};
 
 module.exports = integrators;

@@ -9,7 +9,7 @@ var Sprite = function (image, framesPerRow) {
     this.activeAnimation = 0;
     this.frameIndex = 0;
     this.lastFrameUpdate = 0;
-}
+};
 
 Sprite.prototype.clone = function () {
     var sprite = new Sprite({}, []);
@@ -17,6 +17,6 @@ Sprite.prototype.clone = function () {
         sprite[prop] = this[prop];
     }
     return sprite;
-}
+};
 
 module.exports = Sprite;

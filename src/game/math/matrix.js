@@ -1,4 +1,5 @@
 "use strict";
+var Vector = require("./vector");
 
 var Matrix = function (m11, m12, m13, m21, m22, m23) {
     this.m11 = m11 || 0;
@@ -10,7 +11,7 @@ var Matrix = function (m11, m12, m13, m21, m22, m23) {
 };
 
 Matrix.prototype = {
-    multiply: function  (m) {
+    multiply: function (m) {
         if (m instanceof Matrix)
             return new Matrix(this.m11 * m.m11 + this.m12 * m.m21,
                               this.m11 * m.m12 + this.m12 * m.m22,
@@ -29,12 +30,15 @@ Matrix.prototype = {
     invert: function () {
         var inverseDet = 1 / (this.m11 * this.m22 - this.m12 * this.m21);
 
+        var cofactor13 = this.m12 * this.m23 - this.m13 * this.m22,
+            cofactor23 = -(this.m11 * this.m23 - this.m13 * this.m21);
+
         return new Matrix(this.m22 * inverseDet,
                           -this.m12 * inverseDet,
-                          (this.m12 * this.m23 - this.m13 * this.m22) * inverseDet,
+                          cofactor13 * inverseDet,
                           -this.m21 * inverseDet,
                           this.m11 * inverseDet,
-                          -(this.m11 * this.m23 - this.m13 * this.m21) * inverseDet);
+                          cofactor23 * inverseDet);
     }
 };
 

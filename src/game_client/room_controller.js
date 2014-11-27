@@ -8,7 +8,7 @@ var RoomController = function (client) {
     this.players = [];
     this.avatarImages = ["archer.png", "knight.png", "mage.png", "monk.png",
      "necro.png", "orc.png", "queen.png", "rogue.png"];
-}
+};
 
 RoomController.prototype.init = function () {
     this.client.socket.on("roomUpdated", this.roomUpdated.bind(this));
@@ -31,7 +31,7 @@ RoomController.prototype.init = function () {
             e.preventDefault();
             var name = this.players[this.findSelfIndex()].name;
             var message = name + ": " + $("#chat_text").val();
-            if ($("#chat_text").val() != "") {
+            if ($("#chat_text").val() !== "") {
                 $("#chat_text").val("");
                 $("#chat_text").focus();
                 console.log(this.client);
@@ -39,12 +39,12 @@ RoomController.prototype.init = function () {
             }
         }.bind(this));
     }.bind(this));
-}
+};
 
 RoomController.prototype.updateHost = function (data) {
     this.isHost = data.isHost;
     this.renderHost();
-}
+};
 
 RoomController.prototype.handlePlay = function () {
     this.client.load("src/game_client/game_ui.html", function () {
@@ -56,14 +56,14 @@ RoomController.prototype.handlePlay = function () {
                              networkManager,
                              context);
     }.bind(this));
-}
+};
 
 RoomController.prototype.handleChat = function (data) {
     if (data && data.message) {
         $("#chat").append(data.message + "\n");
         $("#chat").scrollTol($("#chat")[0].scrollHeight);
     }
-}
+};
 
 RoomController.prototype.roomUpdated = function (data) {
     this.players = data.players;
@@ -75,8 +75,8 @@ RoomController.prototype.roomUpdated = function (data) {
             "<img class='player-row-image' src='content/art/characters/lobby/" +
             this.avatarImages[i] + "'/>" +
             "<div class='player-row-name'>" +
-                this.players[i].name
-            + "</div></div>";
+                this.players[i].name +
+            "</div></div>";
 
         if (i == 3) {
             playersDisplayInfo += "</div><div class='players-column'>";
@@ -87,7 +87,7 @@ RoomController.prototype.roomUpdated = function (data) {
     playersDisplayInfo += "</div>";
 
     $(".players").html(playersDisplayInfo);
-}
+};
 
 RoomController.prototype.findSelfIndex = function () {
     console.log(this.client.socket.io.engine.id);
@@ -99,7 +99,7 @@ RoomController.prototype.findSelfIndex = function () {
     }
 
     return -1;
-}
+};
 
 RoomController.prototype.renderHost = function () {
     if (this.client.isHost) {
@@ -110,6 +110,6 @@ RoomController.prototype.renderHost = function () {
         $("#startGame").removeClass("active");
         $("#startGame").addClass("disabled");
     }
-}
+};
 
 module.exports = RoomController;

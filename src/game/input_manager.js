@@ -7,7 +7,7 @@ function MouseData() {
     this.middle = false;
     this.right = false;
     this.absolute = new Vector();
-};
+}
 
 MouseData.prototype.copyFrom = function (data) {
     this.scroll = data.scroll;
@@ -15,7 +15,7 @@ MouseData.prototype.copyFrom = function (data) {
     this.middle = data.middle;
     this.right = data.right;
     this.absolute.set(data.absolute);
-}
+};
 
 var InputManager = function () {
     this.mouse = new MouseData();
@@ -25,7 +25,7 @@ var InputManager = function () {
 
     this.completeKeyPress = function () {};
     this.completeMouseDown = function () {};
-}
+};
 
 InputManager.prototype.init = function (camera) {
     window.addEventListener("keydown", function (args) {
@@ -51,16 +51,16 @@ InputManager.prototype.init = function (camera) {
             case 2:
                 this.mouse.right = true;
                 break;
-        };
+        }
         // If we are awaiting mouse detection, raise the event
         if (this.completeMouseDown) {
             this.completeMouseDown(args.button);
         }
     }.bind(this), false);
 
-    window.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-    }, false)
+    window.addEventListener("contextmenu", function (e) {
+        e.preventDefault();
+    }, false);
 
     window.addEventListener("mouseup", function (args) {
         switch (args.button) {
@@ -73,24 +73,25 @@ InputManager.prototype.init = function (camera) {
             case 2:
                 this.mouse.right = false;
                 break;
-        };
+        }
     }.bind(this), false);
 
-    window.addEventListener("mousemove", function(args) {
+    window.addEventListener("mousemove", function (args) {
         this.mouse.absolute.x = camera.position.x + args.clientX;
         this.mouse.absolute.y = camera.position.y + args.clientY;
     }.bind(this), false);
 
     var onscroll = function (args) {
         // formula due to http://www.sitepoint.com/html5-javascript-mouse-wheel/
-        this.mouse.scroll += Math.max(-1, Math.min(1, (args.wheelDelta || -args.detail)));
+        var wheelDelta = args.wheelDelta || -args.detail;
+        this.mouse.scroll += Math.max(-1, Math.min(1, wheelDelta));
     }.bind(this);
 
     // Chrome, IE
     window.addEventListener("mousewheel", onscroll);
     // FF
     window.addEventListener("DOMMouseScroll", onscroll);
-}
+};
 
 InputManager.prototype.detectMouseDown = function (callback) {
     // Create a new object and asign our complete key press delegate to call its completed method
@@ -103,17 +104,17 @@ InputManager.prototype.detectMouseDown = function (callback) {
 InputManager.prototype.swap = function () {
     this.previousKeyboard = Array.apply(Array, this.keyboard);
     this.previousMouse.copyFrom(this.mouse);
-}
+};
 
-InputManager.prototype.keyCodeToKeyName = function(keyCode) {
+InputManager.prototype.keyCodeToKeyName = function (keyCode) {
     return InputManager.keyCodeToName[keyCode];
-}
+};
 
-InputManager.prototype.keyNameToKeyCode = function(keyName) {
+InputManager.prototype.keyNameToKeyCode = function (keyName) {
     return InputManager.keyNameToCode[keyName];
-}
+};
 
-InputManager.generateKeyCodeToNameMapping = function (){
+InputManager.generateKeyCodeToNameMapping = function () {
     var nonLetters = [];
     nonLetters[8] = "Backspace";
     nonLetters[9] = "Tab";
@@ -178,6 +179,7 @@ InputManager.generateKeyCodeToNameMapping = function (){
     nonLetters[221] = ")";
     nonLetters[222] = "'";
 
+
     // Characters
     for (var i = 0; i < 26; i++) {
         nonLetters[i + 0x41] = String.fromCharCode(i + 0x41);
@@ -187,18 +189,22 @@ InputManager.generateKeyCodeToNameMapping = function (){
     nonLetters[0x20] = "Space";
 
     // Numbers
-    for (var i = 0; i < 10; i++) {
+    for (i = 0; i < 10; i++) {
         nonLetters[i + 0x30] = String.fromCharCode(i + 0x30);
     }
 
     return nonLetters;
-}
+};
 
 InputManager.keyCodeToName = InputManager.generateKeyCodeToNameMapping();
 // A small hack to shorten coding. Use Array.reduce to create an object that maps each key name to its keycode
-InputManager.keyNameToCode = JSON.parse(InputManager.generateKeyCodeToNameMapping().reduce(function(previous, current, index, array) {
-    return previous.substring(0, previous.length - 1) + "\"" + array[index] + "\":" + index + ",}";
-}, "{}").replace(",}", "}"));
-
+function nameToCodeMapper(previous, current, index, array) {
+    return previous.substring(0, previous.length - 1) + "\"" +
+           array[index] + "\":" + index + ",}";
+}
+var json = InputManager.generateKeyCodeToNameMapping()
+           .reduce(nameToCodeMapper, "{}")
+           .replace(",}", "}");
+InputManager.keyNameToCode = JSON.parse(json);
 
 module.exports = InputManager;
