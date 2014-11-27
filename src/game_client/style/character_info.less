@@ -1,0 +1,86 @@
+#spell_shop {
+    position: absolute;
+    top: 40%;
+    text-align: center;
+    left: 0px;
+    height: 30%;
+    width: 100%;
+    background-color: rgba(0, 255, 255, 0.5);
+    z-index: 1;
+    li {
+        display: inline;
+        list-style-type: none;
+        margin-right: 90px;
+        a {
+            background-color: blue;
+        }
+    }
+    h2 {
+        margin-left: 10%;
+    }
+}
+
+#spell_info {
+    position: absolute;
+    top:20%;
+    height:80%;
+    width:10%;
+    z-index: 1;
+    left: 10px;
+    ul {
+        list-style: none;
+        li {
+            width: 70px;
+            height: 70px;
+            background-color: blue;
+            margin-top: 10px;
+        }
+    }
+}
+
+.spell_image {
+    width: 70px;
+    height: 70px;
+    background-image: url("../../../content/art/spells/fireball.png");
+}
+
+#health_container {
+    position: absolute;
+    bottom: 10px;
+    left: 43%;
+    z-index: 1;
+}
+#health_orb {
+    width: 200px;
+    height: 200px;
+    border-radius: 100px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.3), inset 0 0 20px rgba(0,0,0,1);
+    cursor: pointer;
+    border-radius: 100px;
+    overflow: hidden;
+    background: transparent url("../../../content/art/characters/health_orb.png") 50% 50% no-repeat;
+    color: #000;
+    line-hieght: 100px;
+    font-size: 72px;
+    text-align: center;
+}
+
+.spell_badge {
+    position: absolute;
+}
+
+.spell_badge[data-badge]:after {
+    content: attr(data-badge);
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    font-size: .7em;
+    background: red;
+    color: white;
+    width: 18px;
+    height: 18px;
+    text-align: center;
+    line-height: 18px;
+    border-radius: 50%;
+    box-shadow: 0 0 1px #333;
+}
