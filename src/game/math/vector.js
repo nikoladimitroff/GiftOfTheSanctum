@@ -1,4 +1,5 @@
 "use strict";
+
 function Vector(x, y) {
     this.x = x || 0;
     this.y = y || 0;
@@ -7,7 +8,7 @@ function Vector(x, y) {
 Vector.prototype = {
     negated: function () {
         return new Vector(-this.x, -this.y);
-  },
+    },
     add: function (v) {
         if (v instanceof Vector) return new Vector(this.x + v.x, this.y + v.y);
         else return new Vector(this.x + v, this.y + v);
@@ -28,21 +29,21 @@ Vector.prototype = {
         return this.x == v.x && this.y == v.y;
     },
     dot: function (v) {
-        return this.x * v.x + this.y * v.y
+        return this.x * v.x + this.y * v.y;
     },
     length: function () {
         return Math.sqrt(this.x * this.x + this.y * this.y);
     },
-    lengthSquared: function() {
+    lengthSquared: function () {
         return this.x * this.x + this.y * this.y;
     },
     normalized: function () {
         return this.divide(this.length());
     },
-    min: function() {
+    min: function () {
         return Math.min(this.x, this.y);
     },
-    max: function() {
+    max: function () {
         return Math.max(this.x, this.y);
     },
     rotate: function (angle) {
@@ -66,94 +67,27 @@ Vector.prototype = {
         if (sin <= 0)
             angle = -angle;
 
-        angle += Math.PI / 2
+        angle += Math.PI / 2;
         return angle;
     },
-    toArray: function() {
+    toArray: function () {
         return [this.x, this.y];
     },
-    clone: function() {
+    clone: function () {
         return new Vector(this.x, this.y);
     },
-    set: function(x, y) {
-        if(y === undefined) {
-          this.x = x.x;
-          this.y = x.y;
-          return this;
+    set: function (x, y) {
+        if (y === undefined) {
+            this.x = x.x;
+            this.y = x.y;
+            return this;
         }
         this.x = x; this.y = y;
         return this;
     },
-    toString: function() {
+    toString: function () {
         return "(" + this.x + ", " + this.y + ")";
-    },
-};
-
-
-Vector.negate = function(a, b) {
-    b.x = -a.x; b.y = -a.y;
-    return b;
-};
-Vector.add = function(a, b, c) {
-    if (b instanceof Vector) { c.x = a.x + b.x; c.y = a.y + b.y;}
-    else { c.x = a.x + b; c.y = a.y + b; }
-    return c;
-};
-Vector.subtract = function(a, b, c) {
-    if (b instanceof Vector) { c.x = a.x - b.x; c.y = a.y - b.y; }
-    else { c.x = a.x - b; c.y = a.y - b; }
-    return c;
-};
-Vector.multiply = function(a, b, c) {
-    if (b instanceof Vector) { c.x = a.x * b.x; c.y = a.y * b.y; }
-    else { c.x = a.x * b; c.y = a.y * b; }
-    return c;
-};
-Vector.divide = function(a, b, c) {
-    if (b instanceof Vector) { c.x = a.x / b.x; c.y = a.y / b.y; }
-    else { c.x = a.x / b; c.y = a.y / b; }
-    return c;
-};
-Vector.unit = function(a, b) {
-    var length = a.length();
-    b.x = a.x / length;
-    b.y = a.y / length;
-    return b;
-};
-Vector.normalize = function(a) {
-    var length = a.length();
-    a.x /= length;
-    a.y /= length;
-    return a;
-};
-Vector.rotate = function(a, b, angle) {
-    var cos = Math.cos(angle),
-        sin = Math.sin(angle);
-    var x = a.x,
-        y = a.y;
-    b.set(x * cos - y * sin, x * sin + y * cos);
-    return b;
-},
-Vector.fromAngles = function(phi) {
-    return new Vector(Math.cos(phi), Math.sin(phi));
-};
-Vector.randomDirection = function() {
-    return Vector.fromAngles(Math.random() * Math.PI * 2);
-};
-Vector.min = function(a, b) {
-    return new Vector(Math.min(a.x, b.x), Math.min(a.y, b.y));
-};
-Vector.max = function(a, b) {
-    return new Vector(Math.max(a.x, b.x), Math.max(a.y, b.y));
-};
-Vector.lerp = function(a, b, alpha) {
-    return b.subtract(a).multiply(alpha).add(a);
-};
-Vector.fromArray = function(a) {
-    return new Vector(a[0], a[1]);
-};
-Vector.angleBetween = function(a, b) {
-    return a.angleTo(b);
+    }
 };
 
 Vector.zero = new Vector(0, 0);
@@ -161,5 +95,110 @@ Vector.right = new Vector(1, 0);
 Vector.up = new Vector(0, 1);
 Vector.left = new Vector(-1, 0);
 Vector.down = new Vector(0, -1);
+
+Vector.add = function (a, b, c) {
+    if (b instanceof Vector) {
+        c.x = a.x + b.x;
+        c.y = a.y + b.y;
+    }
+    else {
+        c.x = a.x + b;
+        c.y = a.y + b;
+    }
+    return c;
+};
+
+Vector.subtract = function (a, b, c) {
+    if (b instanceof Vector) {
+        c.x = a.x - b.x;
+        c.y = a.y - b.y;
+    }
+    else {
+        c.x = a.x - b;
+        c.y = a.y - b;
+    }
+    return c;
+};
+
+Vector.negate = function (a, b) {
+    b.x = -a.x;
+    b.y = -a.y;
+    return b;
+};
+
+Vector.multiply = function (a, b, c) {
+    if (b instanceof Vector) {
+        c.x = a.x * b.x;
+        c.y = a.y * b.y;
+    }
+    else {
+        c.x = a.x * b;
+        c.y = a.y * b;
+    }
+    return c;
+};
+
+Vector.divide = function (a, b, c) {
+    if (b instanceof Vector) {
+        c.x = a.x / b.x;
+        c.y = a.y / b.y;
+    }
+    else {
+        c.x = a.x / b;
+        c.y = a.y / b;
+    }
+    return c;
+};
+
+Vector.unit = function (a, b) {
+    var length = a.length();
+    b.x = a.x / length;
+    b.y = a.y / length;
+    return b;
+};
+
+Vector.normalize = function (a) {
+    var length = a.length();
+    a.x /= length;
+    a.y /= length;
+    return a;
+};
+
+Vector.rotate = function (a, b, angle) {
+    var cos = Math.cos(angle),
+        sin = Math.sin(angle);
+    var x = a.x,
+        y = a.y;
+    b.set(x * cos - y * sin, x * sin + y * cos);
+    return b;
+};
+
+Vector.fromAngles = function (phi) {
+    return new Vector(Math.cos(phi), Math.sin(phi));
+};
+
+Vector.randomDirection = function () {
+    return Vector.fromAngles(Math.random() * Math.PI * 2);
+};
+
+Vector.min = function (a, b) {
+    return new Vector(Math.min(a.x, b.x), Math.min(a.y, b.y));
+};
+
+Vector.max = function (a, b) {
+    return new Vector(Math.max(a.x, b.x), Math.max(a.y, b.y));
+};
+
+Vector.lerp = function (a, b, alpha) {
+    return b.subtract(a).multiply(alpha).add(a);
+};
+
+Vector.fromArray = function (a) {
+    return new Vector(a[0], a[1]);
+};
+
+Vector.angleBetween = function (a, b) {
+    return a.angleTo(b);
+};
 
 module.exports = Vector;

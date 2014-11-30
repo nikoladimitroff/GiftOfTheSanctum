@@ -1,13 +1,12 @@
 "use strict";
 var Vector = require("./math/vector");
-var Sprite = require("./sprite");
 
 var Renderer = function (context, debugRender) {
     this.context = context;
     this.debugLineWidth = 4;
     this.debugVectorScale = 100;
     this.debugRender = debugRender || false;
-}
+};
 
 Renderer.prototype.init = function (camera) {
     this.camera = camera;
@@ -22,18 +21,18 @@ Renderer.prototype.init = function (camera) {
     }.bind(this);
     onresize();
     window.onresize = onresize;
-}
+};
 
 
 Renderer.prototype.getViewportCenter = function () {
     return new Vector(this.context.canvas.width / 2,
                       this.context.canvas.height / 2);
-}
+};
 
 Renderer.prototype.getPlatformCenter = function (platform) {
     return new Vector(-this.camera.position.x + platform.width / 2,
                       -this.camera.position.y + platform.height / 2);
-}
+};
 
 
 Renderer.prototype.getPlatformSourceVectors = function (platform) {
@@ -57,7 +56,7 @@ Renderer.prototype.getPlatformSourceVectors = function (platform) {
         position: position,
         size: size,
     };
-}
+};
 
 Renderer.prototype.renderCircle = function (center, radius, color) {
     this.context.beginPath();
@@ -68,14 +67,14 @@ Renderer.prototype.renderCircle = function (center, radius, color) {
     this.context.closePath();
     this.context.strokeColor = color || "black";
     this.context.stroke();
-}
+};
 
 Renderer.prototype.renderVector = function (vector, position, color, offset) {
     var arrowHeadLength = 10;
     var fromX = position.x,
         fromY = position.y;
 
-    if (offset != undefined) {
+    if (offset !== undefined) {
         fromX += offset.x;
         fromY += offset.y;
     }
@@ -108,14 +107,14 @@ Renderer.prototype.renderVector = function (vector, position, color, offset) {
     this.context.stroke();
     this.context.fill();
     this.context.restore();
-}
+};
 
 Renderer.prototype.renderOverlay = function () {
     this.context.globalAlpha = 0.5;
     this.context.fillStyle = "#222";
     this.context.fillRect(0, 0, this.camera.viewport.x, this.camera.viewport.y);
     this.context.globalAlpha = 1;
-}
+};
 
 Renderer.prototype.renderPlatform = function (platform) {
     var vectors = this.getPlatformSourceVectors(platform);
@@ -155,7 +154,7 @@ Renderer.prototype.renderPlatform = function (platform) {
                            this.camera.viewport.x, this.camera.viewport.y
                            );
     this.context.restore();
-}
+};
 
 Renderer.prototype.renderCollection = function (dt, gameObjects) {
     var context = this.context;
@@ -203,7 +202,7 @@ Renderer.prototype.renderCollection = function (dt, gameObjects) {
             sprite.lastFrameUpdate = 0;
         }
     }
-}
+};
 
 Renderer.prototype.render = function (dt,
                                       objectCollections,

@@ -1,0 +1,21 @@
+#!/bin/sh
+#
+# Run JSHint validation before commit.
+
+files=$(git diff --cached --name-only --diff-filter=ACMR -- *.js **/*.js)
+
+cd "$(git rev-parse --show-toplevel)"
+
+jshintLines=$(node_modules/.bin/jshint src/ | wc -l)
+jscsLines=$(node_modules/.bin/jscs src --config=.jscsrc | wc -l)
+result=$((jshintLines + jscsLines))
+
+if [ "$result" -ne 1 ]; then
+    echo ""
+    echo "COMMIT FAILED:"
+    echo "Our code checkers reported errors. Please fix them and try committing again."
+    echo "(Run check_code.bat to see the errors)"
+    exit 1
+fi
+
+exit 0

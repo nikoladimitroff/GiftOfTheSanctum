@@ -10,8 +10,10 @@ var NetworkManager = require("./network_manager");
 var PredictionManager = require("./prediction_manager");
 
 var Vector = require("./math/vector");
-var Event = require("../utils/event.js")
+var SanctumEvent = require("../utils/sanctum_event.js");
 
+
+/* jshint ignore: start */
 var window = window || {};
 
 window.requestAnimationFrame = (function () {
@@ -20,8 +22,10 @@ window.requestAnimationFrame = (function () {
           window.mozRequestAnimationFrame;
 })();
 
+/* jshint ignore: end */
 var Actions = {
     walk: "walk",
+    idle: "idle",
     spellcast1: "spellcast1",
     spellcast2: "spellcast2",
     spellcast3: "spellcast3",
@@ -34,7 +38,7 @@ var Camera = function (viewport, platformSize) {
     this.viewport = viewport;
     this.platformSize = platformSize;
     this.position = new Vector();
-}
+};
 
 Camera.prototype.follow = function (target) {
     var position = this.position;
@@ -54,8 +58,7 @@ Camera.prototype.follow = function (target) {
     if (position.y + this.viewport.y > this.platformSize.y) {
         position.y = this.platformSize.y - this.viewport.y;
     }
-
-}
+};
 
 var Sanctum = function (playerNames, selfIndex, networkManager, context) {
     this.characters = playerNames;
@@ -68,7 +71,7 @@ var Sanctum = function (playerNames, selfIndex, networkManager, context) {
 
     this.model = {};
     this.events = {
-        roundOver: new Event(),
+        roundOver: new SanctumEvent(),
     };
 
     if (!networkManager.isServer()) {
@@ -105,7 +108,7 @@ var CHARACTERS = [
 ];
 
 Sanctum.prototype.init = function () {
-    this.platform = this.content.get(OBJECTS["platform"]);
+    this.platform = this.content.get(OBJECTS.platform);
 
     var playerPositions = this.platform.generateVertices(this.characters.length,
                                                          50); // Magic
@@ -133,13 +136,13 @@ Sanctum.prototype.init = function () {
     var spellLibrary = this.content.getSpellLibrary();
     this.effects.init(spellLibrary, this.characters, this.platform);
     this.run(0);
-}
+};
 
 Sanctum.prototype.loadContent = function () {
     this.content.loadGameData("game_data.json",
                               this.init.bind(this),
                               this.network.isServer());
-}
+};
 
 Sanctum.prototype.reset = function () {
     console.log("reset");
@@ -154,7 +157,7 @@ Sanctum.prototype.reset = function () {
     }
     this.effects.reset();
     this.spells = [];
-}
+};
 
 Sanctum.prototype.handleInput = function () {
     for (var key in this.keybindings) {
@@ -172,12 +175,13 @@ Sanctum.prototype.handleInput = function () {
     }
     else if (this.input.mouse.left &&
              !this.input.previousMouse.left &&
-             this.nextAction != Actions.walk) {
+             this.nextAction != Actions.walk &&
+             this.nextAction != Actions.idle) {
 
         var spellName = this.spellBindings[this.nextAction];
         var spell = this.effects.castSpell(this.playerIndex,
-                                                 spellName,
-                                                 this.input.mouse.absolute);
+                                           spellName,
+                                           this.input.mouse.absolute);
         if (spell !== null) {
             var forward = spell.position.subtract(player.getCenter());
             Vector.normalize(forward);
@@ -187,11 +191,11 @@ Sanctum.prototype.handleInput = function () {
             player.playAnimation(this.nextAction, forward);
         }
         var isWalking = player.velocity.lengthSquared() < 1e-3;
-        this.nextAction = [Actions.walk, Actions.idle][isWalking];
+        this.nextAction = [Actions.walk, Actions.idle][~~isWalking];
     }
 
     this.input.swap();
-}
+};
 
 Sanctum.prototype.processNetworkData = function () {
     var payload = [];
@@ -208,53 +212,59 @@ Sanctum.prototype.processNetworkData = function () {
 
     if (this.network.isServer()) {
         payload = payload.filter(function(item) {
-            return item.data != null;
+            return item.data !== null;
         });
         this.network.masterSocket.emit("update", payload);
         return;
     }
 
-    for (var i = 0; i < payload.length; i++) {  
+    for (i = 0; i < payload.length; i++) { 
         var playerPayload = payload[i].data;
 
         if (!playerPayload) {
             continue;
         }
-        // if (payload[i].id == this.playerIndex) {
-        //     continue;
-        // }
+
+        if (payload[i].id == this.playerIndex) {
+            continue;
+        }
 
         for (var j = 0; j < playerPayload.length; j++) {
             var event = playerPayload[j];
+            var canSkip = false;
             switch (event.t) {
                 case NetworkManager.EventTypes.ObjectInfo:
                     var player = this.characters[event.data.id];
-                    var canSkip = event.data.id == this.playerIndex;
+                    canSkip = event.data.id == this.playerIndex;
                     if (canSkip) {
                         continue;
                     }
-                    var evpos = new Vector().set(event.data.position);
-                    var evvel = new Vector().set(event.data.velocity);
 
-                    player.position.set(evpos);
-                    player.velocity.set(evvel);
+                    player.position.set(event.data.position);
+                    player.velocity.set(event.data.velocity);
+                    if (event.data.target) {
+                        player.target = new Vector(event.data.target.x,
+                                                   event.data.target.y);
+                    }
                     break;
 
                 case NetworkManager.EventTypes.Spellcast:
-                    var canSkip = event.data.caster == this.playerIndex;
+                    canSkip = event.data.caster == this.playerIndex;
                     if (canSkip) {
                         continue;
                     }
 
-                    var target = new Vector(event.data.target);
-                    var spell = this.effects.castSpell(event.data.caster,
-                                                       event.data.spellName,
-                                                       target);
+                    var target = new Vector(event.data.target.x,
+                                            event.data.target.y);
+                    
+                    this.effects.castSpell(event.data.caster,
+                                           event.data.spellName,
+                                           target);
                     break;
             }
         }
     }
-}
+};
 
 Sanctum.prototype.processPendingDeaths = function () {
     var deaths = this.network.getPendingDeaths();
@@ -275,9 +285,12 @@ Sanctum.prototype.processPendingDeaths = function () {
 Sanctum.prototype.bindSpells = function (cast1, cast2, cast3,
                                          cast4, cast5, cast6) {
 
-    for (var i = 0; i < arguments.length; i++) { // Magic, fix the number of casts
-        this.spellBindings["spellcast" + (i + 1)] = arguments[i];
-    }
+    this.spellBindings.spellcast1 = cast1;
+    this.spellBindings.spellcast2 = cast2;
+    this.spellBindings.spellcast3 = cast3;
+    this.spellBindings.spellcast4 = cast4;
+    this.spellBindings.spellcast5 = cast5;
+    this.spellBindings.spellcast6 = cast6;
 };
 
 Sanctum.prototype.updateModel = function () {
@@ -348,7 +361,7 @@ Sanctum.prototype.loop = function (timestamp) {
     if (this.network.lastUpdate >= this.network.updateTime) {
         if (!this.network.isServer()) {
             var player = this.characters[this.playerIndex];
-            this.predictionManager.addInput(player.position);
+            // this.predictionManager.addInput(player.position);
             this.network.addObject(player, this.playerIndex);
             this.network.flush(this.playerIndex);
         }
@@ -359,7 +372,7 @@ Sanctum.prototype.loop = function (timestamp) {
 
     this.previousTime = timestamp;
     if (this.network.isServer()) {
-        setTimeout(Sanctum.mainSanctumLoop, 1000 / 60)
+        setTimeout(Sanctum.mainSanctumLoop, 1000 / 60);
     }
     else {
         requestAnimationFrame(this.mainSanctumLoop);

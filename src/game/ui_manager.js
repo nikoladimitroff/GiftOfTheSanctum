@@ -26,7 +26,7 @@ UIManager.prototype.showScoreboard = function () {
 
     for (var i = 0; i < this.model.scores.length; i++) {
         var labelIndex = i + 1;
-        var children = playerLabel[labelIndex].children;
+        var children = playerLabels[labelIndex].children;
         children[0].textContent = this.model.scores[i].name;
         var imgSource = "content/art/characters/scoreboard/" +
                         AVATAR_IMAGES[this.model.scores[i].id];
@@ -34,12 +34,5 @@ UIManager.prototype.showScoreboard = function () {
         children[2].textContent = this.model.scores[i].score;
     }
 };
-
-function removeAllChildren(node) {
-    var last;
-    while (last = node.lastChild)
-        node.removeChild(last);
-}
-
 
 module.exports = UIManager;

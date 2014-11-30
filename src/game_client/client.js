@@ -1,5 +1,6 @@
 "use strict";
 var NetworkManager = require("../game/network_manager");
+var AzureManager = require("./azure_manager");
 var RoomController = require("./room_controller");
 
 var Client = function () {
@@ -7,7 +8,7 @@ var Client = function () {
     this.playerId = null;
     this.playerName = null;
     this.roomId = null;
-}
+};
 
 Client.prototype.start = function () {
     this.socket = io.connect("", {
@@ -15,11 +16,11 @@ Client.prototype.start = function () {
         transports: ["websocket"]
     });
     this.goToStartScreen();
-}
+};
 
 Client.prototype.load = function (path, callback) {
     $("#content").load(path, callback);
-}
+};
 
 Client.prototype.goToStartScreen = function () {
     this.load("src/game_client/main.html", function () {
@@ -77,4 +78,4 @@ Client.prototype.goToLobbyScreen = function () {
 window.onload = function () {
     var client = new Client();
     client.start();
-}
+};

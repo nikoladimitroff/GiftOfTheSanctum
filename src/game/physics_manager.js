@@ -6,9 +6,9 @@ var integrators = require("./math/integrators");
 var PhysicsManager = function (friction) {
     this.integrator = new integrators.Euler();
     this.fixedStep = 1 / 60;
-    this.friction = friction || 0.4;
+    this.friction = friction || 0.0003; // wood
     this.collisions = [];
-}
+};
 
 PhysicsManager.prototype.update = function (objects) {
     this.integrator.integrate(objects, this.fixedStep, this.friction);
@@ -43,27 +43,27 @@ PhysicsManager.prototype.getObjectsWithinRadius = function (objects,
                                                             point,
                                                             radius) {
 
-    if (radius == 0)
+    if (radius === 0)
         return [];
 
     var neighbours = [];
     for (var i = 0; i < objects.length; i++) {
         var obj = objects[i];
 
-        var center = obj.position.getCenter();
+        var center = obj.getCenter();
         var distance = center.subtract(point).length();
         var radiusSum = obj.collisionRadius + radius;
         if (distance < radiusSum)
             neighbours.push(obj);
     }
     return neighbours;
-}
+};
 
 PhysicsManager.prototype.applyForce = function (object, force) {
     Vector.add(object.acceleration,
                force.divide(object.mass),
                object.acceleration);
-}
+};
 
 
 PhysicsManager.prototype.circleIntersects = function (center1, radius1,
@@ -72,6 +72,6 @@ PhysicsManager.prototype.circleIntersects = function (center1, radius1,
     var distance = center1.subtract(center2).length();
     var radiusSum = radius1 + radius2;
     return distance <= radiusSum;
-}
+};
 
 module.exports = PhysicsManager;

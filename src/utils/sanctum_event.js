@@ -1,13 +1,13 @@
 "use strict";
-var Event = function () {
+var SanctumEvent = function () {
     this.listeners = [];
 };
 
-Event.prototype.addEventListener = function (callback) {
+SanctumEvent.prototype.addEventListener = function (callback) {
     this.listeners.push(callback);
 };
 
-Event.prototype.removeEventListener = function (callback) {
+SanctumEvent.prototype.removeEventListener = function (callback) {
     for (var i = 0; i < this.listeners.length; i++) {
         if (this.listeners[i] == callback) {
             this.listeners[i] = this.listeners[this.listeners.length - 1];
@@ -16,10 +16,10 @@ Event.prototype.removeEventListener = function (callback) {
     }
 };
 
-Event.prototype.fire = function () {
+SanctumEvent.prototype.fire = function () {
     for (var i = 0; i < this.listeners.length; i++) {
         this.listeners[i].apply(undefined, arguments);
     }
 };
 
-module.exports = Event;
+module.exports = SanctumEvent;

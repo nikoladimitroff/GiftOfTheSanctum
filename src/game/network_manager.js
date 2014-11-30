@@ -30,7 +30,8 @@ NetworkManager.EventTypes = {
 NetworkManager.prototype.connect = function (masterSocket, socket) {
     if (!masterSocket) {
         this.socket = socket;
-    } else {
+    }
+    else {
         this.sockets.push(socket);
         this.masterSocket = masterSocket;
     }
@@ -41,8 +42,10 @@ NetworkManager.prototype.connect = function (masterSocket, socket) {
 };
 
 NetworkManager.prototype.addSpellcast = function (spellName, target, caster) {
-    this.buffer.push({t/*EventType*/: NetworkManager.EventTypes.Spellcast,
-                        data: {spellName: spellName, target: target, caster: caster}});
+    this.buffer.push({
+        t: NetworkManager.EventTypes.Spellcast, /* EventType */
+        data: {spellName: spellName, target: target, caster: caster}
+    });
 };
 
 NetworkManager.prototype.addObject = function (object, index) {
@@ -54,8 +57,8 @@ NetworkManager.prototype.addObject = function (object, index) {
         id: index
     };
 
-    this.buffer.push({t/*EventType*/: NetworkManager.EventTypes.ObjectInfo,
-                        data: objectInfo});
+    this.buffer.push({t: NetworkManager.EventTypes.ObjectInfo, /* EventType */
+                      data: objectInfo});
 };
 
 NetworkManager.prototype.flush = function (objectId) {
@@ -88,15 +91,18 @@ NetworkManager.prototype.handleUpdate = function (payload /*Array*/) {
             if (!this.updateQueue[payload[i].id]) {
                 this.updateQueue[payload[i].id] = [];
             }
-            this.updateQueue[payload[i].id].push(payload[i].data);
+            if(payload[i].data !== undefined) {
+                this.updateQueue[payload[i].id].push(payload[i].data);                
+            }
         }
     }
-}
+};
 
 NetworkManager.prototype.handleDeath = function (data) {
     if (this.isServer()) {
         this.masterSocket.emit("death", data);
-    } else {
+    }
+    else {
         console.log("client death");
         this.pendingDeaths.push(data.index);
     }
@@ -106,14 +112,17 @@ NetworkManager.prototype.getPendingDeaths = function () {
     return this.pendingDeaths;
 };
 
-NetworkManager.prototype.sendDie = function (playerIndex, objects) {
+
+NetworkManager.prototype.sendDie = function (playerIndex /*,  objects */) {
     this.socket.emit("death", {index: playerIndex});
 };
 
 NetworkManager.prototype.handleScores = function (data) {
     if (this.masterSocket) {
-        this.masterSocket.emit("scores", {index: data.index, score: data.score});
-    } else {
+        var payload = {index: data.index, score: data.score};
+        this.masterSocket.emit("scores", payload);
+    }
+    else {
         console.log(data);
         this.scores[data.index] = {index: data.index, score: data.score};
     }
@@ -128,10 +137,10 @@ NetworkManager.prototype.getLastUpdateFrom = function (objectId) {
         return null;
     }
     return this.updateQueue[objectId].shift();
-}
+};
 
 NetworkManager.prototype.isServer = function () {
-    return this.masterSocket != null;
+    return this.masterSocket !== null;
 };
 
 module.exports = NetworkManager;

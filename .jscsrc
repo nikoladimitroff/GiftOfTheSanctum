@@ -79,6 +79,5 @@
     "validateQuoteMarks": { "mark": "\"", "escape": true },
     "validateIndentation": 4,
     "validateParameterSeparator": ", ",
-    "requireCapitalizedComments": true,
     "safeContextKeyword": ["self"]
 }

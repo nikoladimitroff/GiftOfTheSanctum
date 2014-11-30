@@ -1,4 +1,6 @@
 "use strict";
+/* global WindowsAzure */
+
 var AzureManager = (function () {
     function AzureManager() {
         var url = "https://sanctum.azure-mobile.net/",
@@ -11,7 +13,7 @@ var AzureManager = (function () {
         // PERHAPS A PRE-START MAIN MENU SCREEN
         // TEST IT LOADING A GAME
         get: function () {
-            return this.client.currentUser != null;
+            return this.client.currentUser !== null;
         },
         enumerable: true,
         configurable: true
@@ -26,7 +28,6 @@ var AzureManager = (function () {
 
     AzureManager.prototype.loadInformation = function (updateCallback) {
         var self = this;
-        var id = this.client.currentUser.userId;
         this.userInfo.read().done(function (result) {
             if (result && result[0]) {
                 updateCallback(result[0]);
@@ -49,3 +50,5 @@ var AzureManager = (function () {
     };
     return AzureManager;
 })();
+
+module.exports = AzureManager;

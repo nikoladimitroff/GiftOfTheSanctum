@@ -7,13 +7,11 @@ var Character = allGameObjects.Character,
     Spell = allGameObjects.Spell;
 var Sprite = require("./sprite");
 
-var Vector = require("./math/vector");
-
 var fs = require("fs");
 
 
 function getFilename(path) {
-    return path.substring(path.lastIndexOf("/") + 1)
+    return path.substring(path.lastIndexOf("/") + 1);
 }
 
 function getFilenameWithoutExtension(path) {
@@ -26,8 +24,8 @@ var ContentManager = function () {
     this.loading = 0;
     this.loaded = 0;
     this.onload = function () {};
-    this.root = "content/"
-}
+    this.root = "content/";
+};
 
 ContentManager.prototype.loadSprite = function (description) {
     var path = this.root + description.src;
@@ -52,11 +50,6 @@ ContentManager.prototype.loadSpell = function (description) {
     this.contentCache[description.name] = new Spell(sprite, description);
 };
 
-ContentManager.prototype.loadObstacle = function (description) {
-    var sprite = this.get(description.sprite);
-    this.contentCache[description.name] = new Obstacle(sprite, description);
-};
-
 ContentManager.prototype.loadCharacter = function (description) {
     var url = description.sprite;
     var sprite = this.get(this.root + url);
@@ -68,13 +61,13 @@ ContentManager.prototype.loadCharacter = function (description) {
 
 ContentManager.prototype.loadPlatform = function (description, isServer) {
     var platform;
-    if(isServer) {
+    if (isServer) {
         platform = new Platform({}, {}, description);
-    } else {
-        var platform = new Platform(this.get(description.texture).image,
-                                            this.get(description.outsideTexture).image,
-                                            description
-                                            );
+    }
+    else {
+        platform = new Platform(this.get(description.texture).image,
+                                this.get(description.outsideTexture).image,
+                                description);
     }
 
     this.contentCache[description.name] = platform;
@@ -82,16 +75,18 @@ ContentManager.prototype.loadPlatform = function (description, isServer) {
 
 
 ContentManager.prototype.loadKeybindings = function (keybindings) {
-    this.contentCache["keybindings"] = keybindings;
+    var keybindingsKey = "keybindings";
+    this.contentCache[keybindingsKey] = keybindings;
 };
 
 ContentManager.prototype.fetchJSONFile = function (path, callback) {
     var xhr = new XMLHttpRequest();
     path = this.root + path;
-    xhr.onreadystatechange = function() {
+    xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             if (xhr.status === 200) {
-                var data = eval("Object(" + xhr.responseText +")");
+                var data = "Object(" + xhr.responseText + ")";
+                data = eval(data); // jshint ignore: line
                 callback(data);
             }
             else {
@@ -99,12 +94,15 @@ ContentManager.prototype.fetchJSONFile = function (path, callback) {
             }
         }
     };
-    xhr.open('GET', path);
+    xhr.open("GET", path);
     xhr.send();
-}
+};
 
-ContentManager.prototype.loadGameData = function (gameDataPath, callback, isServer) {
-    if(isServer) {
+ContentManager.prototype.loadGameData = function (gameDataPath,
+                                                  callback,
+                                                  isServer) {
+
+    if (isServer) {
         this.loadGameDataServer(gameDataPath, callback);
         return;
     }
@@ -120,41 +118,38 @@ ContentManager.prototype.loadGameData = function (gameDataPath, callback, isServ
 
                     self.fetchJSONFile(gameData.platform, function (platform) {
                         self.loadPlatform(platform);
-
-                        self.fetchJSONFile(gameData.obstacles, function(obstacles) {
-                            obstacles.map(self.loadObstacle.bind(self));
-                            callback();
-                        })
+                        callback();
                     });
                 });
-            }
+            };
             sprites.map(self.loadSprite.bind(self));
         });
     });
-}
+};
 
-ContentManager.prototype.loadGameDataServer = function (gameDataPath, callback) {
-    var self = this;
+ContentManager.prototype.loadGameDataServer = function (gameDataPath,
+                                                        callback) {
 
     var gameData = this.fetchJSONServer(gameDataPath);
-    gameData.characters.map(self.loadCharacter.bind(self));
+    gameData.characters.map(this.loadCharacter.bind(this));
 
     var spellLibrary = this.fetchJSONServer(gameData.spells);
 
-    spellLibrary.map(self.loadSpell.bind(self));
+    spellLibrary.map(this.loadSpell.bind(this));
 
     var platform = this.fetchJSONServer(gameData.platform);
 
-    self.loadPlatform(platform, true);
+    this.loadPlatform(platform, true);
     callback();
-}
+};
 
-ContentManager.prototype.fetchJSONServer = function(path) {
+ContentManager.prototype.fetchJSONServer = function (path) {
     var stringData = fs.readFileSync(this.root + path, "utf8");
-    var data = eval("Object(" + stringData + ")");
+    var data = "Object(" + stringData + ")";
+    data = eval(data); // jshint ignore: line
 
     return data;
-}
+};
 
 
 ContentManager.prototype.get = function (path) {
@@ -172,16 +167,16 @@ ContentManager.prototype.getSpellLibrary = function () {
     return spellLib;
 };
 
-ContentManager.prototype.getLibrary = function(type) {
+ContentManager.prototype.getLibrary = function (type) {
     var lib = {};
-    for(var path in this.contentCache) {
+    for (var path in this.contentCache) {
         var content = this.contentCache[path];
-        if(content instanceof type) {
+        if (content instanceof type) {
             lib[content.name] = content;
         }
     }
 
     return lib;
-}
+};
 
 module.exports = ContentManager;
