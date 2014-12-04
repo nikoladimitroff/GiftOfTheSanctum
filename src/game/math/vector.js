@@ -95,6 +95,7 @@ Vector.right = new Vector(1, 0);
 Vector.up = new Vector(0, 1);
 Vector.left = new Vector(-1, 0);
 Vector.down = new Vector(0, -1);
+Vector.one = new Vector(1, 1);
 
 Vector.add = function (a, b, c) {
     if (b instanceof Vector) {

@@ -39,6 +39,22 @@ Matrix.prototype = {
                           -this.m21 * inverseDet,
                           this.m11 * inverseDet,
                           cofactor23 * inverseDet);
+    },
+    equals: function (m) {
+        return this.m11 == m11 &&
+               this.m12 == m12 &&
+               this.m13 == m13 &&
+               this.m21 == m21 &&
+               this.m22 == m22 &&
+               this.m23 == m23;
+    },
+    epsilonEquals: function (m, epsilon) {
+        return Math.abs(this.m11 - m.m11) < epsilon &&
+               Math.abs(this.m12 - m.m12) < epsilon &&
+               Math.abs(this.m13 - m.m13) < epsilon &&
+               Math.abs(this.m21 - m.m21) < epsilon &&
+               Math.abs(this.m22 - m.m22) < epsilon &&
+               Math.abs(this.m23 - m.m23) < epsilon;
     }
 };
 
@@ -56,4 +72,4 @@ Matrix.fromTranslation = function (translation) {
                       0, 1, translation.y);
 };
 
-module.Matrix = Matrix;
+module.exports = Matrix;
