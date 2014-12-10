@@ -64,9 +64,9 @@ NetworkManager.prototype.addObject = function (object, index) {
 NetworkManager.prototype.flush = function (objectId) {
     if (this.buffer.length > 0) {
         if (!this.isServer()) {
-            this.socket.emit("update", { data: this.buffer, id: objectId });
+            this.socket.emit("update", {data: this.buffer, id: objectId});
         } else {
-            //TODO: Currently not going here!
+            // TODO: Currently not going here!
             this.masterSocket.emit("update", this.buffer);
         }
     }
@@ -91,8 +91,8 @@ NetworkManager.prototype.handleUpdate = function (payload /*Array*/) {
             if (!this.updateQueue[payload[i].id]) {
                 this.updateQueue[payload[i].id] = [];
             }
-            if(payload[i].data !== undefined) {
-                this.updateQueue[payload[i].id].push(payload[i].data);                
+            if (payload[i].data !== undefined) {
+                this.updateQueue[payload[i].id].push(payload[i].data);
             }
         }
     }

@@ -85,7 +85,8 @@ var Sanctum = function (playerNames, selfIndex, networkManager, context) {
     this.physics = new PhysicsManager();
     this.playerManager = new PlayerManager(this.characters,
                                            this.physics);
-    this.predictionManager = new PredictionManager(this.characters[this.playerIndex]);
+    var player = this.characters[this.playerIndex];
+    this.predictionManager = new PredictionManager(player);
     this.effects = new EffectManager();
     this.network = networkManager;
 };
@@ -206,19 +207,19 @@ Sanctum.prototype.processNetworkData = function () {
         });
     }
 
-    if (!payload) { //TODO: This might be useless ?!
+    if (!payload) { // TODO: This might be useless ?!
         return;
     }
 
     if (this.network.isServer()) {
-        payload = payload.filter(function(item) {
+        payload = payload.filter(function (item) {
             return item.data !== null;
         });
         this.network.masterSocket.emit("update", payload);
         return;
     }
 
-    for (i = 0; i < payload.length; i++) { 
+    for (i = 0; i < payload.length; i++) {
         var playerPayload = payload[i].data;
 
         if (!playerPayload) {
@@ -256,7 +257,7 @@ Sanctum.prototype.processNetworkData = function () {
 
                     var target = new Vector(event.data.target.x,
                                             event.data.target.y);
-                    
+
                     this.effects.castSpell(event.data.caster,
                                            event.data.spellName,
                                            target);

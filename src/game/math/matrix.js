@@ -41,12 +41,12 @@ Matrix.prototype = {
                           cofactor23 * inverseDet);
     },
     equals: function (m) {
-        return this.m11 == m11 &&
-               this.m12 == m12 &&
-               this.m13 == m13 &&
-               this.m21 == m21 &&
-               this.m22 == m22 &&
-               this.m23 == m23;
+        return this.m11 == m.m11 &&
+               this.m12 == m.m12 &&
+               this.m13 == m.m13 &&
+               this.m21 == m.m21 &&
+               this.m22 == m.m22 &&
+               this.m23 == m.m23;
     },
     epsilonEquals: function (m, epsilon) {
         return Math.abs(this.m11 - m.m11) < epsilon &&

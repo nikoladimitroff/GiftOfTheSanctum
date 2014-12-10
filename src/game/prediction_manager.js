@@ -1,12 +1,12 @@
 "use strict";
 
-var PredictionManager = function(player) {
+var PredictionManager = function (player) {
     this.player = player;
     this.inputSequence = 0;
     this.inputs = [];
 };
 
-PredictionManager.prototype.addInput = function(data) {
+PredictionManager.prototype.addInput = function (data) {
     var input = {
         data: data,
         sequenceNumber: this.inputSequence++
@@ -15,8 +15,8 @@ PredictionManager.prototype.addInput = function(data) {
     this.inputs.push(input);
 };
 
-PredictionManager.prototype.verifyInput = function(input) {
-    //TODO: Verify that new position is close to previous
+PredictionManager.prototype.verifyInput = function (/* input */) {
+    // TODO: Verify that new position is close to previous
 };
 
 module.exports = PredictionManager;
