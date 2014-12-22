@@ -1,0 +1,40 @@
+#!/bin/sh
+#
+
+commitMsg=$(cat $1)
+supportedTags=(Feature Enhancement Content Tools API Refactor)
+# Define our onerror func
+function onError {
+    echo ""
+    echo "COMMIT FAILED:"
+    echo "Your commit message does not adhere our naming convention."
+    echo "Use [Tag] Message. Supported tags:"
+    echo ${supportedTags[*]}
+    exit 1
+}
+
+# Find the first pair of []
+leftBracketIndex=`expr index "$commitMsg" [`
+rightBracketIndex=`expr index "$commitMsg" ]`
+rightBracketIndex=$((rightBracketIndex - 2))
+
+# Assert that both exist
+
+if [ "$leftBracketIndex" -ne 1 ] || [ "$rightBracketIndex" -eq 0 ]; then
+    onError
+fi
+
+# Look for a tag:
+tag=${commitMsg:leftBracketIndex:rightBracketIndex}
+isFound=0
+for i in ${supportedTags[@]}; do
+    if [ "$tag" == $i ]; then
+        isFound=1
+    fi
+done
+
+if [ "$isFound" -eq 0 ]; then
+    onError
+fi
+
+echo "Successfully committed your changes!"

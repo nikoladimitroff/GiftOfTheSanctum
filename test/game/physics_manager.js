@@ -27,7 +27,6 @@ describe("PhysicsManager", function () {
         };
     });
     it("#getObjectsWithinRadius", function () {
-        ({}).should.be.equal(5);
         var physics = new PhysicsManager(); 
         physics.getObjectsWithinRadius(data.objects,
                                        data.hero.position,
