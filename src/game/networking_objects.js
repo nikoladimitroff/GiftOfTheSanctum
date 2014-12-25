@@ -80,7 +80,7 @@ networking.Room.prototype.welcome = function (socket, data) {
 
 networking.Room.prototype.chat = function (socket, data) {
     if (this.masterSocket.sockets.indexOf(socket) != -1) {
-        this.masterSocket.emit("chat", {message: data.message});
+        this.masterSocket.emit("chat", data);
     }
 };
 

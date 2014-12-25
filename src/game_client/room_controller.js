@@ -6,8 +6,10 @@ var RoomController = function (client) {
     this.client = client;
 
     this.players = [];
-    this.avatarImages = ["archer.png", "knight.png", "mage.png", "monk.png",
-     "necro.png", "orc.png", "queen.png", "rogue.png"];
+    this.avatarImages = [
+        "archer.png", "knight.png", "mage.png", "monk.png",
+        "necro.png", "orc.png", "queen.png", "rogue.png"
+    ];
 };
 
 RoomController.prototype.init = function () {
@@ -29,13 +31,19 @@ RoomController.prototype.init = function () {
 
         $("#chat_form").submit(function (e) {
             e.preventDefault();
-            var name = this.players[this.findSelfIndex()].name;
-            var message = name + ": " + $("#chat_text").val();
             if ($("#chat_text").val() !== "") {
+                var name = this.players[this.findSelfIndex()].name;
+                var message = $("#chat_text").val();
+
                 $("#chat_text").val("");
                 $("#chat_text").focus();
                 console.log(this.client);
-                this.client.socket.emit("chat", {message: message});
+                this.client.socket.emit("chat", {
+                    message: {
+                        author: name,
+                        message: message
+                    }
+                });
             }
         }.bind(this));
     }.bind(this));
@@ -47,7 +55,7 @@ RoomController.prototype.updateHost = function (data) {
 };
 
 RoomController.prototype.handlePlay = function () {
-    this.client.load("src/game_client/game_ui.html", function () {
+    this.client.load("game_ui", function () {
         var networkManager = new NetworkManager();
         networkManager.connect(null, this.client.socket);
         var context = document.getElementById("game-canvas").getContext("2d");
@@ -60,8 +68,13 @@ RoomController.prototype.handlePlay = function () {
 
 RoomController.prototype.handleChat = function (data) {
     if (data && data.message) {
-        $("#chat").append(data.message + "\n");
-        $("#chat").scrollTol($("#chat")[0].scrollHeight);
+        var author = data.message.author,
+            message = data.message.message;
+        var chatMessage = "[" + new Date().toLocaleTimeString() + "] " +
+                          author + ": " + message;
+
+        $("#chat").append(chatMessage + "\n");
+        $("#chat").scrollTop($("#chat")[0].scrollHeight);
     }
 };
 
@@ -72,7 +85,7 @@ RoomController.prototype.roomUpdated = function (data) {
 
     for (var i = 0; i < this.players.length; i++) {
         playersDisplayInfo += "<div class='player-row'>" +
-            "<img class='player-row-image' src='content/art/characters/lobby/" +
+            "<img src='content/art/characters/lobby/" +
             this.avatarImages[i] + "'/>" +
             "<div class='player-row-name'>" +
                 this.players[i].name +

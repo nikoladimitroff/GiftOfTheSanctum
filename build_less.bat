@@ -1,0 +1,1 @@
+call node_modules\.bin\lessc.cmd src\game_client\style\main.less > distr\main.css

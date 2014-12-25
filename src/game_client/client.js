@@ -8,6 +8,8 @@ var Client = function () {
     this.playerId = null;
     this.playerName = null;
     this.roomId = null;
+    this.root = "src/game_client/";
+    this.htmlFileExtension = ".html";
 };
 
 Client.prototype.start = function () {
@@ -18,12 +20,18 @@ Client.prototype.start = function () {
     this.goToStartScreen();
 };
 
-Client.prototype.load = function (path, callback) {
-    $("#content").load(path, callback);
+Client.prototype.load = function (page, callback) {
+    var path = this.root + page + this.htmlFileExtension;
+    var content = $("main#content");
+    $(content).load(path, function () {
+        $(content).removeClass();
+        $(content).addClass(page);
+        callback();
+    });
 };
 
 Client.prototype.goToStartScreen = function () {
-    this.load("src/game_client/main.html", function () {
+    this.load("main", function () {
         $("#playButton").on("click", function () {
             var name = $("#name").val();
             this.socket.emit("getPlayer", {playerName: name});
@@ -53,7 +61,7 @@ Client.prototype.goToStartScreen = function () {
 
 
 Client.prototype.goToWaitingScreen = function () {
-    this.load("src/game_client/please_wait.html", function () {
+    this.load("please_wait", function () {
         this.socket.on("getRoom", function (data) {
             this.roomId = data.roomId;
 
@@ -69,7 +77,7 @@ Client.prototype.goToWaitingScreen = function () {
 };
 
 Client.prototype.goToLobbyScreen = function () {
-    this.load("src/game_client/lobby.html", function () {
+    this.load("lobby", function () {
         this.roomController = new RoomController(this);
         this.roomController.init();
     }.bind(this));
