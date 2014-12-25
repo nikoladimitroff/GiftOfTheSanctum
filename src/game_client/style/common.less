@@ -13,15 +13,31 @@
 // CSS Reset
 
 html, body {
-    .unselectable;
-    width: 100%;
-    height: 100%;
 }
 
 html, body, canvas {
+    .unselectable;
     margin: 0;
     padding: 0;
+    width: 100%;
+    height: 100%;
     overflow: hidden;
+    cursor: @mouse-cursor;
+}
+
+label, textarea {
+    cursor: inherit;
+}
+
+p, label, input, textarea {
+    color: @body-text-color;
+}
+
+p::selection, label::selection, input::selection, textarea::selection {
+    color: hsl(hue(@body-text-color),
+               saturation(@body-text-color),
+               80% - lightness(@body-text-color));
+    background-color: @body-text-color;
 }
 
 button {
@@ -30,7 +46,7 @@ button {
     background: linear-gradient(to right, @dark-color 5%, @neutral-color 95%);
     border: 1px solid @neutral-color;
     display: inline-block;
-    cursor: pointer;
+    cursor: @mouse-cursor-pointer;
     color: @ui-text-color;
     padding: 11px 23px;
     text-decoration: none;

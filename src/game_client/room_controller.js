@@ -87,9 +87,9 @@ RoomController.prototype.roomUpdated = function (data) {
         playersDisplayInfo += "<div class='player-row'>" +
             "<img src='content/art/characters/lobby/" +
             this.avatarImages[i] + "'/>" +
-            "<div class='player-row-name'>" +
+            "<label class='player-row-name'>" +
                 this.players[i].name +
-            "</div></div>";
+            "</label></div>";
 
         if (i == 3) {
             playersDisplayInfo += "</div><div class='players-column'>";

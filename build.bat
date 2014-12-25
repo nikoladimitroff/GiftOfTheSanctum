@@ -8,5 +8,7 @@ echo Building less
 call node_modules\.bin\lessc.cmd src\game_client\style\main.less > distr\main.css
 echo Copying fonts
 robocopy src\game_client\style\fonts distr\fonts > nul
+echo Copying cursors
+robocopy src\game_client\style\cursors distr\cursors > nul
 echo Build complete!
 @echo on
