@@ -1,5 +1,5 @@
 {
-    "predef": ["$", "jQuery", "io"],
+    "predef": ["$", "jQuery", "io", "ko"],
     "browser": true,
     "devel": true,
     "node": true,

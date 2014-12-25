@@ -60,21 +60,19 @@ networking.Room.prototype.welcome = function (socket, data) {
     if (data && data.playerId) {
         var player = new networking.Player(data.playerId, data.playerName);
         player.roomId = this.id;
+
+        var isHost = this.hostId == data.playerId;
+        socket.emit("welcome", {
+            isHost: isHost,
+            players: this.players,
+            playerId: data.playerId,
+        });
+
         this.sockets.push(socket);
         this.players.push(player);
 
-        var isHost = this.hostId == data.playerId;
-
-        if (player) {
-            socket.emit("welcome", {
-                message: "Welcome, " + player.name,
-                isHost: isHost, players: this.players
-            });
-
-            console.log(this.players);
-
-            this.masterSocket.emit("roomUpdated", {players: this.players});
-        }
+        console.log(this.players);
+        this.masterSocket.emit("join", {player: player});
     }
 };
 
@@ -94,15 +92,13 @@ networking.Room.prototype.leave = function (socket /*, data */) {
 
             if (socket.id == this.hostId && this.players.length > 0) {
                 this.hostId = this.players[0].id;
-                this.sockets[0].emit("updateHost", {isHost: true});
+                this.sockets[0].emit("becomeHost");
             }
 
-
-            this.masterSocket.emit("leave",
-                                   {roomClosed: this.players.length === 0});
-
-            this.masterSocket.emit("roomUpdated",
-                                   {players: this.players});
+            this.masterSocket.emit("leave", {
+                                        roomClosed: this.players.length === 0,
+                                        playerId: socket.id,
+                                   });
         }
     }
 };

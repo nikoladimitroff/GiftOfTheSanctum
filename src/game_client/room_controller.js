@@ -2,22 +2,30 @@
 var NetworkManager = require("../game/network_manager");
 var Sanctum = require("../game/sanctum");
 
-var RoomController = function (client) {
-    this.client = client;
-
-    this.players = [];
-    this.avatarImages = [
+var Viewmodel = function () {
+    this.players = new ko.observableArray();
+    this.chatMessages = new ko.observableArray();
+    this.avatars = [
         "archer.png", "knight.png", "mage.png", "monk.png",
         "necro.png", "orc.png", "queen.png", "rogue.png"
-    ];
+    ].map(function (fileName) {
+        return "content/art/characters/lobby/" + fileName;
+    });
+    this.isHost = new ko.observable(false);
+};
+
+var RoomController = function (client) {
+    this.client = client;
+    this.viewmodel = new Viewmodel();
 };
 
 RoomController.prototype.init = function () {
-    this.client.socket.on("roomUpdated", this.roomUpdated.bind(this));
-    this.client.socket.on("welcome", this.updateHost.bind(this));
-    this.client.socket.on("updateHost", this.updateHost.bind(this));
+    this.client.socket.on("welcome", this.welcome.bind(this));
     this.client.socket.on("play", this.handlePlay.bind(this));
     this.client.socket.on("chat", this.handleChat.bind(this));
+    this.client.socket.on("join", this.join.bind(this));
+    this.client.socket.on("leave", this.leave.bind(this));
+    this.client.socket.on("becomeHost", this.becomeHost.bind(this));
 
     this.client.socket.emit("welcome", {
         playerName: this.client.playerName,
@@ -26,13 +34,19 @@ RoomController.prototype.init = function () {
 
     $(document).ready(function () {
         $("#startGame").on("click", function () {
-            this.client.socket.emit("play");
+            if (this.viewmodel.isHost()) {
+                this.client.socket.emit("play");
+            }
+        }.bind(this));
+
+        $("#leaveGame").on("click", function () {
+            this.client.socket.emit("leave");
         }.bind(this));
 
         $("#chat_form").submit(function (e) {
             e.preventDefault();
             if ($("#chat_text").val() !== "") {
-                var name = this.players[this.findSelfIndex()].name;
+                var name = this.viewmodel.players()[this.findSelfIndex()].name;
                 var message = $("#chat_text").val();
 
                 $("#chat_text").val("");
@@ -46,6 +60,8 @@ RoomController.prototype.init = function () {
                 });
             }
         }.bind(this));
+
+        ko.applyBindings(this.viewmodel);
     }.bind(this));
 };
 
@@ -59,7 +75,9 @@ RoomController.prototype.handlePlay = function () {
         var networkManager = new NetworkManager();
         networkManager.connect(null, this.client.socket);
         var context = document.getElementById("game-canvas").getContext("2d");
-        Sanctum.startNewGame(this.players.map(function (c) { return c.name; }),
+        var playerNames = this.viewmodel.players()
+                          .map(function (player) { return player.name; });
+        Sanctum.startNewGame(playerNames,
                              this.findSelfIndex(),
                              networkManager,
                              context);
@@ -68,61 +86,45 @@ RoomController.prototype.handlePlay = function () {
 
 RoomController.prototype.handleChat = function (data) {
     if (data && data.message) {
-        var author = data.message.author,
-            message = data.message.message;
-        var chatMessage = "[" + new Date().toLocaleTimeString() + "] " +
-                          author + ": " + message;
-
-        $("#chat").append(chatMessage + "\n");
+        this.viewmodel.chatMessages.push({
+            author: data.message.author,
+            message: data.message.message,
+            timestamp: "[" + new Date().toLocaleTimeString() + "]"
+        });
         $("#chat").scrollTop($("#chat")[0].scrollHeight);
     }
 };
 
-RoomController.prototype.roomUpdated = function (data) {
-    this.players = data.players;
+RoomController.prototype.leave = function (data) {
+    this.viewmodel.players.remove(function (player) {
+        return player.id == data.playerId;
+    });
+};
 
-    var playersDisplayInfo = "<div class='players-column'>";
+RoomController.prototype.join = function (data) {
+    this.viewmodel.players.push(data.player);
+};
 
-    for (var i = 0; i < this.players.length; i++) {
-        playersDisplayInfo += "<div class='player-row'>" +
-            "<img src='content/art/characters/lobby/" +
-            this.avatarImages[i] + "'/>" +
-            "<label class='player-row-name'>" +
-                this.players[i].name +
-            "</label></div>";
+RoomController.prototype.becomeHost = function (/* data */) {
+    this.viewmodel.isHost(true);
+};
 
-        if (i == 3) {
-            playersDisplayInfo += "</div><div class='players-column'>";
-        }
-
+RoomController.prototype.welcome = function (data) {
+    for (var i = 0; i < data.players.length; i++) {
+        this.viewmodel.players.push(data.players[i]);
     }
-
-    playersDisplayInfo += "</div>";
-
-    $(".players").html(playersDisplayInfo);
+    this.viewmodel.isHost(data.isHost);
 };
 
 RoomController.prototype.findSelfIndex = function () {
-    console.log(this.client.socket.io.engine.id);
-    console.log(this.players);
-    for (var i = 0; i < this.players.length; i++) {
-        if (this.players[i].id == this.client.socket.io.engine.id) {
+    var players = this.viewmodel.players();
+    for (var i = 0; i < players.length; i++) {
+        if (players[i].id == this.client.socket.io.engine.id) {
             return i;
         }
     }
 
     return -1;
-};
-
-RoomController.prototype.renderHost = function () {
-    if (this.client.isHost) {
-        $("#startGame").removeClass("disabled");
-        $("#startGame").addClass("active");
-    }
-    else {
-        $("#startGame").removeClass("active");
-        $("#startGame").addClass("disabled");
-    }
 };
 
 module.exports = RoomController;

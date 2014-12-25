@@ -1,11 +1,16 @@
 <div class="container">
 
-    <div class="players">
-
+    <div class="players" data-bind="foreach: players">
+        <div class="player-column">
+            <div class="player-row">
+                <img data-bind="attr: {src: $root.avatars[$index()]}"/>
+                <label data-bind="text: name"></label><br>
+            </div>
+        </div>
     </div>
 
     <div class="buttons">
-        <button class="float-shadow" id="startGame">
+        <button data-bind="css: {disabled: !isHost()}" class="float-shadow" id="startGame">
             Start
         </button><br>
         <button class="float-shadow" id="leaveGame">
@@ -15,7 +20,12 @@
     </div>
 
     <div class="chat_container">
-        <textarea id="chat" readonly="readonly" autofocus="autofocus" />
+        <div id="chat" data-bind="foreach: chatMessages">
+            <span data-bind="text: timestamp"></span>
+            <span data-bind="text: author"></span>: 
+            <span data-bind="text: message"></span>
+            <br>
+        </div>
         <form id="chat_form" action="#">
             <input type="text" id="chat_text" placeholder="type a message...", autocomplete="off" />
             <input type="submit" id="chat_submit" value="send" />

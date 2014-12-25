@@ -3,12 +3,12 @@
 
 @font-face {
     font-family: Achafsex;
-    src: url(fonts/Achafsex.ttf);
+    src: url(fonts/Achafsex.ttf), url(distr/fonts/Achafsex.ttf);
 }
 
 @font-face {
     font-family: Metamorphous;
-    src: url(fonts/Metamorphous-Regular.ttf);
+    src: url(fonts/Metamorphous-Regular.ttf), url(distr/fonts/Metamorphous-Regular.ttf);
 }
 // CSS Reset
 
@@ -92,11 +92,8 @@ button:active:not(.disabled) {
 .float-shadow:not(.disabled) {
   display: inline-block;
   position: relative;
-  -webkit-transition-duration: 0.3s;
   transition-duration: 0.3s;
-  -webkit-transition-property: transform;
   transition-property: transform;
-  -webkit-transform: translateZ(0);
   transform: translateZ(0);
   box-shadow: 0 0 1px rgba(0, 0, 0, 0);
 }
@@ -112,22 +109,17 @@ button:active:not(.disabled) {
   width: 90%;
   opacity: 0;
   background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0) 80%);
-  /* W3C */
-  -webkit-transition-duration: 0.3s;
   transition-duration: 0.3s;
-  -webkit-transition-property: transform, opacity;
   transition-property: transform, opacity;
 }
 
 .float-shadow:not(.disabled):hover, .float-shadow:not(.disabled):focus, .float-shadow:not(.disabled):active {
-  -webkit-transform: translateY(-5px);
   transform: translateY(-5px);
   /* move the element up by 5px */
 }
 
 .float-shadow:not(.disabled):hover:before, .float-shadow:not(.disabled):focus:before, .float-shadow:not(.disabled):active:before {
   opacity: 1;
-  -webkit-transform: translateY(5px);
   transform: translateY(5px);
   /* move the element down by 5px (it will stay in place because it's attached to the element that also moves up 5px) */
 }

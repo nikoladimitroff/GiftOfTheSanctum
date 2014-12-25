@@ -343,11 +343,9 @@ Sanctum.prototype.loop = function (timestamp) {
                 this.characters[this.playerIndex].score += this.deathsCount;
             }
 
-/* Enable this to end the round
             this.reset();
             this.events.roundOver.fire(this.characters);
             return;
-*/
         }
         var following = !currentPlayer.isDead ?
                         this.playerIndex : this.getMaxScorePlayerIndex();
