@@ -37,7 +37,7 @@ ContentManager.prototype.loadSprite = function (description) {
     image.onload = function () {
         this.contentCache[path] = new Sprite(image, framesPerRow);
         this.loaded++;
-        if (this.loaded == this.loading) {
+        if (this.loaded === this.loading) {
             this.onload();
         }
     }.bind(this);

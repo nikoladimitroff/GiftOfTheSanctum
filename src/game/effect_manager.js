@@ -173,4 +173,10 @@ EffectManager.prototype.cleanupEffects = function () {
     }
 };
 
+EffectManager.prototype.update = function (delta, physics, platform) {
+    this.applyEffects(physics, delta);
+    this.applyPlatformEffect(physics, platform);
+    this.cleanupEffects();
+};
+
 module.exports = EffectManager;

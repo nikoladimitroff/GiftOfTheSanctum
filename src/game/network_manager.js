@@ -39,6 +39,7 @@ NetworkManager.prototype.connect = function (masterSocket, socket) {
     socket.on("update", this.handleUpdate.bind(this));
     socket.on("death", this.handleDeath.bind(this));
     socket.on("scores", this.handleScores.bind(this));
+    socket.on("next-round", this.handleNextRound.bind(this));
 };
 
 NetworkManager.prototype.addSpellcast = function (spellName, target, caster) {
@@ -128,6 +129,21 @@ NetworkManager.prototype.handleScores = function (data) {
     }
 };
 
+
+NetworkManager.prototype.sendNextRound = function () {
+    this.socket.emit("next-round");
+    console.log("next round send");
+};
+
+NetworkManager.prototype.handleNextRound = function () {
+    this.events.nextRound.fire(this);
+    if (this.isServer()) {
+        this.masterSocket.emit("next-round");
+    }
+    console.log("next round received");
+};
+
+
 NetworkManager.prototype.getScores = function () {
     return this.scores;
 };
@@ -141,6 +157,14 @@ NetworkManager.prototype.getLastUpdateFrom = function (objectId) {
 
 NetworkManager.prototype.isServer = function () {
     return this.masterSocket !== null;
+};
+
+NetworkManager.prototype.reset = function () {
+    this.lastUpdate = 0;
+    this.updateQueue = {};
+    this.scores = {};
+    this.buffer = [];
+    this.pendingDeaths = [];
 };
 
 module.exports = NetworkManager;

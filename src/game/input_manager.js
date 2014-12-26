@@ -106,14 +106,6 @@ InputManager.prototype.swap = function () {
     this.previousMouse.copyFrom(this.mouse);
 };
 
-InputManager.prototype.keyCodeToKeyName = function (keyCode) {
-    return InputManager.keyCodeToName[keyCode];
-};
-
-InputManager.prototype.keyNameToKeyCode = function (keyName) {
-    return InputManager.keyNameToCode[keyName];
-};
-
 InputManager.generateKeyCodeToNameMapping = function () {
     var nonLetters = [];
     nonLetters[8] = "Backspace";
@@ -196,7 +188,7 @@ InputManager.generateKeyCodeToNameMapping = function () {
     return nonLetters;
 };
 
-InputManager.keyCodeToName = InputManager.generateKeyCodeToNameMapping();
+var KEYCODE_TO_NAME = InputManager.generateKeyCodeToNameMapping();
 // A small hack to shorten coding. Use Array.reduce to create an object that maps each key name to its keycode
 function nameToCodeMapper(previous, current, index, array) {
     return previous.substring(0, previous.length - 1) + "\"" +
@@ -205,6 +197,14 @@ function nameToCodeMapper(previous, current, index, array) {
 var json = InputManager.generateKeyCodeToNameMapping()
            .reduce(nameToCodeMapper, "{}")
            .replace(",}", "}");
-InputManager.keyNameToCode = JSON.parse(json);
+var KEYNAME_TO_CODE = JSON.parse(json);
+
+InputManager.prototype.keycodeToName = function (keyCode) {
+    return KEYCODE_TO_NAME[keyCode];
+};
+
+InputManager.prototype.keynameToCode = function (keyName) {
+    return KEYNAME_TO_CODE[keyName];
+};
 
 module.exports = InputManager;

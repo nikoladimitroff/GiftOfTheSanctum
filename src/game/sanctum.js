@@ -9,6 +9,9 @@ var PlayerManager = require("./player_manager");
 var NetworkManager = require("./network_manager");
 var PredictionManager = require("./prediction_manager");
 
+var GameState = require("./enums").GameState,
+    Action = require("./enums").Action;
+
 var Vector = require("./math/vector");
 var SanctumEvent = require("../utils/sanctum_event.js");
 
@@ -23,16 +26,8 @@ window.requestAnimationFrame = (function () {
 })();
 
 /* jshint ignore: end */
-var Actions = {
-    walk: "walk",
-    idle: "idle",
-    spellcast1: "spellcast1",
-    spellcast2: "spellcast2",
-    spellcast3: "spellcast3",
-    spellcast4: "spellcast4",
-    spellcast5: "spellcast5",
-    spellcast6: "spellcast6",
-};
+
+var SPELLCAST_COUNT = 6;
 
 var Camera = function (viewport, platformSize) {
     this.viewport = viewport;
@@ -60,28 +55,44 @@ Camera.prototype.follow = function (target) {
     }
 };
 
-var Sanctum = function (playerNames, selfIndex, networkManager, context) {
+var Sanctum = function (playerNames, selfIndex, networkManager,
+                        viewmodel, context) {
     this.characters = playerNames;
     this.previousTime = 0;
     this.deathsCount = 0;
     this.playerIndex = selfIndex;
-    this.nextAction = Actions.walk;
+    this.nextAction = Action.walk;
     this.spellBindings = {};
     this.keybindings = {};
 
-    this.model = {};
+    this.model = {
+        characters: this.characters,
+        state: GameState.midround
+    };
     this.events = {
         roundOver: new SanctumEvent(),
+        nextRound: new SanctumEvent(),
     };
+    networkManager.events = this.events;
 
     if (!networkManager.isServer()) {
         this.input = new InputManager();
         this.renderer = new Renderer(context, true);
+        this.ui = new UIManager(this.model, viewmodel, this.events);
+        this.events.nextRound.addEventListener(function (sender) {
+            if (sender === this.ui) {
+                // The next round button has been clicked
+                this.network.sendNextRound();
+            }
+            else if (sender === this.network) {
+                // The network manager received a "next-round" command
+                this.reset();
+                this.run();
+            }
+        }.bind(this));
     }
 
-    this.ui = new UIManager(this.model, this.events);
     this.content = new ContentManager();
-    console.log(this.content, ContentManager);
     this.physics = new PhysicsManager();
     this.playerManager = new PlayerManager(this.characters,
                                            this.physics);
@@ -111,16 +122,16 @@ var CHARACTERS = [
 Sanctum.prototype.init = function () {
     this.platform = this.content.get(OBJECTS.platform);
 
-    var playerPositions = this.platform.generateVertices(this.characters.length,
-                                                         50); // Magic
 
-    var center = new Vector(this.platform.size.x / 2, this.platform.size.y / 2);
+    var center = this.platform.size.divide(2);
+    var positions = this.platform.generateVertices(this.characters.length,
+                                                   50, // Magic
+                                                   center);
 
     for (var i = 0; i < this.characters.length; i++) {
         var player = this.content.get(CHARACTERS[i]).clone();
-        player.position = playerPositions[i].add(center);
-        player.name = this.characters[0];
-        this.characters.shift();
+        player.position = positions[i];
+        player.name = this.characters.shift();
         this.characters.push(player);
     }
 
@@ -129,8 +140,6 @@ Sanctum.prototype.init = function () {
         var camera = new Camera(new Vector(), this.platform.size);
         this.renderer.init(camera);
         this.input.init(camera);
-        this.updateModel();
-        this.ui.init();
         this.keybindings = this.content.get("keybindings");
     }
 
@@ -147,37 +156,48 @@ Sanctum.prototype.loadContent = function () {
 
 Sanctum.prototype.reset = function () {
     console.log("reset");
-    var playerPositions = this.platform.generateVertices(this.characters.length,
-                                                         50); // Magic
+    var center = this.platform.size.divide(2);
+    var positions = this.platform.generateVertices(this.characters.length,
+                                                   50, // Magic
+                                                   center);
 
     for (var i = 0; i < this.characters.length; i++) {
         var player = this.characters[i];
-        player.position = playerPositions[i];
+        player.position = positions[i];
+        player.target = null;
         player.health = player.startingHealth;
         player.isDead = false;
     }
+    this.model.state = GameState.midround;
+    this.previousTime = 0;
+    this.deathsCount = 0;
     this.effects.reset();
+    this.network.reset();
     this.spells = [];
+    this.ui.toggleScoreboard();
 };
 
 Sanctum.prototype.handleInput = function () {
-    for (var key in this.keybindings) {
-        if (this.input.keyboard[this.input.keyNameToKeyCode(key)]) {
-            this.nextAction = Actions[this.keybindings[key]];
+    for (var i = 0; i < SPELLCAST_COUNT; i++) {
+        var action = "spellcast" + i;
+        var key = this.keybindings[action];
+        if (this.input.keyboard[this.input.keynameToCode(key)]) {
+            this.nextAction = Action[action];
         }
     }
 
+    // Respond to game
     var player = this.characters[this.playerIndex];
     if (this.input.mouse.right &&
         !this.input.previousMouse.right) {
 
         this.playerManager.moveTo(player, this.input.mouse.absolute);
-        player.playAnimation(Actions.walk, player.totalVelocity.normalized());
+        player.playAnimation(Action.walk, player.totalVelocity.normalized());
     }
     else if (this.input.mouse.left &&
              !this.input.previousMouse.left &&
-             this.nextAction != Actions.walk &&
-             this.nextAction != Actions.idle) {
+             this.nextAction != Action.walk &&
+             this.nextAction != Action.idle) {
 
         var spellName = this.spellBindings[this.nextAction];
         var spell = this.effects.castSpell(this.playerIndex,
@@ -192,7 +212,16 @@ Sanctum.prototype.handleInput = function () {
             player.playAnimation(this.nextAction, forward);
         }
         var isWalking = player.velocity.lengthSquared() < 1e-3;
-        this.nextAction = [Actions.walk, Actions.idle][~~isWalking];
+        this.nextAction = [Action.walk, Action.idle][~~isWalking];
+    }
+
+    // Respond to UI
+    var scoreboardKey = this.keybindings.toggleScoreboard,
+        scoreboardCode = this.input.keynameToCode(scoreboardKey);
+    if (this.input.keyboard[scoreboardCode] &&
+        !this.input.previousKeyboard[scoreboardCode]) {
+
+        this.ui.toggleScoreboard();
     }
 
     this.input.swap();
@@ -294,27 +323,12 @@ Sanctum.prototype.bindSpells = function (cast1, cast2, cast3,
     this.spellBindings.spellcast6 = cast6;
 };
 
-Sanctum.prototype.updateModel = function () {
-    this.model.scores = this.characters.map(function (character, id) {
-        return {
-            id: id,
-            name: character.name,
-            score: character.score
-        };
-    });
-
-    this.model.scores.sort(function (first, second) {
-        if (first.score == second.score)
-            return first.name < second.name;
-        return first.score < second.score;
-    });
-};
-
 Sanctum.mainSanctumLoop = function () {};
-Sanctum.prototype.loop = function (timestamp) {
-    var delta = (timestamp - this.previousTime) || 1000 / 60;
-    if (!this.network.isServer()) {
 
+Sanctum.prototype.update = function (delta) {
+    this.processNetworkData();
+
+    if (!this.network.isServer()) {
         var currentPlayer = this.characters[this.playerIndex];
         if (!currentPlayer.isDead) {
             this.handleInput();
@@ -324,11 +338,7 @@ Sanctum.prototype.loop = function (timestamp) {
         this.playerManager.update();
         this.physics.update(this.effects.characters);
         this.physics.update(this.effects.activeSpells);
-        this.effects.applyEffects(this.physics, delta);
-        this.effects.applyPlatformEffect(this.physics, this.platform);
-        this.effects.cleanupEffects();
-
-        this.updateModel();
+        this.effects.update(delta, this.physics, this.platform);
 
         this.processPendingDeaths();
 
@@ -342,18 +352,9 @@ Sanctum.prototype.loop = function (timestamp) {
             if (!this.characters[this.playerIndex].isDead) {
                 this.characters[this.playerIndex].score += this.deathsCount;
             }
-
-            this.reset();
-            this.events.roundOver.fire(this.characters);
-            return;
+            return GameState.midround;
         }
-        var following = !currentPlayer.isDead ?
-                        this.playerIndex : this.getMaxScorePlayerIndex();
-        this.renderer.camera.follow(this.characters[following].position);
-        this.renderer.render(delta,
-                             [this.characters, this.effects.activeSpells],
-                             this.platform,
-                             this.characters[this.playerIndex].isDead);
+        this.ui.update();
     }
 
     this.network.lastUpdate += delta;
@@ -367,7 +368,32 @@ Sanctum.prototype.loop = function (timestamp) {
         this.network.lastUpdate = 0;
     }
 
-    this.processNetworkData();
+    return GameState.playing;
+};
+
+Sanctum.prototype.render = function (delta) {
+    var currentPlayer = this.characters[this.playerIndex];
+    var following = !currentPlayer.isDead ?
+                    this.playerIndex : this.getMaxScorePlayerIndex();
+    this.renderer.camera.follow(this.characters[following].position);
+    this.renderer.render(delta,
+                         [this.characters, this.effects.activeSpells],
+                         this.platform,
+                         this.characters[this.playerIndex].isDead);
+};
+
+Sanctum.prototype.loop = function (timestamp) {
+    var delta = (timestamp - this.previousTime) || 1000 / 60;
+
+    this.model.state = this.update(delta);
+    if (this.model.state !== GameState.playing) {
+        this.events.roundOver.fire(this);
+        return;
+    }
+
+    if (!this.network.isServer()) {
+        this.render(delta);
+    }
 
     this.previousTime = timestamp;
     if (this.network.isServer()) {
@@ -397,11 +423,17 @@ Sanctum.prototype.run = function () {
         Sanctum.mainSanctumLoop = this.loop.bind(this, 1000 / 60);
     }
 
+    this.model.state = GameState.playing;
     this.mainSanctumLoop(0);
 };
 
-Sanctum.startNewGame = function (players, selfIndex, networkManager, context) {
-    var game = new Sanctum(players, selfIndex, networkManager, context);
+Sanctum.startNewGame = function (players, selfIndex, networkManager,
+                                 viewmodel, context) {
+    var game = new Sanctum(players,
+                           selfIndex,
+                           networkManager,
+                           viewmodel,
+                           context);
     game.loadContent();
     game.bindSpells("Unicorns!", "Frostfire", "Heal",
                     "Flamestrike", "Electric bolt", "Death bolt");

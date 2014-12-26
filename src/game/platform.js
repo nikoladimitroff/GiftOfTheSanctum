@@ -36,12 +36,13 @@ Platform.prototype.update = function (dt) {
     }
 };
 
-Platform.prototype.generateVertices = function (sides, radius) {
+Platform.prototype.generateVertices = function (sides, radius, center) {
+    center = center || Vector.zero;
     var vertices = [];
     for (var i = 0; i < sides; i++) {
         var angle = Math.PI / 10 + i * 2 * Math.PI / sides;
-        var nextVertex = new Vector(radius * Math.cos(angle),
-                                    radius * Math.sin(angle));
+        var nextVertex = new Vector(center.x + radius * Math.cos(angle),
+                                    center.y + radius * Math.sin(angle));
         vertices.push(nextVertex);
     }
 

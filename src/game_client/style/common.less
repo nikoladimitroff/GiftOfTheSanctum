@@ -67,6 +67,9 @@ button:active:not(.disabled) {
     top: 1px;   
 }
 
+img {
+    .unselectable;
+}
 
 // Classes
 
@@ -86,6 +89,22 @@ button:active:not(.disabled) {
     -moz-user-select: initial;
     -ms-user-select: initial;
     user-select: initial;   
+}
+
+.maximized {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.center-with-width(@width) {
+    position: absolute;
+    width: @width;
+    @offset: (100% - @width) / 2;
+    left: @offset;
+    right: @offset;
 }
 
 /* Float Shadow. Taken from http://ianlunn.github.io/Hover */

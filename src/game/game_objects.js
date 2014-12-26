@@ -5,7 +5,7 @@ var ID_COUNTER = 0;
 
 function copyProperties(object, description) {
     var copyableProperties = [
-        "name", "health", "speed", "movementFunction",
+        "name", "health", "startingHealth", "speed", "movementFunction",
         "mass",
         "rotation",
         "castType", "range", "duration",

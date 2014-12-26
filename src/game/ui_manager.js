@@ -1,38 +1,74 @@
 "use strict";
+var GameState = require("./enums").GameState;
 
-var UIManager = function (model, events) {
+
+var AVATAR_IMAGES = [
+    "archer.png", "knight.png", "mage.png", "monk.png",
+     "necro.png", "orc.png", "queen.png", "rogue.png"
+];
+
+var UIManager = function (model, viewmodel, events) {
     this.model = model;
-    events.roundOver.addEventListener(this.showScoreboard.bind(this));
+    this.viewmodel = viewmodel;
+    // Ko.computed are evaluated when their depedencies change but since our
+    // scores work differently they won't fire unless we force them
+    this.reevaluator = ko.observable();
+
+    // Add whatever else the viewmodel needs
+    var players = this.viewmodel.players();
+    for (var i = 0; i < players.length; i++) {
+        players[i].score = ko.computed(function (i) {
+            this.reevaluator();
+            return this.model.characters[i].score;
+        }.bind(this, i));
+    }
+    this.viewmodel.scoreboardAvatars = AVATAR_IMAGES.map(function (path) {
+        return "content/art/characters/scoreboard/" + path;
+    });
+    this.viewmodel.showScoreboard = ko.observable(false);
+    this.viewmodel.canStartNextRound = ko.computed(function () {
+        this.reevaluator();
+        return this.viewmodel.isHost() &&
+               this.model.state === GameState.midround;
+    }.bind(this));
+
+
+    this.viewmodel.isGameMidround = ko.computed(function () {
+        this.reevaluator();
+        return this.model.state === GameState.midround;
+    }.bind(this));
+
+
+    // Rebind
+    ko.applyBindings(this.viewmodel, document.getElementById("game-ui"));
+
+    this.events = events;
+    events.roundOver.addEventListener(function () {
+        this.update();
+        this.toggleScoreboard();
+    }.bind(this));
+    this.bindUI();
 };
 
-UIManager.prototype.init = function () {
-    this.scoreboard = document.querySelector("#scoreboard");
-
-    var innerHTML = "<span></span><img></img><span></span>";
-    for (var i = 0; i < this.model.scores.length; i++) {
-        var playerLabel = document.createElement("li");
-        playerLabel.innerHTML = innerHTML;
-        this.scoreboard.appendChild(playerLabel);
-    }
+UIManager.prototype.bindUI = function () {
+    document.getElementById("next-round-button")
+    .addEventListener("click", function () {
+        if (this.viewmodel.canStartNextRound()) {
+            this.events.nextRound.fire(this);
+        }
+    }.bind(this));
 };
 
-var AVATAR_IMAGES = ["archer.png", "knight.png", "mage.png", "monk.png",
-                     "necro.png", "orc.png", "queen.png", "rogue.png"];
+UIManager.prototype.update = function () {
+    // Force update
+    this.reevaluator.notifySubscribers();
+    this.viewmodel.players.sort(function (p1, p2) {
+        return p1.score - p2.score;
+    });
+};
 
-
-UIManager.prototype.showScoreboard = function () {
-    $(this.scoreboard).toggle();
-    var playerLabels = this.scoreboard.children;
-
-    for (var i = 0; i < this.model.scores.length; i++) {
-        var labelIndex = i + 1;
-        var children = playerLabels[labelIndex].children;
-        children[0].textContent = this.model.scores[i].name;
-        var imgSource = "content/art/characters/scoreboard/" +
-                        AVATAR_IMAGES[this.model.scores[i].id];
-        children[1].src = imgSource;
-        children[2].textContent = this.model.scores[i].score;
-    }
+UIManager.prototype.toggleScoreboard = function () {
+    this.viewmodel.showScoreboard(!this.viewmodel.showScoreboard());
 };
 
 module.exports = UIManager;

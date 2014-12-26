@@ -3,15 +3,15 @@ var NetworkManager = require("../game/network_manager");
 var Sanctum = require("../game/sanctum");
 
 var Viewmodel = function () {
-    this.players = new ko.observableArray();
-    this.chatMessages = new ko.observableArray();
+    this.players = ko.observableArray();
+    this.chatMessages = ko.observableArray();
     this.avatars = [
         "archer.png", "knight.png", "mage.png", "monk.png",
         "necro.png", "orc.png", "queen.png", "rogue.png"
     ].map(function (fileName) {
         return "content/art/characters/lobby/" + fileName;
     });
-    this.isHost = new ko.observable(false);
+    this.isHost = ko.observable(false);
 };
 
 var RoomController = function (client) {
@@ -61,7 +61,7 @@ RoomController.prototype.init = function () {
             }
         }.bind(this));
 
-        ko.applyBindings(this.viewmodel);
+        ko.applyBindings(this.viewmodel, document.getElementById("lobby-ui"));
     }.bind(this));
 };
 
@@ -77,9 +77,11 @@ RoomController.prototype.handlePlay = function () {
         var context = document.getElementById("game-canvas").getContext("2d");
         var playerNames = this.viewmodel.players()
                           .map(function (player) { return player.name; });
+
         Sanctum.startNewGame(playerNames,
                              this.findSelfIndex(),
                              networkManager,
+                             this.viewmodel,
                              context);
     }.bind(this));
 };

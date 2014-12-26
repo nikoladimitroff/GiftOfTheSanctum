@@ -137,11 +137,12 @@
         },
     ],
     keybindings: {
-        Q: "spellcast1", // WARNING, keyBindings are written in PascalCase
-        W: "spellcast2",
-        E: "spellcast3",
-        R: "spellcast4",
-        T: "spellcast5",
-        Y: "spellcast6",
+        spellcast1: "Q", // WARNING, keyBindings are written in PascalCase
+        spellcast2: "W",
+        spellcast3: "E",
+        spellcast4: "R",
+        spellcast5: "T",
+        spellcast6: "Y",
+        toggleScoreboard: "S"
     }
 }
