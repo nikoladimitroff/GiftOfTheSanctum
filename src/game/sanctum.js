@@ -62,13 +62,19 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
     this.deathsCount = 0;
     this.playerIndex = selfIndex;
     this.nextAction = Action.walk;
-    this.spellBindings = {};
+    this.spellBindings = [];
     this.keybindings = {};
+    this.model = {};
 
-    this.model = {
-        characters: this.characters,
-        state: GameState.midround
-    };
+    this.content = new ContentManager();
+    this.physics = new PhysicsManager();
+    this.playerManager = new PlayerManager(this.characters,
+                                           this.physics);
+    var player = this.characters[this.playerIndex];
+    this.predictionManager = new PredictionManager(player);
+    this.effects = new EffectManager();
+    this.network = networkManager;
+
     this.events = {
         roundOver: new SanctumEvent(),
         nextRound: new SanctumEvent(),
@@ -78,7 +84,7 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
     if (!networkManager.isServer()) {
         this.input = new InputManager();
         this.renderer = new Renderer(context, true);
-        this.ui = new UIManager(this.model, viewmodel, this.events);
+        this.ui = new UIManager(viewmodel, this.events);
         this.events.nextRound.addEventListener(function (sender) {
             if (sender === this.ui) {
                 // The next round button has been clicked
@@ -91,15 +97,6 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
             }
         }.bind(this));
     }
-
-    this.content = new ContentManager();
-    this.physics = new PhysicsManager();
-    this.playerManager = new PlayerManager(this.characters,
-                                           this.physics);
-    var player = this.characters[this.playerIndex];
-    this.predictionManager = new PredictionManager(player);
-    this.effects = new EffectManager();
-    this.network = networkManager;
 };
 
 var OBJECTS = {
@@ -135,16 +132,29 @@ Sanctum.prototype.init = function () {
         this.characters.push(player);
     }
 
+    var spellLibrary = this.content.getSpellLibrary();
+    this.effects.init(spellLibrary, this.characters, this.platform);
 
     if (!this.network.isServer()) {
         var camera = new Camera(new Vector(), this.platform.size);
         this.renderer.init(camera);
         this.input.init(camera);
         this.keybindings = this.content.get("keybindings");
+        this.model = {
+            characters: this.characters,
+            state: GameState.midround,
+            keybindings: this.keybindings,
+            boundSpells: this.spellBindings,
+            // Getters
+            getSpellIcon: this.effects.getSpellIcon.bind(this.effects),
+            getSpellRemainingCooldown: this.effects.getSpellRemainingCooldown
+                                       .bind(this.effects, this.playerIndex),
+            getSpellCoolingPercentage: this.effects.getSpellCoolingPercentage
+                                       .bind(this.effects, this.playerIndex),
+        };
+        this.ui.init(this.model);
     }
 
-    var spellLibrary = this.content.getSpellLibrary();
-    this.effects.init(spellLibrary, this.characters, this.platform);
     this.run(0);
 };
 
@@ -199,7 +209,8 @@ Sanctum.prototype.handleInput = function () {
              this.nextAction != Action.walk &&
              this.nextAction != Action.idle) {
 
-        var spellName = this.spellBindings[this.nextAction];
+        var spellIndex = ~~this.nextAction[this.nextAction.length - 1];
+        var spellName = this.spellBindings[spellIndex];
         var spell = this.effects.castSpell(this.playerIndex,
                                            spellName,
                                            this.input.mouse.absolute);
@@ -312,15 +323,15 @@ Sanctum.prototype.processPendingDeaths = function () {
     this.network.pendingDeaths = [];
 };
 
-Sanctum.prototype.bindSpells = function (cast1, cast2, cast3,
-                                         cast4, cast5, cast6) {
+Sanctum.prototype.bindSpells = function (cast0, cast1, cast2,
+                                         cast3, cast4, cast5) {
 
-    this.spellBindings.spellcast1 = cast1;
-    this.spellBindings.spellcast2 = cast2;
-    this.spellBindings.spellcast3 = cast3;
-    this.spellBindings.spellcast4 = cast4;
-    this.spellBindings.spellcast5 = cast5;
-    this.spellBindings.spellcast6 = cast6;
+    this.spellBindings[0] = cast0;
+    this.spellBindings[1] = cast1;
+    this.spellBindings[2] = cast2;
+    this.spellBindings[3] = cast3;
+    this.spellBindings[4] = cast4;
+    this.spellBindings[5] = cast5;
 };
 
 Sanctum.mainSanctumLoop = function () {};
@@ -437,7 +448,6 @@ Sanctum.startNewGame = function (players, selfIndex, networkManager,
     game.loadContent();
     game.bindSpells("Unicorns!", "Frostfire", "Heal",
                     "Flamestrike", "Electric bolt", "Death bolt");
-
     return game;
 };
 

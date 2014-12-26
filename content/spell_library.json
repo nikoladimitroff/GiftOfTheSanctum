@@ -17,6 +17,7 @@
     acceleration: 150, // the projectile's acceleration magnitude
     velocity: 450, // the projectile's start velocity
     range: 1000, // maximum distance the projectile may fly (or the instant cast to hit)
+    icon: "content/art/spells/icons/fireball.png",
 }, {
     name: "Frostbolt",
     width: 64,
@@ -37,6 +38,7 @@
     acceleration: 150, 
     velocity: 450, 
     range: 1000,
+    icon: "content/art/spells/icons/frostball.png",
 }, {
     name: "Heal",
     width: 64,
@@ -50,7 +52,8 @@
     effectRadius: 0, 
     damageAmount: -150,
     cooldown: 12000, 
-    range: 20, 
+    range: 20,
+    icon: "content/art/spells/icons/heal.png",
 }, {
     name: "Flamestrike",
     width: 64,
@@ -65,7 +68,8 @@
 	duration: 5000,
 	cooldown: 15000,
     radius: 75,
-    range: 750, 
+    range: 750,
+    icon: "content/art/spells/icons/flamestrike.png",
 }, {
     name: "Electric bolt",
     width: 64,
@@ -87,6 +91,7 @@
     velocity: 450, 
     range: 500,
 	radius: 50,
+    icon: "content/art/spells/icons/electric_bolt.png",
 },  {
     name: "Death bolt",
     width: 64,
@@ -105,6 +110,7 @@
     acceleration: 1, 
     velocity: 200, 
     range: 1500,
+    icon: "content/art/spells/icons/deathbolt.png",
 }, {
     name: "Frostfire",
     width: 64,
@@ -124,6 +130,7 @@
     acceleration: 50, 
     velocity: 500, 
     range: 600,
+    icon: "content/art/spells/icons/frostfire.png",
 }, {
     name: "Unicorns!",
     width: 128,
@@ -143,5 +150,6 @@
     acceleration: 1000, 
     velocity: 1000, 
     range: 2000,
+    icon: "content/art/spells/icons/unicorn.png",
 },
 ]

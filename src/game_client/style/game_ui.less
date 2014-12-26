@@ -1,11 +1,50 @@
 @import "./common";
 @import "./scoreboard";
 
+#status-panel {
+    .centered-with-width(50%);
+    background-color: @dark-color;
+    position: absolute;
+    bottom: 0%;
+    padding-bottom: 2.5%;
+    padding-top: 2.5%;
+    font: normal normal normal normal 20px / normal Metamorphous;
+    
+    ul {
+        margin-left: 10%;
+        margin-right: 10%;
+    }
+    
+    li {
+        display: inline-block;
+        list-style-type: none;
+        text-align: center;
+        vertical-align: middle;
+        width: 64px;
+        height: 64px;
+        color: white;
+        border: 1px solid darken(@dark-color, 25%);
+        margin: 0;
+        padding: 0;
+        box-shadow: inset 0px 0px 5px attr(data-filled) rgba(20, 20, 20, 0.6);
+    }
+    li:before {
+        content: attr(data-key);
+        display: block;
+        margin-bottom: 10px;
+    }
+}
+
 #mid-round-lobby {
     .maximized; 
 }
 
 #next-round-button {
-    .center-with-width(25%);
+    .centered-with-width(25%);
     bottom: 2.5%;
+}
+
+/* Needed since the .floating-shadow class works bad with absolute positioning */
+#next-round-button:active {
+    top: initial; 
 }

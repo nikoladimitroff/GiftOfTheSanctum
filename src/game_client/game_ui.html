@@ -1,4 +1,11 @@
 <nav id="game-ui" class="unselectable">
+    <div id="status-panel" >
+        <ul data-bind="foreach: boundSpells">
+            <li data-bind="style: {backgroundImage: icon}, 
+                           attr: {'data-key': key}, 
+                           text: remainingCooldown"></li>
+        </ul>
+    </div>
     <table id="scoreboard" data-bind="visible: showScoreboard">
         <thead>
             <tr>

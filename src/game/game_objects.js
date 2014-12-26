@@ -57,6 +57,7 @@ var Spell = function (sprite, description) {
 
     // rendering
     this.sprite = sprite;
+    this.icon = description.icon;
     this.rotation = 0;
 
     // stamps and stuff

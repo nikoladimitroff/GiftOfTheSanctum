@@ -179,4 +179,37 @@ EffectManager.prototype.update = function (delta, physics, platform) {
     this.cleanupEffects();
 };
 
+EffectManager.prototype.getSpellIcon = function (spellName) {
+    return this.spellLibrary[spellName].icon;
+};
+
+EffectManager.prototype.getSpellCoolingPercentage = function (characterId,
+                                                               spellName) {
+    if (this.spellCooldowns[characterId] === undefined ||
+        this.spellCooldowns[characterId][spellName] === undefined) {
+        return "";
+    }
+
+    var lastCast = this.spellCooldowns[characterId][spellName];
+    var timeSinceLastCast = Date.now() - lastCast;
+    var ratio = timeSinceLastCast / this.spellLibrary[spellName].cooldown;
+    return Math.min(1, ratio);
+};
+
+EffectManager.prototype.getSpellRemainingCooldown = function (characterId,
+                                                               spellName) {
+    if (this.spellCooldowns[characterId] === undefined ||
+        this.spellCooldowns[characterId][spellName] === undefined) {
+        return "";
+    }
+
+    var lastCast = this.spellCooldowns[characterId][spellName];
+    var timeSinceLastCast = Date.now() - lastCast;
+    var cd = this.spellLibrary[spellName].cooldown;
+    var remaining = (cd - timeSinceLastCast) / 1000;
+    if (remaining < 0)
+        return "";
+    return remaining.toFixed(1);
+};
+
 module.exports = EffectManager;

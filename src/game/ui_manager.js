@@ -7,9 +7,13 @@ var AVATAR_IMAGES = [
      "necro.png", "orc.png", "queen.png", "rogue.png"
 ];
 
-var UIManager = function (model, viewmodel, events) {
-    this.model = model;
+var UIManager = function (viewmodel, events) {
     this.viewmodel = viewmodel;
+    this.events = events;
+};
+
+UIManager.prototype.init = function (model) {
+    this.model = model;
     // Ko.computed are evaluated when their depedencies change but since our
     // scores work differently they won't fire unless we force them
     this.reevaluator = ko.observable();
@@ -25,6 +29,35 @@ var UIManager = function (model, viewmodel, events) {
     this.viewmodel.scoreboardAvatars = AVATAR_IMAGES.map(function (path) {
         return "content/art/characters/scoreboard/" + path;
     });
+    this.viewmodel.boundSpells = [];
+    for (i = 0; i < 6; /* Magic */ i++) {
+        this.viewmodel.boundSpells[i] = {
+            name: ko.computed(function (i) {
+                this.reevaluator();
+                return this.model.boundSpells[i];
+            }.bind(this, i)),
+            key: ko.computed(function (i) {
+                this.reevaluator();
+                return this.model.keybindings["spellcast" + i];
+            }.bind(this, i)),
+            icon: ko.computed(function (i) {
+                this.reevaluator();
+                return "url(" +
+                       this.model.getSpellIcon(this.model.boundSpells[i]) +
+                       ")";
+            }.bind(this, i)),
+            remainingCooldown: ko.computed(function (i) {
+                this.reevaluator();
+                var spellName = this.model.boundSpells[i];
+                return this.model.getSpellRemainingCooldown(spellName);
+            }.bind(this, i)),
+            cooldownPercentage: ko.computed(function (i) {
+                this.reevaluator();
+                var spellName = this.model.boundSpells[i];
+                return this.model.getSpellCoolingPercentage(spellName);
+            }.bind(this, i))
+        };
+    }
     this.viewmodel.showScoreboard = ko.observable(false);
     this.viewmodel.canStartNextRound = ko.computed(function () {
         this.reevaluator();
@@ -38,12 +71,10 @@ var UIManager = function (model, viewmodel, events) {
         return this.model.state === GameState.midround;
     }.bind(this));
 
-
     // Rebind
     ko.applyBindings(this.viewmodel, document.getElementById("game-ui"));
 
-    this.events = events;
-    events.roundOver.addEventListener(function () {
+    this.events.roundOver.addEventListener(function () {
         this.update();
         this.toggleScoreboard();
     }.bind(this));

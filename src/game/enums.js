@@ -8,12 +8,12 @@ var GameState = {
 var Action = {
     walk: "walk",
     idle: "idle",
+    spellcast0: "spellcast0",
     spellcast1: "spellcast1",
     spellcast2: "spellcast2",
     spellcast3: "spellcast3",
     spellcast4: "spellcast4",
     spellcast5: "spellcast5",
-    spellcast6: "spellcast6",
 };
 
 module.exports = {
