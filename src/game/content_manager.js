@@ -25,6 +25,9 @@ var ContentManager = function () {
     this.loaded = 0;
     this.onload = function () {};
     this.root = "content/";
+    this.spellsSpritesPath = "content/art/spells/";
+    this.spellsIconsPath = "content/art/spells/icons/";
+    this.spellImageFormat = ".png";
 };
 
 ContentManager.prototype.loadSprite = function (description) {
@@ -46,7 +49,10 @@ ContentManager.prototype.loadSprite = function (description) {
 };
 
 ContentManager.prototype.loadSpell = function (description) {
-    var sprite = this.get(description.sprite);
+    var name = description.name;
+    var filename = name.toLowerCase().replace(" ", "_") + this.spellImageFormat;
+    var sprite = this.get(this.spellsSpritesPath + filename);
+    description.icon = this.spellsIconsPath + filename;
     this.contentCache[description.name] = new Spell(sprite, description);
 };
 
