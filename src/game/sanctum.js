@@ -14,18 +14,8 @@ var GameState = require("./enums").GameState,
 
 var Vector = require("./math/vector");
 var SanctumEvent = require("../utils/sanctum_event.js");
+var stub = require("../utils/stub.js");
 
-
-/* jshint ignore: start */
-var window = window || {};
-
-window.requestAnimationFrame = (function () {
-    return window.requestAnimationFrame       ||
-          window.webkitRequestAnimationFrame ||
-          window.mozRequestAnimationFrame;
-})();
-
-/* jshint ignore: end */
 
 var SPELLCAST_COUNT = 6;
 
@@ -56,7 +46,13 @@ Camera.prototype.follow = function (target) {
 };
 
 var Sanctum = function (playerNames, selfIndex, networkManager,
-                        viewmodel, context) {
+                        viewmodel, context, options) {
+    options = options || {};
+    if (options.inEditor) {
+        networkManager = new (stub(NetworkManager))();
+        UIManager = stub(UIManager);
+    }
+
     this.characters = playerNames;
     this.previousTime = 0;
     this.deathsCount = 0;
@@ -76,6 +72,8 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
     this.network = networkManager;
 
     this.events = {
+        contentLoaded: new SanctumEvent(),
+        initializationComplete: new SanctumEvent(),
         roundOver: new SanctumEvent(),
         nextRound: new SanctumEvent(),
     };
@@ -83,7 +81,7 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
 
     if (!networkManager.isServer()) {
         this.input = new InputManager();
-        this.renderer = new Renderer(context, true);
+        this.renderer = new Renderer(context, true, !options.inEditor);
         this.ui = new UIManager(viewmodel, this.events);
         this.events.nextRound.addEventListener(function (sender) {
             if (sender === this.ui) {
@@ -122,7 +120,7 @@ Sanctum.prototype.init = function () {
 
     var center = this.platform.size.divide(2);
     var positions = this.platform.generateVertices(this.characters.length,
-                                                   50, // Magic
+                                                   150, // Magic
                                                    center);
 
     for (var i = 0; i < this.characters.length; i++) {
@@ -138,7 +136,7 @@ Sanctum.prototype.init = function () {
     if (!this.network.isServer()) {
         var camera = new Camera(new Vector(), this.platform.size);
         this.renderer.init(camera);
-        this.input.init(camera);
+        this.input.init(this.renderer.context.canvas, camera);
         this.keybindings = this.content.get("keybindings");
         this.model = {
             characters: this.characters,
@@ -154,13 +152,17 @@ Sanctum.prototype.init = function () {
         };
         this.ui.init(this.model);
     }
-
+    this.events.initializationComplete.fire(this);
     this.run(0);
 };
 
 Sanctum.prototype.loadContent = function () {
+    var callback = function () {
+        this.events.contentLoaded.fire(this);
+        this.init();
+    }.bind(this);
     this.content.loadGameData("game_data.json",
-                              this.init.bind(this),
+                              callback,
                               this.network.isServer());
 };
 
@@ -168,7 +170,7 @@ Sanctum.prototype.reset = function () {
     console.log("reset");
     var center = this.platform.size.divide(2);
     var positions = this.platform.generateVertices(this.characters.length,
-                                                   50, // Magic
+                                                   150, // Magic
                                                    center);
 
     for (var i = 0; i < this.characters.length; i++) {
@@ -334,7 +336,6 @@ Sanctum.prototype.bindSpells = function (cast0, cast1, cast2,
     this.spellBindings[5] = cast5;
 };
 
-Sanctum.mainSanctumLoop = function () {};
 
 Sanctum.prototype.update = function (delta) {
     this.processNetworkData();
@@ -359,13 +360,13 @@ Sanctum.prototype.update = function (delta) {
             currentPlayer.isDead = true;
         }
 
+        this.ui.update();
         if (this.deathsCount >= this.characters.length - 1) {
             if (!this.characters[this.playerIndex].isDead) {
                 this.characters[this.playerIndex].score += this.deathsCount;
             }
             return GameState.midround;
         }
-        this.ui.update();
     }
 
     this.network.lastUpdate += delta;
@@ -408,11 +409,21 @@ Sanctum.prototype.loop = function (timestamp) {
 
     this.previousTime = timestamp;
     if (this.network.isServer()) {
-        setTimeout(Sanctum.mainSanctumLoop, 1000 / 60);
+        this.timeoutId = setTimeout(this.mainSanctumLoop, 1000 / 60);
     }
     else {
-        requestAnimationFrame(this.mainSanctumLoop);
+        this.timeoutId = requestAnimationFrame(this.mainSanctumLoop);
     }
+};
+
+Sanctum.prototype.forceStop = function () {
+    if (this.network.isServer()) {
+        clearTimeout(this.timeoutId);
+    }
+    else {
+        cancelAnimationFrame(this.timeoutId);
+    }
+    this.model.state = GameState.midround;
 };
 
 Sanctum.prototype.getMaxScorePlayerIndex = function () {
@@ -431,7 +442,7 @@ Sanctum.prototype.getMaxScorePlayerIndex = function () {
 Sanctum.prototype.run = function () {
     this.mainSanctumLoop = this.loop.bind(this);
     if (this.network.isServer()) {
-        Sanctum.mainSanctumLoop = this.loop.bind(this, 1000 / 60);
+        this.mainSanctumLoop = this.loop.bind(this, 1000 / 60);
     }
 
     this.model.state = GameState.playing;
@@ -439,12 +450,13 @@ Sanctum.prototype.run = function () {
 };
 
 Sanctum.startNewGame = function (players, selfIndex, networkManager,
-                                 viewmodel, context) {
+                                 viewmodel, context, options) {
     var game = new Sanctum(players,
                            selfIndex,
                            networkManager,
                            viewmodel,
-                           context);
+                           context,
+                           options);
     game.loadContent();
     game.bindSpells("Unicorns!", "Frostfire", "Heal",
                     "Flamestrike", "Electric bolt", "Deathbolt");
@@ -452,3 +464,4 @@ Sanctum.startNewGame = function (players, selfIndex, networkManager,
 };
 
 module.exports = Sanctum;
+global.Sanctum = Sanctum;

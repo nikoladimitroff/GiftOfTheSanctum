@@ -117,9 +117,9 @@ EffectManager.prototype.castSpell = function (characterId, spellName, target) {
         spell.position = center.subtract(offset)
                                  .add(forward.multiply(1.1 * radius)); // Magic
 
-        var magnitude = this.spellLibrary[spellName].startingAcceleration;
+        var magnitude = this.spellLibrary[spellName].initialAcceleration;
         spell.acceleration = forward.multiply(magnitude);
-        var speed = this.spellLibrary[spellName].startingVelocity;
+        var speed = this.spellLibrary[spellName].initialVelocity;
         spell.velocity = character.velocity.add(forward.multiply(speed));
 
         spell.rotation = -Math.PI / 2 + Vector.right.angleTo360(forward);

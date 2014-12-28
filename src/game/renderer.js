@@ -1,26 +1,31 @@
 "use strict";
 var Vector = require("./math/vector");
 
-var Renderer = function (context, debugRender) {
+var Renderer = function (context, debugRender, autoresize) {
     this.context = context;
     this.debugLineWidth = 4;
     this.debugVectorScale = 100;
-    this.debugRender = debugRender || false;
+    this.debugRender = debugRender;
+    this.autoresize = autoresize;
 };
 
 Renderer.prototype.init = function (camera) {
     this.camera = camera;
 
-    var onresize = function () {
-        this.context.canvas.width = window.innerWidth;
-        this.context.canvas.height = window.innerHeight;
-        window.aspect = this.context.canvas.width / this.context.canvas.height;
+    this.camera.viewport.x = this.context.canvas.width;
+    this.camera.viewport.y = this.context.canvas.height;
 
-        this.camera.viewport.x = this.context.canvas.width;
-        this.camera.viewport.y = this.context.canvas.height;
-    }.bind(this);
-    onresize();
-    window.onresize = onresize;
+    if (this.autoresize) {
+        var onresize = function () {
+            this.context.canvas.width = window.innerWidth;
+            this.context.canvas.height = window.innerHeight;
+
+            this.camera.viewport.x = this.context.canvas.width;
+            this.camera.viewport.y = this.context.canvas.height;
+        }.bind(this);
+        onresize();
+        window.onresize = onresize;
+    }
 };
 
 

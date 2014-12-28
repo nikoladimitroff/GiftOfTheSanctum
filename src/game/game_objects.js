@@ -35,7 +35,9 @@ var Character = function (sprite, description) {
     this.movementFunction = "linear";
 
     this.animations = description.animations;
-    this.size = new Vector(description.width, description.height);
+
+    description.size = description.size || new Vector(64, 64);
+    this.size = new Vector(description.size.x, description.size.y);
 
     this.collisionRadius = Math.max(this.size.x, this.size.y) / 2;
 
@@ -48,11 +50,13 @@ var Spell = function (sprite, description) {
     this.position = new Vector();
     this.velocity = new Vector(0, 0);
     this.acceleration = new Vector(0, 0);
-    this.startingVelocity = description.velocity || 0;
-    this.startingAcceleration = description.acceleration || 0;
+    this.initialVelocity = description.initialVelocity || 0;
+    this.initialAcceleration = description.initialAcceleration || 0;
     this.movementFunction = description.movementFunction || "linear";
     this.frictionless = true;
-    this.size = new Vector(description.width, description.height);
+
+    description.size = description.size || new Vector(64, 64);
+    this.size = new Vector(description.size.x, description.size.y);
     this.collisionRadius = Math.max(this.size.x, this.size.y) / 2;
 
     // rendering

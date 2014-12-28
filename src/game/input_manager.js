@@ -27,8 +27,11 @@ var InputManager = function () {
     this.completeMouseDown = function () {};
 };
 
-InputManager.prototype.init = function (camera) {
+InputManager.prototype.init = function (canvas, camera) {
+    var lastClickedElement = canvas;
     window.addEventListener("keydown", function (args) {
+        if (lastClickedElement !== canvas) return;
+
         this.keyboard[args.keyCode] = true;
         // If we are awaiting key detection, raise the event
         if (this.completeKeyPress) {
@@ -37,10 +40,15 @@ InputManager.prototype.init = function (camera) {
     }.bind(this), false);
 
     window.addEventListener("keyup", function (args) {
+        if (lastClickedElement !== canvas) return;
+
         this.keyboard[args.keyCode] = false;
     }.bind(this), false);
 
     window.addEventListener("mousedown", function (args) {
+        lastClickedElement = args.target;
+        if (lastClickedElement !== canvas) return;
+
         switch (args.button) {
             case 0:
                 this.mouse.left = true;
@@ -58,11 +66,13 @@ InputManager.prototype.init = function (camera) {
         }
     }.bind(this), false);
 
-    window.addEventListener("contextmenu", function (e) {
+    canvas.addEventListener("contextmenu", function (e) {
         e.preventDefault();
     }, false);
 
     window.addEventListener("mouseup", function (args) {
+        if (lastClickedElement !== canvas) return;
+
         switch (args.button) {
             case 0:
                 this.mouse.left = false;
@@ -76,7 +86,7 @@ InputManager.prototype.init = function (camera) {
         }
     }.bind(this), false);
 
-    window.addEventListener("mousemove", function (args) {
+    canvas.addEventListener("mousemove", function (args) {
         this.mouse.absolute.x = camera.position.x + args.clientX;
         this.mouse.absolute.y = camera.position.y + args.clientY;
     }.bind(this), false);
@@ -88,9 +98,9 @@ InputManager.prototype.init = function (camera) {
     }.bind(this);
 
     // Chrome, IE
-    window.addEventListener("mousewheel", onscroll);
+    canvas.addEventListener("mousewheel", onscroll);
     // FF
-    window.addEventListener("DOMMouseScroll", onscroll);
+    canvas.addEventListener("DOMMouseScroll", onscroll);
 };
 
 InputManager.prototype.detectMouseDown = function (callback) {

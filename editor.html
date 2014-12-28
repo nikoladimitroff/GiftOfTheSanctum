@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Editor</title>
+        <link rel="stylesheet" type="text/css" href="distr/editor.css">
+    </head>
+    <body>
+        <canvas width="640px" height="480px" id="editor-canvas"></canvas>
+        <fieldset id="control-panel">
+            <legend>Spell editor</legend>
+            <div>
+            <button data-bind="click: resetGame">Reset Game</button>
+            <br>
+            <label>
+                Spell:
+                <select data-bind="options: constants.spellnames, value: name"></select>
+            </label>
+            <br>
+            <label>Description + icon:</label>
+            <br>
+            <textarea data-bind="value: description"></textarea>
+            <img width="64px" height="64px" data-bind="attr: {src: icon}">
+            </img>
+            <br> 
+            <label>Width: <input type="number" min="1" data-bind="value: size.x"/></label>
+            <label>Height: <input type="number" min="1" data-bind="value: size.y"/></label>
+            <br>
+            <label>
+                Cast type:
+                <select data-bind="options: constants.castTypes, value: castType"></select>
+            </label>
+            <label>
+                Movement function:
+                <select data-bind="options: constants.movementFunctions, value: movementFunction"></select>
+            </label>
+            <br>
+            <label data-bind="visible: castType() === 'projectile'">
+                Initial Acceleration:
+                <input type="number" data-bind="value: initialAcceleration"/></label>
+            <label data-bind="visible: castType() === 'projectile'">
+                Initial Velocity:
+                <input type="number" data-bind="value: initialVelocity"/>
+                <br>
+            </label>
+            
+            <label data-bind="visible: castType() === 'instant'">
+                Duration (ms):
+                <input type="number" min="0" data-bind="value: duration"/>
+                <br>
+            </label>
+            <label>Cooldown (ms): <input type="number" min="0" data-bind="value: cooldown"/></label>
+            <label>Range: <input type="number" min="0" data-bind="value: range"/></label>
+            <hr>
+            <label class="section-header">
+                Effects:
+            </label>
+            <select data-bind="options: missingEffects, value: selectedEffect"></select>
+            <button data-bind="click: addEffect.bind($root, null, null), disable: missingEffects().length === 0">+</button>
+            <ul data-bind="foreach: effects">
+                <li>
+                    <label data-bind="text: property.name + ': '">
+                    </label>
+                    <input data-bind="value: property.value" type="number" />
+                    <button data-bind="click: $root.removeEffect.bind($root, name)">-</button>
+                </li>
+            </ul>
+            <label>Effect radius: <input type="number" min="0" data-bind="value: effectRadius"/></label>
+            <hr>
+            <label class="section-header">As JSON: </label>
+            <pre data-bind="text: exported"/>
+            </div>
+        </fieldset>
+    </body>
+    <script src="3rdparty/jquery-1.11.1.min.js"></script>
+    <script src="3rdparty/socket.io-1.2.0.js"></script>
+    <script src="3rdparty/knockout-3.2.0.js"></script>
+    <script src="distr/client.js"></script>
+    <script src="editor/src/editor.js"></script>
+</html>

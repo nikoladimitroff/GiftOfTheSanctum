@@ -1,0 +1,46 @@
+@canvas-width: 640px;
+@canvas-height: 480px;
+
+html, body {
+    padding: 0;
+    margin: 0;
+    font-family: Segoe UI;
+    font-size: 14px;
+    overflow: hidden;
+}
+
+
+#control-panel  {
+    float: right;
+    > div {
+        min-width: 450px; 
+        overflow: auto;
+        max-height: 600px;
+    }
+
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+li {
+    list-style-type: none;
+}
+
+p {
+    max-width: 300px;
+}
+
+textarea {
+    height: 64px;
+    width: 300px;
+}
+
+input {
+    width: 50px;
+}
+
+legend, .section-header {
+    font-weight: bold;
+}

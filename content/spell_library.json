@@ -1,7 +1,9 @@
 [{
     name: "Fireball",
-    width: 64,
-    height: 64,
+    size: {
+        x: 64,
+        y: 64,
+    },
     castType: "projectile", // see below
     targeted: false, // if true the spell is required to target a player
     effects: [ // see below
@@ -13,13 +15,15 @@
     pushbackForce: 100,
     cooldown: 1000, // cooldown of the spell
     movementFunction: "linear", // determines the projectile's path - "quadratic", "homing", "sin"
-    acceleration: 150, // the projectile's acceleration magnitude
-    velocity: 450, // the projectile's start velocity
+    initialAcceleration: 150, // the projectile's initial acceleration magnitude
+    initialVelocity: 450, // the projectile's initial velocity
     range: 1000, // maximum distance the projectile may fly (or the instant cast to hit)
 }, {
     name: "Frostbolt",
-    width: 64,
-    height: 64,
+    size: {
+        x: 64,
+        y: 64,
+    },
     castType: "projectile",
     targeted: false,
     effects: [
@@ -32,13 +36,15 @@
     haste: -5,
     cooldown: 800,
     movementFunction: "linear",
-    acceleration: 150, 
-    velocity: 450, 
+    initialAcceleration: 150, 
+    initialVelocity: 450, 
     range: 1000,
 }, {
     name: "Heal",
-    width: 64,
-    height: 64,
+    size: {
+        x: 64,
+        y: 64,
+    },
     castType: "instant", 
     targeted: true, 
     effects: [
@@ -50,8 +56,10 @@
     range: 20,
 }, {
     name: "Flamestrike",
-    width: 64,
-    height: 64,
+    size: {
+        x: 64,
+        y: 64,
+    },
     castType: "instant", 
     targeted: false, 
     effects: [
@@ -64,8 +72,10 @@
     range: 750,
 }, {
     name: "Electric bolt",
-    width: 64,
-    height: 64,
+    size: {
+        x: 64,
+        y: 64,
+    },
     castType: "projectile",
     targeted: false,
     effects: [
@@ -78,14 +88,16 @@
     haste: -15,
     cooldown: 1000,
     movementFunction: "linear",
-    acceleration: 450, 
-    velocity: 450, 
+    initialAcceleration: 450, 
+    initialVelocity: 450, 
     range: 500,
 	radius: 50,
 },  {
     name: "Deathbolt",
-    width: 64,
-    height: 64,
+    size: {
+        x: 64,
+        y: 64,
+    },
     castType: "projectile",
     targeted: false,
     effects: [
@@ -96,13 +108,15 @@
     pushbackForce: 150,
     cooldown: 9000,
     movementFunction: "linear",
-    acceleration: 1, 
-    velocity: 200, 
+    initialAcceleration: 1, 
+    initialVelocity: 200, 
     range: 1500,
 }, {
     name: "Frostfire",
-    width: 64,
-    height: 64,
+    size: {
+        x: 64,
+        y: 64,
+    },
     castType: "projectile",
     targeted: false,
     effects: [
@@ -114,13 +128,15 @@
     haste: -25,
     cooldown: 15000,
     movementFunction: "linear",
-    acceleration: 50, 
-    velocity: 500, 
+    initialAcceleration: 50, 
+    initialVelocity: 500, 
     range: 600,
 }, {
     name: "Unicorns!",
-    width: 128,
-    height: 64,
+    size: {
+        x: 128,
+        y: 64,
+    },
     castType: "projectile",
     targeted: false,
     effects: [
@@ -132,8 +148,8 @@
     pushbackForce: 150,
     cooldown: 15000,
     movementFunction: "linear",
-    acceleration: 1000, 
-    velocity: 1000, 
+    initialAcceleration: 1000, 
+    initialVelocity: 1000, 
     range: 2000,
 },
 ]

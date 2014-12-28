@@ -6,8 +6,10 @@
     characters: [
         {
             sprite: "art/characters/sprite/archer.png",
-            width: 64,
-            height: 64,
+            size: {
+                x: 64,
+                y: 64,
+            },
             animations: {
                 walk: 8,
                 spellcast0: 0,
@@ -17,14 +19,15 @@
                 spellcast4: 4,
                 spellcast5: 4,
             },
-            size: 0,
             mass: 1,
             health: 600,
 			speed: 100
         }, {
             sprite: "art/characters/sprite/knight.png",
-                        width: 64,
-            height: 64,
+            size: {
+                x: 64,
+                y: 64,
+            },
             animations: {
                 walk: 8,
                 spellcast0: 0,
@@ -39,8 +42,10 @@
 			speed: 330
         }, {
             sprite: "art/characters/sprite/mage.png",
-            width: 64,
-            height: 64,
+            size: {
+                x: 64,
+                y: 64,
+            },
             animations: {
                 walk: 8,
                 spellcast0: 0,
@@ -55,8 +60,10 @@
 			speed: 330
         }, {
             sprite: "art/characters/sprite/monk.png",
-            width: 64,
-            height: 64,
+            size: {
+                x: 64,
+                y: 64,
+            },
             animations: {
                 walk: 8,
                 spellcast0: 0,
@@ -71,8 +78,10 @@
 			speed: 330
         }, {
             sprite: "art/characters/sprite/necro.png",
-            width: 64,
-            height: 64,
+            size: {
+                x: 64,
+                y: 64,
+            },
             animations: {
                 walk: 8,
                 spellcast0: 0,
@@ -82,14 +91,15 @@
                 spellcast4: 0,
                 spellcast5: 0,
             },
-            size: 0,
             mass: 1,
             health: 600,
             speed: 330
         }, {
             sprite: "art/characters/sprite/orc.png",
-            width: 64,
-            height: 64,
+            size: {
+                x: 64,
+                y: 64,
+            },
             animations: {
                 walk: 8,
                 spellcast0: 0,
@@ -104,8 +114,10 @@
 			speed: 330
         }, {
             sprite: "art/characters/sprite/queen.png",
-            width: 64,
-            height: 64,
+            size: {
+                x: 64,
+                y: 64,
+            },
             animations: {
                 walk: 8,
                 spellcast0: 0,
@@ -120,8 +132,10 @@
 			speed: 330
         }, {
             sprite: "art/characters/sprite/rogue.png",
-            width: 64,
-            height: 64,
+            size: {
+                x: 64,
+                y: 64,
+            },
             animations: {
                 walk: 8,
                 spellcast0: 0,

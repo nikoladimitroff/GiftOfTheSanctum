@@ -50,7 +50,7 @@ ContentManager.prototype.loadSprite = function (description) {
 
 ContentManager.prototype.loadSpell = function (description) {
     var name = description.name;
-    var filename = name.toLowerCase().replace(" ", "_") + this.spellImageFormat;
+    var filename = name.toLowerCase().replace(/ /g, "_") + this.spellImageFormat;
     var sprite = this.get(this.spellsSpritesPath + filename);
     description.icon = this.spellsIconsPath + filename;
     this.contentCache[description.name] = new Spell(sprite, description);
