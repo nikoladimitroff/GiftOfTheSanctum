@@ -3,6 +3,7 @@
     sides: 10, // The size of each side of polygon
     radius: 500, // The radius of the polygon.
     texture: "content/art/environment/lava.jpg",
+    soundtrack: "sounds/music/without.mp3",
     width: 1300,
     height: 750,
 

@@ -94,8 +94,14 @@ EffectManager.prototype.pulseSpell = function (spell, physics, hitTarget, dt) {
             }
         }
     }
-    if (spell.castType == CastType.projectile)
+    if (spell.castType == CastType.projectile) {
         this.removeSpell(spell.id);
+        if (this.audio) {
+            this.audio.stop(spell.audioSfxId);
+            var sfx = this.spellLibrary[spell.name].sfx.hit;
+            this.audio.play(sfx);
+        }
+    }
 };
 
 EffectManager.prototype.castSpell = function (characterId, spellName, target) {
@@ -135,6 +141,10 @@ EffectManager.prototype.castSpell = function (characterId, spellName, target) {
 
     this.spellCooldowns[characterId][spellName] = Date.now();
     spell.casterId = characterId;
+    if (this.audio) {
+        var sfx = this.spellLibrary[spell.name].sfx.move;
+        spell.audioSfxId = this.audio.play(sfx);
+    }
     return spell;
 };
 

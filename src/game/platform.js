@@ -14,6 +14,7 @@ var Platform = function (texture, outsideTexture, description) {
     this.radius = radius;
     this.texture = texture;
     this.outsideTexture = outsideTexture;
+    this.soundtrack = description.soundtrack;
     this.lastCollapse = 0;
     this.collapseIterationsLeft = description.collapseIterations;
     this.collapseInterval = description.collapseInterval;

@@ -3,6 +3,7 @@ var PhysicsManager = require("./physics_manager");
 var EffectManager =  require("./effect_manager");
 var InputManager = require("./input_manager");
 var Renderer = require("./renderer");
+var AudioManager = require("./audio_manager");
 var ContentManager = require("./content_manager");
 var UIManager = require("./ui_manager");
 var PlayerManager = require("./player_manager");
@@ -81,6 +82,7 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
 
     if (!networkManager.isServer()) {
         this.input = new InputManager();
+        this.audio = new AudioManager();
         this.renderer = new Renderer(context, true, !options.inEditor);
         this.ui = new UIManager(viewmodel, this.events);
         this.events.nextRound.addEventListener(function (sender) {
@@ -124,7 +126,7 @@ Sanctum.prototype.init = function () {
                                                    center);
 
     for (var i = 0; i < this.characters.length; i++) {
-        var player = this.content.get(CHARACTERS[i]).clone();
+        var player = this.content.get(CHARACTERS[i]);
         player.position = positions[i];
         player.name = this.characters.shift();
         this.characters.push(player);
@@ -136,6 +138,9 @@ Sanctum.prototype.init = function () {
     if (!this.network.isServer()) {
         var camera = new Camera(new Vector(), this.platform.size);
         this.renderer.init(camera);
+        this.audio.init(this.content.get(this.content.audioLibraryKey));
+        this.effects.audio = this.audio;
+        this.audio.play(this.platform.soundtrack);
         this.input.init(this.renderer.context.canvas, camera);
         this.keybindings = this.content.get("keybindings");
         this.model = {
@@ -176,6 +181,8 @@ Sanctum.prototype.reset = function () {
     for (var i = 0; i < this.characters.length; i++) {
         var player = this.characters[i];
         player.position = positions[i];
+        player.velocity.set(Vector.zero);
+        player.acceleration.set(Vector.zero);
         player.target = null;
         player.health = player.startingHealth;
         player.isDead = false;
@@ -205,6 +212,7 @@ Sanctum.prototype.handleInput = function () {
 
         this.playerManager.moveTo(player, this.input.mouse.absolute);
         player.playAnimation(Action.walk, player.totalVelocity.normalized());
+        this.audio.play(player.voice.move);
     }
     else if (this.input.mouse.left &&
              !this.input.previousMouse.left &&
@@ -223,6 +231,7 @@ Sanctum.prototype.handleInput = function () {
                                              this.input.mouse.absolute,
                                              this.playerIndex);
             player.playAnimation(this.nextAction, forward);
+            this.audio.play(player.voice.cast);
         }
         var isWalking = player.velocity.lengthSquared() < 1e-3;
         this.nextAction = [Action.walk, Action.idle][~~isWalking];

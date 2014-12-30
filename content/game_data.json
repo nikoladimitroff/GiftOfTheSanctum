@@ -1,6 +1,7 @@
 {
     platform: "example_platform.json",
     sprites: "sprites.json",
+    sounds: "sounds.json",
     spells: "spell_library.json",
     obstacles: "obstacles.json",
     characters: [
@@ -21,7 +22,11 @@
             },
             mass: 1,
             health: 600,
-			speed: 100
+			speed: 100,
+            voice: {
+                cast: "sounds/voices/i_will_rip_out_your_throat.mp3",
+                move: "sounds/voices/where_shall_my_blood_be_spilled.mp3"
+            }
         }, {
             sprite: "art/characters/sprite/knight.png",
             size: {
@@ -39,7 +44,11 @@
             },
             mass: 1,
             health: 600,
-			speed: 330
+			speed: 330,
+            voice: {
+                cast: "sounds/voices/laugh.mp3",
+                move: "sounds/voices/where_shall_my_blood_be_spilled.mp3"
+            }
         }, {
             sprite: "art/characters/sprite/mage.png",
             size: {
@@ -57,7 +66,11 @@
             },
             mass: 1,
             health: 600,
-			speed: 330
+			speed: 330,
+            voice: {
+                cast: "sounds/voices/laugh.mp3",
+                move: "sounds/voices/where_shall_my_blood_be_spilled.mp3"
+            }
         }, {
             sprite: "art/characters/sprite/monk.png",
             size: {
@@ -75,7 +88,11 @@
             },
             mass: 1,
             health: 600,
-			speed: 330
+			speed: 330,
+            voice: {
+                cast: "sounds/voices/laugh.mp3",
+                move: "sounds/voices/where_shall_my_blood_be_spilled.mp3"
+            }
         }, {
             sprite: "art/characters/sprite/necro.png",
             size: {
@@ -93,7 +110,11 @@
             },
             mass: 1,
             health: 600,
-            speed: 330
+            speed: 330,
+            voice: {
+                cast: "sounds/voices/laugh.mp3",
+                move: "sounds/voices/where_shall_my_blood_be_spilled.mp3"
+            }
         }, {
             sprite: "art/characters/sprite/orc.png",
             size: {
@@ -111,7 +132,11 @@
             },
             mass: 1,
             health: 600,
-			speed: 330
+			speed: 330,
+            voice: {
+                cast: "sounds/voices/laugh.mp3",
+                move: "sounds/voices/where_shall_my_blood_be_spilled.mp3"
+            }
         }, {
             sprite: "art/characters/sprite/queen.png",
             size: {
@@ -129,7 +154,11 @@
             },
             mass: 1,
             health: 600,
-			speed: 330
+			speed: 330,
+            voice: {
+                cast: "sounds/voices/laugh.mp3",
+                move: "sounds/voices/where_shall_my_blood_be_spilled.mp3"
+            }
         }, {
             sprite: "art/characters/sprite/rogue.png",
             size: {
@@ -147,7 +176,11 @@
             },
             mass: 1,
             health: 600,
-			speed: 330
+			speed: 330,
+            voice: {
+                cast: "sounds/voices/laugh.mp3",
+                move: "sounds/voices/where_shall_my_blood_be_spilled.mp3"
+            }
         },
     ],
     keybindings: {

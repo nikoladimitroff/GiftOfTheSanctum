@@ -17,7 +17,11 @@
     movementFunction: "linear", // determines the projectile's path - "quadratic", "homing", "sin"
     initialAcceleration: 150, // the projectile's initial acceleration magnitude
     initialVelocity: 450, // the projectile's initial velocity
-    range: 1000, // maximum distance the projectile may fly (or the instant cast to hit)
+    range: 1000, // maximum distance the projectile may fly (or the instant cast to hit),
+    sfx: {
+        move: "sounds/ambient/elemental_spell.mp3",
+        hit: "sounds/ambient/freeze.mp3"
+    }
 }, {
     name: "Frostbolt",
     size: {
@@ -39,6 +43,10 @@
     initialAcceleration: 150, 
     initialVelocity: 450, 
     range: 1000,
+    sfx: {
+        move: "sounds/ambient/elemental_spell.mp3",
+        hit: "sounds/ambient/freeze.mp3"
+    }
 }, {
     name: "Heal",
     size: {
@@ -54,6 +62,10 @@
     damageAmount: -150,
     cooldown: 12000, 
     range: 20,
+    sfx: {
+        move: "sounds/ambient/elemental_spell.mp3",
+        hit: "sounds/ambient/freeze.mp3"
+    }
 }, {
     name: "Flamestrike",
     size: {
@@ -70,6 +82,10 @@
 	cooldown: 15000,
     radius: 75,
     range: 750,
+    sfx: {
+        move: "sounds/ambient/elemental_spell.mp3",
+        hit: "sounds/ambient/freeze.mp3"
+    }
 }, {
     name: "Electric bolt",
     size: {
@@ -92,6 +108,10 @@
     initialVelocity: 450, 
     range: 500,
 	radius: 50,
+    sfx: {
+        move: "sounds/ambient/elemental_spell.mp3",
+        hit: "sounds/ambient/freeze.mp3"
+    }
 },  {
     name: "Deathbolt",
     size: {
@@ -111,6 +131,10 @@
     initialAcceleration: 1, 
     initialVelocity: 200, 
     range: 1500,
+    sfx: {
+        move: "sounds/ambient/elemental_spell.mp3",
+        hit: "sounds/ambient/freeze.mp3"
+    }
 }, {
     name: "Frostfire",
     size: {
@@ -129,8 +153,12 @@
     cooldown: 15000,
     movementFunction: "linear",
     initialAcceleration: 50, 
-    initialVelocity: 500, 
+    initialVelocity: 500,
     range: 600,
+    sfx: {
+        move: "sounds/ambient/elemental_spell.mp3",
+        hit: "sounds/ambient/freeze.mp3"
+    }
 }, {
     name: "Unicorns!",
     size: {
@@ -151,5 +179,9 @@
     initialAcceleration: 1000, 
     initialVelocity: 1000, 
     range: 2000,
+    sfx: {
+        move: "sounds/ambient/elemental_spell.mp3",
+        hit: "sounds/ambient/freeze.mp3"
+    }
 },
 ]

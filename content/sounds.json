@@ -1,0 +1,25 @@
+[{
+    src: "sounds/music/without.mp3",
+    unique: true,
+    loop: true,
+    volume: 0.03
+}, {
+    src: "sounds/ambient/elemental_spell.mp3",
+    unique: false,
+    loop: false,
+    volume: 0.05
+}, {
+    src: "sounds/ambient/freeze.mp3",
+    unique: false,
+    loop: false,
+    volume: 0.1
+}, {
+    src: "sounds/voices/i_will_rip_out_your_throat.mp3",
+    unique: true,
+    loop: false
+}, {
+    src: "sounds/voices/where_shall_my_blood_be_spilled.mp3",
+    unique: true,
+    loop: false
+}
+]

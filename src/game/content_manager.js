@@ -1,4 +1,5 @@
 "use strict";
+/* global AudioContext */
 
 var Platform = require("./platform");
 
@@ -23,8 +24,11 @@ var ContentManager = function () {
     this.contentCache = {};
     this.loading = 0;
     this.loaded = 0;
-    this.onload = function () {};
+    this.onResourcesLoaded = function () {};
     this.root = "content/";
+
+    this.audioLibraryKey = "audiolib";
+    this.contentCache[this.audioLibraryKey] = {};
     this.spellsSpritesPath = "content/art/spells/";
     this.spellsIconsPath = "content/art/spells/icons/";
     this.spellImageFormat = ".png";
@@ -41,7 +45,7 @@ ContentManager.prototype.loadSprite = function (description) {
         this.contentCache[path] = new Sprite(image, framesPerRow);
         this.loaded++;
         if (this.loaded === this.loading) {
-            this.onload();
+            this.onResourcesLoaded();
         }
     }.bind(this);
     image.src = path;
@@ -54,6 +58,21 @@ ContentManager.prototype.loadSpell = function (description) {
     var sprite = this.get(this.spellsSpritesPath + filename);
     description.icon = this.spellsIconsPath + filename;
     this.contentCache[description.name] = new Spell(sprite, description);
+};
+
+ContentManager.prototype.loadAudio = function (audioInfo) {
+    this.loading++;
+    var path = audioInfo.src;
+    this.fetchJSONFile(audioInfo.src, function (data) {
+        AudioContext.instance.decodeAudioData(data, function (buffer) {
+            audioInfo.buffer = buffer;
+            this.contentCache[this.audioLibraryKey][path] = audioInfo;
+            this.loaded++;
+            if (this.loaded === this.loading) {
+                this.onResourcesLoaded();
+            }
+        }.bind(this));
+    }.bind(this), "arraybuffer");
 };
 
 ContentManager.prototype.loadCharacter = function (description) {
@@ -79,27 +98,37 @@ ContentManager.prototype.loadPlatform = function (description, isServer) {
     this.contentCache[description.name] = platform;
 };
 
-
 ContentManager.prototype.loadKeybindings = function (keybindings) {
     var keybindingsKey = "keybindings";
     this.contentCache[keybindingsKey] = keybindings;
 };
 
-ContentManager.prototype.fetchJSONFile = function (path, callback) {
+ContentManager.prototype.fetchJSONFile = function (path,
+                                                   callback,
+                                                   responseType) {
+
     var xhr = new XMLHttpRequest();
     path = this.root + path;
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             if (xhr.status === 200) {
-                var data = "Object(" + xhr.responseText + ")";
-                data = eval(data); // jshint ignore: line
-                callback(data);
+                if (responseType !== undefined) {
+                    callback(xhr.response);
+                }
+                else {
+                    var data = "Object(" + xhr.responseText + ")";
+                    data = eval(data); // jshint ignore: line
+                    callback(data);
+                }
             }
             else {
                 console.warn("Couldn't fetch json file");
             }
         }
     };
+    if (responseType !== undefined) {
+        xhr.responseType = responseType;
+    }
     xhr.open("GET", path);
     xhr.send();
 };
@@ -115,20 +144,23 @@ ContentManager.prototype.loadGameData = function (gameDataPath,
 
     var self = this;
     this.fetchJSONFile(gameDataPath, function (gameData) {
-        self.fetchJSONFile(gameData.sprites, function (sprites) {
-            self.onload = function () {
-                this.loadKeybindings(gameData.keybindings);
-                gameData.characters.map(self.loadCharacter.bind(self));
-                self.fetchJSONFile(gameData.spells, function (spellLibrary) {
-                    spellLibrary.map(self.loadSpell.bind(self));
+        self.loadKeybindings(gameData.keybindings);
+        self.onResourcesLoaded = function () {
+            gameData.characters.map(self.loadCharacter.bind(self));
+            self.fetchJSONFile(gameData.spells, function (spellLibrary) {
+                spellLibrary.map(self.loadSpell.bind(self));
 
-                    self.fetchJSONFile(gameData.platform, function (platform) {
-                        self.loadPlatform(platform);
-                        callback();
-                    });
+                self.fetchJSONFile(gameData.platform, function (platform) {
+                    self.loadPlatform(platform);
+                    callback();
                 });
-            };
+            });
+        };
+        self.fetchJSONFile(gameData.sprites, function (sprites) {
             sprites.map(self.loadSprite.bind(self));
+        });
+        self.fetchJSONFile(gameData.sounds, function (sounds) {
+            sounds.map(self.loadAudio.bind(self));
         });
     });
 };
