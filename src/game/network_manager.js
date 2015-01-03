@@ -128,7 +128,7 @@ NetworkManager.prototype.handleScores = function (data) {
         this.masterSocket.emit("scores", payload);
     }
     else {
-        this.events.scoresInfo.fire(data.score, data.index);
+        this.events.scoresInfo.fire(this, data.score, data.index);
     }
 };
 

@@ -89,9 +89,8 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
                                      options.autoresize);
         this.ui = new UIManager(viewmodel, this.events);
 
-        this.events.scoresInfo.addEventListener(function (score, index) {
+        this.events.scoresInfo.addEventListener(function (_, score, index) {
             this.characters[index].score = score;
-            this.ui.update();
         }.bind(this));
 
         this.events.nextRound.addEventListener(function (sender) {
