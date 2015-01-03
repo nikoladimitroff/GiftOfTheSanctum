@@ -77,6 +77,7 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
         initializationComplete: new SanctumEvent(),
         roundOver: new SanctumEvent(),
         nextRound: new SanctumEvent(),
+        scoresInfo: new SanctumEvent(),
     };
     networkManager.events = this.events;
 
@@ -85,6 +86,12 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
         this.audio = new AudioManager();
         this.renderer = new Renderer(context, true, !options.inEditor);
         this.ui = new UIManager(viewmodel, this.events);
+
+        this.events.scoresInfo.addEventListener(function (score, index) {
+            this.characters[index].score = score;
+            this.ui.update();
+        }.bind(this));
+
         this.events.nextRound.addEventListener(function (sender) {
             if (sender === this.ui) {
                 // The next round button has been clicked
@@ -364,15 +371,17 @@ Sanctum.prototype.update = function (delta) {
         this.processPendingDeaths();
 
         if (currentPlayer.health <= 0 && !currentPlayer.isDead) {
-            this.network.sendDie(this.playerIndex, this.objects);
-            this.characters[this.playerIndex].score = this.deathsCount++;
+            currentPlayer.score += this.deathsCount++;
+            this.network.sendDie(this.playerIndex);
+            this.network.sendScores(this.playerIndex, currentPlayer.score);
             currentPlayer.isDead = true;
         }
 
         this.ui.update();
         if (this.deathsCount >= this.characters.length - 1) {
-            if (!this.characters[this.playerIndex].isDead) {
-                this.characters[this.playerIndex].score += this.deathsCount;
+            if (!currentPlayer.isDead) {
+                currentPlayer.score += this.deathsCount;
+                this.network.sendScores(this.playerIndex, currentPlayer.score);
             }
             return GameState.midround;
         }

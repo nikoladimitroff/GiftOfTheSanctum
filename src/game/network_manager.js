@@ -114,18 +114,21 @@ NetworkManager.prototype.getPendingDeaths = function () {
 };
 
 
-NetworkManager.prototype.sendDie = function (playerIndex /*,  objects */) {
+NetworkManager.prototype.sendDie = function (playerIndex) {
     this.socket.emit("death", {index: playerIndex});
 };
 
+NetworkManager.prototype.sendScores = function (playerIndex, score) {
+    this.socket.emit("scores", {index: playerIndex, score: score});
+};
+
 NetworkManager.prototype.handleScores = function (data) {
-    if (this.masterSocket) {
+    if (this.isServer()) {
         var payload = {index: data.index, score: data.score};
         this.masterSocket.emit("scores", payload);
     }
     else {
-        console.log(data);
-        this.scores[data.index] = {index: data.index, score: data.score};
+        this.events.scoresInfo.fire(data.score, data.index);
     }
 };
 
