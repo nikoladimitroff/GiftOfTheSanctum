@@ -1,8 +1,9 @@
 "use strict";
+var stub = require("../utils/stub");
 
 var DummyAudioContext = function () {
-    this.decodeAudioData = function () {
-        return "Web Audio is not supported";
+    this.decodeAudioData = function (data, callback) {
+        callback([]);
     };
 };
 
@@ -10,7 +11,9 @@ var AudioContext = (function (windowExists) {
     if (!windowExists) {
         return DummyAudioContext;
     }
-    var getContext = "window.AudioContext || window.webkitAudioContext";
+    var getContext = "window.AudioContext || " +
+                     "window.webkitAudioContext || " +
+                     "DummyAudioContext";
     return eval(getContext); // jshint ignore: line
 })(typeof window !== "undefined");
 
@@ -22,6 +25,17 @@ var AudioManager = function () {
     this.masterVolumeNode = AudioContext.instance.createGain();
     this.masterVolumeNode.gain.value = 1;
     this.masterVolumeNode.connect(AudioContext.instance.destination);
+
+    Object.defineProperty(this, "masterVolume", {
+        get: function () {
+            return this.masterVolumeNode.gain.value;
+        }.bind(this),
+        set: function (value) {
+            if (value < 0 || value > 1)
+                throw new Error("Volume must be between 0 and 1");
+            this.masterVolumeNode.gain.value = value;
+        }.bind(this)
+    });
 };
 
 AudioManager.prototype.init = function (audioLibrary) {
@@ -41,11 +55,11 @@ AudioManager.prototype.play = function (audioName) {
         throw new Error("Invalid arguments.");
     }
     if (audioInfo === undefined) {
-        throw new Error("No such audio file found: ", audioName);
+        throw new Error("No such audio file found: " + audioName);
     }
     var id = this.indexer(audioName);
     if (this.activeAudio[id] !== undefined) {
-        this.stop(id);
+        return;
     }
     var source = AudioContext.instance.createBufferSource();
     source.buffer = audioInfo.buffer;
@@ -77,5 +91,10 @@ AudioManager.prototype.stop = function (id) {
     }
 };
 
-module.exports = AudioManager;
-global.audio = AudioContext;
+if (AudioContext === DummyAudioContext) {
+    module.exports = stub(AudioManager);
+}
+else {
+    module.exports = AudioManager;
+}
+global.AudioContext = AudioContext;

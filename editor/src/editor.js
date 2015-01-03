@@ -213,7 +213,8 @@ function main() {
     var context = canvas.getContext("2d");
     var players = ["editor-player", "enemy1", "enemy2", "enemy3"];
     var options = {
-        inEditor: true
+        inEditor: true,
+        autoresize: 0.4
     };
     var game = Sanctum.startNewGame(players, 0, null, null, context, options);
 

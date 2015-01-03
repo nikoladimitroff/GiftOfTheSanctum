@@ -84,7 +84,9 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
     if (!networkManager.isServer()) {
         this.input = new InputManager();
         this.audio = new AudioManager();
-        this.renderer = new Renderer(context, true, !options.inEditor);
+        this.renderer = new Renderer(context,
+                                     options.debug,
+                                     options.autoresize);
         this.ui = new UIManager(viewmodel, this.events);
 
         this.events.scoresInfo.addEventListener(function (score, index) {
@@ -157,6 +159,11 @@ Sanctum.prototype.init = function () {
             boundSpells: this.spellBindings,
             // Getters
             getSpellIcon: this.effects.getSpellIcon.bind(this.effects),
+            getSpellDamage: this.effects.getSpellDamage.bind(this.effects),
+            getSpellCooldown: this.effects.getSpellCooldown
+                              .bind(this.effects),
+            getSpellDescription: this.effects.getSpellDescription
+                                 .bind(this.effects),
             getSpellRemainingCooldown: this.effects.getSpellRemainingCooldown
                                        .bind(this.effects, this.playerIndex),
             getSpellCoolingPercentage: this.effects.getSpellCoolingPercentage
@@ -478,6 +485,7 @@ Sanctum.startNewGame = function (players, selfIndex, networkManager,
     game.loadContent();
     game.bindSpells("Unicorns!", "Frostfire", "Heal",
                     "Flamestrike", "Electric bolt", "Deathbolt");
+    Sanctum.activeGame = game;
     return game;
 };
 

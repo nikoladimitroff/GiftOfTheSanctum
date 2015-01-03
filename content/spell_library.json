@@ -1,5 +1,6 @@
 [{
     name: "Fireball",
+    description: "This is a fire spell that does a lot of damage and also nukes stuff.",
     size: {
         x: 64,
         y: 64,
@@ -24,6 +25,7 @@
     }
 }, {
     name: "Frostbolt",
+    description: "This is a frost spell. By Arthas.",
     size: {
         x: 64,
         y: 64,
@@ -49,6 +51,7 @@
     }
 }, {
     name: "Heal",
+    description: "MEDIIIIC!",
     size: {
         x: 64,
         y: 64,
@@ -68,6 +71,7 @@
     }
 }, {
     name: "Flamestrike",
+    description: "Pew pew pew. You just got oneshot, bitch.",
     size: {
         x: 64,
         y: 64,
@@ -88,6 +92,7 @@
     }
 }, {
     name: "Electric bolt",
+    description: "In case you missed it - this is a bolt of electricity.",
     size: {
         x: 64,
         y: 64,
@@ -114,6 +119,7 @@
     }
 },  {
     name: "Deathbolt",
+    description: "Deathly stuff. No touchy-touchy.",
     size: {
         x: 64,
         y: 64,
@@ -137,6 +143,7 @@
     }
 }, {
     name: "Frostfire",
+    description: "Firey frost. By Ahri.",
     size: {
         x: 64,
         y: 64,
@@ -161,6 +168,7 @@
     }
 }, {
     name: "Unicorns!",
+    description: "My little pony, stabs in you in the heart with its horn.",
     size: {
         x: 128,
         y: 64,

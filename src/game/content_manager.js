@@ -65,6 +65,8 @@ ContentManager.prototype.loadAudio = function (audioInfo) {
     var path = audioInfo.src;
     this.fetchJSONFile(audioInfo.src, function (data) {
         AudioContext.instance.decodeAudioData(data, function (buffer) {
+            if (audioInfo.volume === undefined)
+                audioInfo.volume = 1;
             audioInfo.buffer = buffer;
             this.contentCache[this.audioLibraryKey][path] = audioInfo;
             this.loaded++;
@@ -109,6 +111,7 @@ ContentManager.prototype.fetchJSONFile = function (path,
 
     var xhr = new XMLHttpRequest();
     path = this.root + path;
+    xhr.open("GET", path);
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             if (xhr.status === 200) {
@@ -129,7 +132,6 @@ ContentManager.prototype.fetchJSONFile = function (path,
     if (responseType !== undefined) {
         xhr.responseType = responseType;
     }
-    xhr.open("GET", path);
     xhr.send();
 };
 

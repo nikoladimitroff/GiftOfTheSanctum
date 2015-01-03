@@ -193,6 +193,18 @@ EffectManager.prototype.getSpellIcon = function (spellName) {
     return this.spellLibrary[spellName].icon;
 };
 
+EffectManager.prototype.getSpellDescription = function (spellName) {
+    return this.spellLibrary[spellName].description;
+};
+
+EffectManager.prototype.getSpellDamage = function (spellName) {
+    return this.spellLibrary[spellName].damageAmount || 0;
+};
+
+EffectManager.prototype.getSpellCooldown = function (spellName) {
+    return this.spellLibrary[spellName].cooldown;
+};
+
 EffectManager.prototype.getSpellCoolingPercentage = function (characterId,
                                                                spellName) {
     if (this.spellCooldowns[characterId] === undefined ||

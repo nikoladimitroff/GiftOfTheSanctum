@@ -31,32 +31,7 @@ UIManager.prototype.init = function (model) {
     });
     this.viewmodel.boundSpells = [];
     for (i = 0; i < 6; /* Magic */ i++) {
-        this.viewmodel.boundSpells[i] = {
-            name: ko.computed(function (i) {
-                this.reevaluator();
-                return this.model.boundSpells[i];
-            }.bind(this, i)),
-            key: ko.computed(function (i) {
-                this.reevaluator();
-                return this.model.keybindings["spellcast" + i];
-            }.bind(this, i)),
-            icon: ko.computed(function (i) {
-                this.reevaluator();
-                return "url(" +
-                       this.model.getSpellIcon(this.model.boundSpells[i]) +
-                       ")";
-            }.bind(this, i)),
-            remainingCooldown: ko.computed(function (i) {
-                this.reevaluator();
-                var spellName = this.model.boundSpells[i];
-                return this.model.getSpellRemainingCooldown(spellName);
-            }.bind(this, i)),
-            cooldownPercentage: ko.computed(function (i) {
-                this.reevaluator();
-                var spellName = this.model.boundSpells[i];
-                return this.model.getSpellCoolingPercentage(spellName);
-            }.bind(this, i))
-        };
+        this.viewmodel.boundSpells[i] = this.getSpellDatabinding(i);
     }
     this.viewmodel.showScoreboard = ko.observable(false);
     this.viewmodel.canStartNextRound = ko.computed(function () {
@@ -72,13 +47,61 @@ UIManager.prototype.init = function (model) {
     }.bind(this));
 
     // Rebind
-    ko.applyBindings(this.viewmodel, document.getElementById("game-ui"));
+    var gameUI = document.getElementById("game-ui");
+    ko.applyBindings(this.viewmodel, gameUI);
+    // Disable right-clicking the game ui
+    gameUI.addEventListener("contextmenu", function (e) {
+        e.preventDefault();
+    }, false);
 
     this.events.roundOver.addEventListener(function () {
         this.update();
         this.toggleScoreboard();
     }.bind(this));
     this.bindUI();
+};
+
+UIManager.prototype.getSpellDatabinding = function (i) {
+    return {
+        name: ko.computed(function () {
+            this.reevaluator();
+            return this.model.boundSpells[i];
+        }.bind(this)),
+        key: ko.computed(function () {
+            this.reevaluator();
+            return this.model.keybindings["spellcast" + i];
+        }.bind(this)),
+        icon: ko.computed(function () {
+            this.reevaluator();
+            return "url(" +
+                   this.model.getSpellIcon(this.model.boundSpells[i]) +
+                   ")";
+        }.bind(this)),
+        description: ko.computed(function () {
+            this.reevaluator();
+            var spellName = this.model.boundSpells[i];
+            return this.model.getSpellDescription(spellName);
+        }.bind(this, i)),
+        damage: ko.computed(function () {
+            this.reevaluator();
+            return this.model.getSpellDamage(this.model.boundSpells[i]);
+        }.bind(this)),
+        cooldown: ko.computed(function () {
+            this.reevaluator();
+            var spellName = this.model.boundSpells[i];
+            return this.model.getSpellCooldown(spellName) / 1000;
+        }.bind(this)),
+        remainingCooldown: ko.computed(function () {
+            this.reevaluator();
+            var spellName = this.model.boundSpells[i];
+            return this.model.getSpellRemainingCooldown(spellName);
+        }.bind(this)),
+        cooldownPercentage: ko.computed(function () {
+            this.reevaluator();
+            var spellName = this.model.boundSpells[i];
+            return this.model.getSpellCoolingPercentage(spellName);
+        }.bind(this))
+    };
 };
 
 UIManager.prototype.bindUI = function () {

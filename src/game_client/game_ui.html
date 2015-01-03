@@ -1,9 +1,29 @@
 <nav id="game-ui" class="unselectable">
     <div id="status-panel" >
-        <ul data-bind="foreach: boundSpells">
-            <li data-bind="style: {backgroundImage: icon}, 
-                           attr: {'data-key': key}, 
-                           text: remainingCooldown"></li>
+        <ul class="bound-spells-list" data-bind="foreach: boundSpells">
+            <li class="bound-spell tooltipable"
+                data-bind="style: {backgroundImage: icon}">
+                <span class="spell-info"
+                      data-bind="attr: {'data-key': key}, 
+                                 text: remainingCooldown">
+                </span>
+                <span class="tooltip">
+                    <span class="name" data-bind="text: name"></span>
+                    <ul class="spell-stats">
+                        <li>
+                            <i class="fa fa-clock-o"></i>
+                            <span data-bind="text: cooldown"></span>
+                        </li>
+                        <li>
+                            <i class="fa fa-heart"></i>
+                            <span data-bind="text: damage"></span>
+                        </li>
+                    </ul>
+                    <br>
+                    <br>
+                    <span class="description" data-bind="text: description"></span>
+                </span>
+            </li>
         </ul>
     </div>
     <table id="scoreboard" data-bind="visible: showScoreboard">

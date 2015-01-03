@@ -1,5 +1,5 @@
-@canvas-width: 640px;
-@canvas-height: 480px;
+@canvas-size: 40%;
+@offset: 5%;
 
 html, body {
     padding: 0;
@@ -7,21 +7,21 @@ html, body {
     font-family: Segoe UI;
     font-size: 14px;
     overflow: hidden;
+    height: 100%;
 }
 
 
 #control-panel  {
     float: right;
-    > div {
-        min-width: 450px; 
-        overflow: auto;
-        max-height: 600px;
-    }
-
+    overflow: auto;
+    height: 97.5%;
+    width: 100% - @canvas-size - @offset;
+    margin: 5px;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    border: none;
 }
 
 pre {
@@ -48,6 +48,11 @@ input {
     width: 50px;
 }
 
-legend, .section-header {
+.section-header {
+    font-size: 1.25em;
+    font-weight: bold;
+}
+legend {
+    font-size: 1.5em;
     font-weight: bold;
 }

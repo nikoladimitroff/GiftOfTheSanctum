@@ -77,12 +77,17 @@ RoomController.prototype.handlePlay = function () {
         var context = document.getElementById("game-canvas").getContext("2d");
         var playerNames = this.viewmodel.players()
                           .map(function (player) { return player.name; });
-
+        var options = {
+            inEditor: false,
+            autoresize: 1,
+            debug: true
+        };
         Sanctum.startNewGame(playerNames,
                              this.findSelfIndex(),
                              networkManager,
                              this.viewmodel,
-                             context);
+                             context,
+                             options);
     }.bind(this));
 };
 

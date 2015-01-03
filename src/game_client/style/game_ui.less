@@ -1,6 +1,9 @@
 @import "./common";
 @import "./scoreboard";
 
+@font-size: 20px;
+@spell-info-size: 64px;
+
 #status-panel {
     .centered-with-width(50%);
     background-color: @dark-color;
@@ -8,35 +11,60 @@
     bottom: 0%;
     padding-bottom: 2.5%;
     padding-top: 2.5%;
-    font: normal normal normal normal 20px / normal Metamorphous;
-    
-    ul {
+    font: @medium-font;
+    font-size: @font-size;
+
+    ul.bound-spells-list {
         margin-left: 10%;
         margin-right: 10%;
     }
-    
-    li {
+
+    li.bound-spell {
         display: inline-block;
         list-style-type: none;
         text-align: center;
         vertical-align: middle;
-        width: 64px;
-        height: 64px;
-        color: white;
+        width: @spell-info-size;
+        height: @spell-info-size;
+        color: @ui-text-color;
         border: 1px solid darken(@dark-color, 25%);
         margin: 0;
         padding: 0;
         box-shadow: inset 0px 0px 5px attr(data-filled) rgba(20, 20, 20, 0.6);
-    }
-    li:before {
-        content: attr(data-key);
-        display: block;
-        margin-bottom: 10px;
+
+        .spell-info {
+        }
+
+        .spell-info:before {
+            content: attr(data-key);
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .tooltip {
+            @multiplier: 4;
+            width: @multiplier * @spell-info-size;
+            left: -25% - 50% * (@multiplier - 1);
+            word-wrap: break-word;
+            text-align: left;
+            .name {
+                font-size: @font-size - 3px;
+            }
+            .spell-stats {
+                float: right;
+                font: @light-font;
+                font-size: @font-size - 3px;;
+            }
+            .description {
+                font: @light-font;
+                font-size: @font-size - 3px;;
+            }
+        }
     }
 }
 
 #mid-round-lobby {
-    .maximized; 
+    .maximized;
 }
 
 #next-round-button {
@@ -46,5 +74,5 @@
 
 /* Needed since the .floating-shadow class works bad with absolute positioning */
 #next-round-button:active {
-    top: initial; 
+    top: initial;
 }

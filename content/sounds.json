@@ -21,5 +21,9 @@
     src: "sounds/voices/where_shall_my_blood_be_spilled.mp3",
     unique: true,
     loop: false
+}, {
+    src: "sounds/voices/laugh.mp3",
+    unique: true,
+    loop: false
 }
 ]

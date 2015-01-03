@@ -15,10 +15,10 @@ Renderer.prototype.init = function (camera) {
     this.camera.viewport.x = this.context.canvas.width;
     this.camera.viewport.y = this.context.canvas.height;
 
-    if (this.autoresize) {
+    if (this.autoresize !== 0) {
         var onresize = function () {
-            this.context.canvas.width = window.innerWidth;
-            this.context.canvas.height = window.innerHeight;
+            this.context.canvas.width = this.autoresize * window.innerWidth;
+            this.context.canvas.height = this.autoresize * window.innerHeight;
 
             this.camera.viewport.x = this.context.canvas.width;
             this.camera.viewport.y = this.context.canvas.height;

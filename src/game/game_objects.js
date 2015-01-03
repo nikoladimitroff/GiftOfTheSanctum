@@ -47,6 +47,7 @@ var Character = function (sprite, description) {
 
 
 var Spell = function (sprite, description) {
+    this.description = description.description;
     // physics
     this.position = new Vector();
     this.velocity = new Vector(0, 0);

@@ -40,6 +40,10 @@ p::selection, label::selection, input::selection, textarea::selection {
     background-color: @body-text-color;
 }
 
+li {
+    list-style-type: none;
+}
+
 button {
     border-radius: @border-radius;
     font: @medium-font;
@@ -57,14 +61,14 @@ button {
 button.disabled {
     box-shadow: inset 0px 1px 3px 0px #91b8b3;
     background: linear-gradient(to right, desaturate(@dark-color, 80%) 5%, desaturate(@neutral-color, 80%) 95%);
-    border: 1px solid desaturate(@neutral-color, 80%); 
+    border: 1px solid desaturate(@neutral-color, 80%);
     color: darken(@ui-text-color, 40%);
     text-shadow: 0px -1px 0px black;
 }
 
 button:active:not(.disabled) {
     position: relative;
-    top: 1px;   
+    top: 1px;
 }
 
 img {
@@ -88,7 +92,7 @@ img {
     -webkit-user-select: initial;
     -moz-user-select: initial;
     -ms-user-select: initial;
-    user-select: initial;   
+    user-select: initial;
 }
 
 .maximized {
@@ -105,6 +109,58 @@ img {
     @offset: (100% - @width) / 2;
     left: @offset;
     right: @offset;
+}
+
+/* Tooltips. Taken from http://jsfiddle.net/greypants/zgCb7/ */
+
+.tooltipable {
+    transform: translateZ(0);
+}
+
+.tooltipable .tooltip {
+    background: @neutral-color;
+    bottom: 100%;
+    display: block;
+    left: -125%;
+    margin-bottom: 15px;
+    opacity: 0;
+    padding: 15px;
+    pointer-events: none;
+    position: absolute;
+    transform: translateY(10px);
+    transition: all .25s ease-out;
+    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);
+}
+
+/* This bridges the gap so you can mouse into the tooltip without it disappearing */
+.tooltipable .tooltip:before {
+    bottom: -20px;
+    content: " ";
+    display: block;
+    height: 20px;
+    left: 0;
+    position: absolute;
+    width: 100%;
+}
+
+/* CSS Triangles - see Trevor's post */
+.tooltipable .tooltip:after {
+    border-left: solid transparent 10px;
+    border-right: solid transparent 10px;
+    border-top: solid @neutral-color 10px;
+    bottom: -10px;
+    content: " ";
+    height: 0;
+    left: 50%;
+    margin-left: -13px;
+    position: absolute;
+    width: 0;
+}
+
+.tooltipable:hover .tooltip {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0px);
 }
 
 /* Float Shadow. Taken from http://ianlunn.github.io/Hover */
