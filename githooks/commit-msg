@@ -2,7 +2,7 @@
 #
 
 commitMsg=$(cat $1)
-supportedTags=(Feature Enhancement Content Tools API Refactor)
+supportedTags=(Feature Enhancement Content Tools API Refactor Fix)
 # Define our onerror func
 function onError {
     echo ""
