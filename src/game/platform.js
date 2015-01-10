@@ -3,6 +3,7 @@ var Vector = require("./math/vector");
 
 var Platform = function (texture, outsideTexture, description) {
     this.outsideDamage = description.outsideDamage;
+    this.rounds = description.rounds;
 
     var sides = description.sides;
     var radius = description.radius;

@@ -21,6 +21,7 @@ Main.prototype.getPlayer = function (socket, data) {
     if (data && data.playerName) {
         var player = new networking.Player(socket.id, data.playerName);
         this.players[player.id] = player;
+        player.azureId = data.azureId;
 
         var payload = {playerId: player.id, playerName: player.name};
         socket.emit("getPlayer", payload);

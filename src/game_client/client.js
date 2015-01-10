@@ -26,7 +26,7 @@ Client.prototype.load = function (page, callback) {
     $(content).load(path, function () {
         $(content).removeClass();
         $(content).addClass(page);
-        callback();
+        if (callback) callback();
     });
 };
 
@@ -39,8 +39,15 @@ Client.prototype.goToStartScreen = function () {
 
         $("#azureButton").on("click", function () {
             var azureController = new AzureManager();
-            azureController.login();
-            console.log("clicked");
+            azureController.login(function (result) {
+                console.log("Azure post login: ", result, this);
+                this.azureId = result.id;
+                this.playerName = result.name;
+                this.socket.emit("getPlayer", {
+                    playerName: this.playerName,
+                    azureId: this.azureId
+                });
+            }.bind(this));
         }.bind(this));
 
         $("#name").keydown(function (event) {

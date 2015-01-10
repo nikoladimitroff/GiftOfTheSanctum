@@ -82,7 +82,7 @@ ContentManager.prototype.loadCharacter = function (description) {
     var sprite = this.get(this.root + url);
     var character = new Character(sprite, description);
     var name = "character_" + getFilenameWithoutExtension(url);
-    console.log(name);
+    console.log("Loaded character: ", name);
     this.contentCache[name] = character;
 };
 

@@ -28,8 +28,9 @@ RoomController.prototype.init = function () {
     this.client.socket.on("becomeHost", this.becomeHost.bind(this));
 
     this.client.socket.emit("welcome", {
-        playerName: this.client.playerName,
-        playerId: this.client.socket.io.engine.id
+        name: this.client.playerName,
+        playerId: this.client.socket.io.engine.id,
+        azureId: this.client.azureId
     });
 
     $(document).ready(function () {
@@ -51,7 +52,6 @@ RoomController.prototype.init = function () {
 
                 $("#chat_text").val("");
                 $("#chat_text").focus();
-                console.log(this.client);
                 this.client.socket.emit("chat", {
                     message: {
                         author: name,
@@ -82,12 +82,15 @@ RoomController.prototype.handlePlay = function () {
             autoresize: 1,
             debug: true
         };
-        Sanctum.startNewGame(playerNames,
-                             this.findSelfIndex(),
-                             networkManager,
-                             this.viewmodel,
-                             context,
-                             options);
+        var game = Sanctum.startNewGame(playerNames,
+                                        this.findSelfIndex(),
+                                        networkManager,
+                                        this.viewmodel,
+                                        context,
+                                        options);
+        game.events.gameOver.addEventListener(function () {
+            this.client.load("lobby");
+        }.bind(this));
     }.bind(this));
 };
 

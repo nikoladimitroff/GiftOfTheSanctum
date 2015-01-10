@@ -9,9 +9,6 @@ var AzureManager = function AzureManager() {
 };
 
 Object.defineProperty(AzureManager.prototype, "loggedIn", {
-    // MAKE THE LOGIN AT A DIFFERENT TIME & PLACE
-    // PERHAPS A PRE-START MAIN MENU SCREEN
-    // TEST IT LOADING A GAME
     get: function () {
         return this.client.currentUser !== null;
     },
@@ -26,19 +23,24 @@ AzureManager.prototype.login = function (callback) {
     });
 };
 
-AzureManager.prototype.loadInformation = function (updateCallback) {
-    var self = this;
-    this.userInfo.read().done(function (result) {
-        if (result && result[0]) {
-            updateCallback(result[0]);
-        } else {
-            self.userInfo.insert({
-                id: self.client.currentUser.id
-            });
-        }
+AzureManager.prototype.lookup = function (onsuccess, onerror) {
+    this.users.lookup(this.client.currentUser.userId)
+    .done(function (result) {
+        console.log("Azure success: ", result);
+        if (onsuccess) onsuccess(result);
     }, function (error) {
-        console.log(error);
+        console.error("Azure error: ", error);
+        if (onerror) onerror(error);
     });
+};
+
+AzureManager.prototype.loadInformation = function (updateCallback) {
+    var onerror = function () {
+        this.users.insert({id: this.client.currentUser.userId})
+        .done(this.lookup.bind(this, updateCallback));
+    }.bind(this);
+    var onsuccess = updateCallback;
+    this.lookup(onsuccess, onerror);
 };
 
 AzureManager.prototype.save = function (info) {

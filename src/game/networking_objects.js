@@ -58,8 +58,9 @@ networking.Room.prototype.findPlayer = function (id) {
 
 networking.Room.prototype.welcome = function (socket, data) {
     if (data && data.playerId) {
-        var player = new networking.Player(data.playerId, data.playerName);
+        var player = new networking.Player(data.playerId, data.name);
         player.roomId = this.id;
+        player.azureId = data.azureId;
 
         var isHost = this.hostId == data.playerId;
         socket.emit("welcome", {
@@ -108,8 +109,14 @@ networking.Room.prototype.play = function (socket) {
         console.log("Game started.");
         this.isRunning = true;
         var playerNames = this.players.map(function (p) { return p.name; });
+        var playersAzureId = this.players.reduce(function (mapping, p) {
+            mapping[p.name] = p.azureId;
+            return mapping;
+        }, {});
         this.game = Sanctum.startNewGame(playerNames, -1, this.networkManager);
-
+        this.game.events.gameOver.addEventListener(function () {
+            this.game.stat.save(playersAzureId);
+        }.bind(this));
         this.masterSocket.emit("play", {});
     }
 };

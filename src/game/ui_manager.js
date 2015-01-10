@@ -58,6 +58,10 @@ UIManager.prototype.init = function (model) {
         this.update();
         this.toggleScoreboard();
     }.bind(this));
+
+    this.events.gameOver.addEventListener(function () {
+
+    }.bind(this));
     this.bindUI();
 };
 
