@@ -1,15 +1,28 @@
 "use strict";
+var HelperModule = require("../utils/ui_helper");
+var UIHelper = new HelperModule();
 var NetworkManager = require("../game/network_manager");
 var AzureManager = require("./azure_manager");
-var RoomController = require("./room_controller");
+
+var Viewmodel = function () {
+    this.players = ko.observableArray();
+    this.chatMessages = ko.observableArray();
+    this.avatars = [
+        "archer.png", "knight.png", "mage.png", "monk.png",
+        "necro.png", "orc.png", "queen.png", "rogue.png"
+    ].map(function (fileName) {
+        return "content/art/characters/lobby/" + fileName;
+    });
+    this.isHost = ko.observable(false);
+};
 
 var Client = function () {
+    this.viewmodel = new Viewmodel();
     this.socket = null;
+    this.gameSocket = null;
     this.playerId = null;
     this.playerName = null;
     this.roomId = null;
-    this.root = "src/game_client/";
-    this.htmlFileExtension = ".html";
 };
 
 Client.prototype.start = function () {
@@ -17,70 +30,96 @@ Client.prototype.start = function () {
         port: NetworkManager.port,
         transports: ["websocket"]
     });
+
+    this.initializeEventHandlers();
     this.goToStartScreen();
 };
 
-Client.prototype.load = function (page, callback) {
-    var path = this.root + page + this.htmlFileExtension;
-    var content = $("main#content");
-    $(content).load(path, function () {
-        $(content).removeClass();
-        $(content).addClass(page);
-        callback();
+Client.prototype.initializeEventHandlers = function () {
+    this.socket.on("getPlayer", function (data) {
+        this.playerId = data.playerId;
+        this.playerName = data.playerName;
+
+        this.goToWaitingScreen();
+    }.bind(this));
+
+    this.socket.on("getRoom", function (data) {
+        this.roomId = data.roomId;
+
+        var payload = {port: NetworkManager.port};
+        this.gameSocket = io.connect("/" + this.roomId, payload);
+        this.initializeGameEventHandlers();
+
+    }.bind(this));
+};
+
+Client.prototype.initializeGameEventHandlers = function () {
+    this.gameSocket.on("connect", function () {
+        this.goToLobbyScreen();
+    }.bind(this));
+
+    this.gameSocket.on("welcome", this.welcome.bind(this));
+    this.gameSocket.on("play", this.startGame.bind(this));
+    this.gameSocket.on("join", this.join.bind(this));
+    this.gameSocket.on("leave", this.leave.bind(this));
+    this.gameSocket.on("becomeHost", this.becomeHost.bind(this));
+};
+
+Client.prototype.welcome = function (data) {
+    for (var i = 0; i < data.players.length; i++) {
+        this.viewmodel.players.push(data.players[i]);
+    }
+    this.viewmodel.isHost(data.isHost);
+};
+
+Client.prototype.leave = function (data) {
+    this.viewmodel.players.remove(function (player) {
+        return player.id == data.playerId;
     });
 };
 
-Client.prototype.goToStartScreen = function () {
-    this.load("main", function () {
-        $("#playButton").on("click", function () {
-            var name = $("#name").val();
-            this.socket.emit("getPlayer", {playerName: name});
-        }.bind(this));
-
-        $("#azureButton").on("click", function () {
-            var azureController = new AzureManager();
-            azureController.login();
-            console.log("clicked");
-        }.bind(this));
-
-        $("#name").keydown(function (event) {
-            if (event.keyCode == 13 /*Enter*/) {
-                var name = $("#name").val();
-                this.socket.emit("getPlayer", {playerName: name});
-            }
-        }.bind(this));
-
-        this.socket.on("getPlayer", function (data) {
-            this.playerId = data.playerId;
-            this.playerName = data.playerName;
-
-            this.goToWaitingScreen();
-        }.bind(this));
-    }.bind(this));
+Client.prototype.join = function (data) {
+    this.viewmodel.players.push(data.player);
 };
 
+Client.prototype.becomeHost = function (/* data */) {
+    this.viewmodel.isHost(true);
+};
+
+Client.prototype.findSelfIndex = function () {
+    var players = this.viewmodel.players();
+    for (var i = 0; i < players.length; i++) {
+        if (players[i].id == this.gameSocket.io.engine.id) {
+            return i;
+        }
+    }
+
+    return -1;
+};
+
+Client.prototype.doNormalLogin = function (name) {
+    this.socket.emit("getPlayer", {playerName: name});
+};
+
+Client.prototype.doAzureLogin = function () {
+    var azureController = new AzureManager();
+    azureController.login();
+};
+
+Client.prototype.goToStartScreen = function () {
+    UIHelper.loadPage("login", null, this);
+};
 
 Client.prototype.goToWaitingScreen = function () {
-    this.load("please_wait", function () {
-        this.socket.on("getRoom", function (data) {
-            this.roomId = data.roomId;
-
-            var payload = {port: NetworkManager.port};
-            this.socket = io.connect("/" + this.roomId, payload);
-
-            this.socket.on("connect", function () {
-                this.goToLobbyScreen();
-            }.bind(this));
-        }.bind(this));
-        this.socket.emit("getRoom", {playerId: this.playerId});
-    }.bind(this));
+    UIHelper.loadPage("please_wait", null, this);
 };
 
 Client.prototype.goToLobbyScreen = function () {
-    this.load("lobby", function () {
-        this.roomController = new RoomController(this);
-        this.roomController.init();
-    }.bind(this));
+    UIHelper.loadPage("room", null, this);
+};
+
+Client.prototype.startGame = function () {
+    UIHelper.loadPage("game", null, this);
 };
 
 window.onload = function () {
