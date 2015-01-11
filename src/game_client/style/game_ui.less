@@ -76,3 +76,28 @@
 #next-round-button:active {
     top: initial;
 }
+
+.logger-messages-box {
+    position: absolute;
+    left: 50%;
+    top: 10%;
+    width: 50%;
+}
+
+.logger-message {
+    font-size: 20px;
+    font-weight: bold;
+
+    &.log-message {
+        color: green;
+    }
+
+    &.warn-message {
+        color: orange;
+    }
+
+    &.error-message {
+        color: red;
+        background: black;
+    }
+}

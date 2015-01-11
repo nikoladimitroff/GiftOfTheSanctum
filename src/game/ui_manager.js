@@ -1,6 +1,8 @@
 "use strict";
 var GameState = require("./enums").GameState;
 
+var FADE_OUT_MILLISECONDS = 3000;
+var MAXIMUM_NUMBER_OF_MESSAGE_BOXES = 5;
 
 var AVATAR_IMAGES = [
     "archer.png", "knight.png", "mage.png", "monk.png",
@@ -17,6 +19,9 @@ UIManager.prototype.init = function (model) {
     // Ko.computed are evaluated when their depedencies change but since our
     // scores work differently they won't fire unless we force them
     this.reevaluator = ko.observable();
+
+    this.viewmodel.messages = ko.observableArray();
+
 
     // Add whatever else the viewmodel needs
     var players = this.viewmodel.players();
@@ -62,6 +67,29 @@ UIManager.prototype.init = function (model) {
     this.events.gameOver.addEventListener(function () {
 
     }.bind(this));
+
+    this.deleteLogMessageFunctions = [];
+    var deleteMessage = function () {
+        this.viewmodel.messages.shift();
+    }.bind(this);
+
+    this.events.logGameplayMessage.addEventListener(
+        function (message, styleClass) {
+            if (this.viewmodel.messages().length >=
+                MAXIMUM_NUMBER_OF_MESSAGE_BOXES) {
+                window.clearTimeout(this.deleteLogMessageFunctions.pop());
+                deleteMessage();
+            }
+
+            this.viewmodel.messages.push({
+                message: message,
+                style: styleClass
+            });
+            this.deleteLogMessageFunctions
+                .push(window.setTimeout(deleteMessage,
+                                        FADE_OUT_MILLISECONDS));
+        }.bind(this));
+
     this.bindUI();
 };
 

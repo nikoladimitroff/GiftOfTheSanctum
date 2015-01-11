@@ -9,6 +9,8 @@ var UIManager = require("./ui_manager");
 var PlayerManager = require("./player_manager");
 var NetworkManager = require("./network_manager");
 var PredictionManager = require("./prediction_manager");
+var GameplayLogger = require("../utils/logger").GameplayLogger;
+
 
 var GameState = require("./enums").GameState,
     Action = require("./enums").Action;
@@ -18,6 +20,7 @@ var SanctumEvent = require("../utils/sanctum_event.js");
 var ArrayUtils = require("../utils/array_utils");
 var stub = require("../utils/stub.js");
 
+var Loggers = {};
 
 var SPELLCAST_COUNT = 6;
 
@@ -90,8 +93,11 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
         nextRound: new SanctumEvent(),
         gameOver: new SanctumEvent(),
         scoresInfo: new SanctumEvent(),
+        logGameplayMessage: new SanctumEvent(),
     };
     networkManager.events = this.events;
+
+    Loggers.Gameplay = new GameplayLogger(this.events);
 
     // Server / client specializations
     if (!networkManager.isServer()) {
@@ -251,6 +257,7 @@ Sanctum.prototype.handleInput = function () {
         this.playerManager.moveTo(player, this.input.mouse.absolute);
         player.playAnimation(Action.walk, player.totalVelocity.normalized());
         this.audio.play(player.voice.move);
+        Loggers.Gameplay.warn("Move");
     }
     else if (this.input.mouse.left &&
              !this.input.previousMouse.left &&
@@ -269,6 +276,7 @@ Sanctum.prototype.handleInput = function () {
                                              this.input.mouse.absolute,
                                              this.playerIndex);
             player.playAnimation(this.nextAction, forward);
+            Loggers.Gameplay.log("Spellcast!");
             this.audio.play(player.voice.cast);
         }
         var isWalking = player.velocity.lengthSquared() < 1e-3;
