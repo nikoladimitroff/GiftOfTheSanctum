@@ -1,0 +1,229 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|AnyCPU">
+      <Configuration>Debug</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|ARM">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x86">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|AnyCPU">
+      <Configuration>Release</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM">
+      <Configuration>Release</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x86">
+      <Configuration>Release</Configuration>
+      <Platform>x86</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>2acf0d2b-813a-48d8-931f-7bda4a0c21d9</ProjectGuid>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup Condition="'$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0'">
+    <VisualStudioVersion>12.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\$(WMSJSProjectDirectory)\Microsoft.VisualStudio.$(WMSJSProject).Default.props" />
+  <PropertyGroup Label="Configuration">
+    <TargetPlatformIdentifier>WindowsPhoneApp</TargetPlatformIdentifier>
+    <TargetPlatformVersion>8.1</TargetPlatformVersion>
+    <RequiredPlatformVersion>8.1</RequiredPlatformVersion>
+    <MinimumVisualStudioVersion>12.0</MinimumVisualStudioVersion>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\$(WMSJSProjectDirectory)\Microsoft.VisualStudio.$(WMSJSProject).props" />
+  <PropertyGroup>
+    <DefaultLanguage>en-US</DefaultLanguage>
+  </PropertyGroup>
+  <ItemGroup>
+    <AppxManifest Include="package.appxmanifest">
+      <SubType>Designer</SubType>
+    </AppxManifest>
+    <Content Include="3rdparty\font-awesome-4.2.0\css\font-awesome.min.css" />
+    <Content Include="3rdparty\font-awesome-4.2.0\fonts\fontawesome-webfont.eot" />
+    <Content Include="3rdparty\font-awesome-4.2.0\fonts\fontawesome-webfont.svg" />
+    <Content Include="3rdparty\font-awesome-4.2.0\fonts\fontawesome-webfont.ttf" />
+    <Content Include="3rdparty\font-awesome-4.2.0\fonts\fontawesome-webfont.woff" />
+    <Content Include="3rdparty\font-awesome-4.2.0\fonts\FontAwesome.otf" />
+    <Content Include="3rdparty\jquery-1.11.1.min.js" />
+    <Content Include="3rdparty\knockout-3.2.0.js" />
+    <Content Include="3rdparty\MobileServices.Web-1.2.5.js" />
+    <Content Include="3rdparty\MobileServices.Web-1.2.5.min.js" />
+    <Content Include="3rdparty\socket.io-1.2.0.js" />
+    <Content Include="content\art\characters\health_orb.png" />
+    <Content Include="content\art\characters\lobby\archer.png" />
+    <Content Include="content\art\characters\lobby\knight.png" />
+    <Content Include="content\art\characters\lobby\mage.png" />
+    <Content Include="content\art\characters\lobby\monk.png" />
+    <Content Include="content\art\characters\lobby\necro.png" />
+    <Content Include="content\art\characters\lobby\orc.png" />
+    <Content Include="content\art\characters\lobby\queen.png" />
+    <Content Include="content\art\characters\lobby\rogue.png" />
+    <Content Include="content\art\characters\scoreboard\archer.png" />
+    <Content Include="content\art\characters\scoreboard\knight.png" />
+    <Content Include="content\art\characters\scoreboard\mage.png" />
+    <Content Include="content\art\characters\scoreboard\monk.png" />
+    <Content Include="content\art\characters\scoreboard\necro.png" />
+    <Content Include="content\art\characters\scoreboard\orc.png" />
+    <Content Include="content\art\characters\scoreboard\queen.png" />
+    <Content Include="content\art\characters\scoreboard\rogue.png" />
+    <Content Include="content\art\characters\sprite\archer.png" />
+    <Content Include="content\art\characters\sprite\knight.png" />
+    <Content Include="content\art\characters\sprite\mage.png" />
+    <Content Include="content\art\characters\sprite\monk.png" />
+    <Content Include="content\art\characters\sprite\necro.png" />
+    <Content Include="content\art\characters\sprite\orc.png" />
+    <Content Include="content\art\characters\sprite\queen.png" />
+    <Content Include="content\art\characters\sprite\rogue.png" />
+    <Content Include="content\art\cursor\normal.cur" />
+    <Content Include="content\art\cursor\target.cur" />
+    <Content Include="content\art\cursor\walk.cur" />
+    <Content Include="content\art\environment\Cave_Floor_Tile_-_Lava_Background.psd" />
+    <Content Include="content\art\environment\fog_of_suddent_death.png" />
+    <Content Include="content\art\environment\lava.jpg" />
+    <Content Include="content\art\environment\lava.png" />
+    <Content Include="content\art\environment\lava.psd" />
+    <Content Include="content\art\environment\lava2.jpg" />
+    <Content Include="content\art\environment\psds\arena.psd" />
+    <Content Include="content\art\environment\psds\Cave_Floor_Tile_-_Lava_Background.psd" />
+    <Content Include="content\art\environment\psds\fog_of_suddent_death.psd" />
+    <Content Include="content\art\environment\tower_floor.jpg" />
+    <Content Include="content\art\environment\tower_floor.png" />
+    <Content Include="content\art\environment\tower_floor2.jpg" />
+    <Content Include="content\art\environment\unused\lava2.jpg" />
+    <Content Include="content\art\environment\unused\lava3.png" />
+    <Content Include="content\art\environment\unused\tower_floor.jpg" />
+    <Content Include="content\art\environment\unused\tower_floor2 %282%29.jpg" />
+    <Content Include="content\art\environment\unused\tower_floor2.jpg" />
+    <Content Include="content\art\guide.png" />
+    <Content Include="content\art\guide.psd" />
+    <Content Include="content\art\home_wallpaper.jpg" />
+    <Content Include="content\art\lobby_wallpaper.jpg" />
+    <Content Include="content\art\microsoft_logo.png" />
+    <Content Include="content\art\please_wait.gif" />
+    <Content Include="content\art\spells\deathbolt.png" />
+    <Content Include="content\art\spells\electric_bolt.png" />
+    <Content Include="content\art\spells\fireball.png" />
+    <Content Include="content\art\spells\flamestrike.png" />
+    <Content Include="content\art\spells\frostbolt.png" />
+    <Content Include="content\art\spells\frostfire.png" />
+    <Content Include="content\art\spells\heal.png" />
+    <Content Include="content\art\spells\icons\deathbolt.png" />
+    <Content Include="content\art\spells\icons\earthquake.png" />
+    <Content Include="content\art\spells\icons\electric_bolt.png" />
+    <Content Include="content\art\spells\icons\fireball.png" />
+    <Content Include="content\art\spells\icons\flamestrike.png" />
+    <Content Include="content\art\spells\icons\frostbolt.png" />
+    <Content Include="content\art\spells\icons\frostfire.png" />
+    <Content Include="content\art\spells\icons\heal.png" />
+    <Content Include="content\art\spells\icons\unicorns!.png" />
+    <Content Include="content\art\spells\icons\well.png" />
+    <Content Include="content\art\spells\old files\explosion.png" />
+    <Content Include="content\art\spells\old files\freeze_ice.png" />
+    <Content Include="content\art\spells\old files\freeze_red.png" />
+    <Content Include="content\art\spells\old files\magic_1.png" />
+    <Content Include="content\art\spells\old files\magic_2.png" />
+    <Content Include="content\art\spells\old files\magic_3.png" />
+    <Content Include="content\art\spells\old files\magic_4.png" />
+    <Content Include="content\art\spells\old files\magic_5.png" />
+    <Content Include="content\art\spells\old files\magic_7.png" />
+    <Content Include="content\art\spells\old files\magic_flare.png" />
+    <Content Include="content\art\spells\old files\quake_0.png" />
+    <Content Include="content\art\spells\old files\selectionswirl_0.png" />
+    <Content Include="content\art\spells\old files\shield.png" />
+    <Content Include="content\art\spells\old files\smoke_high.png" />
+    <Content Include="content\art\spells\old files\smoke_low.png" />
+    <Content Include="content\art\spells\old files\smoke_mid.png" />
+    <Content Include="content\art\spells\old files\smoke_mid_long.png" />
+    <Content Include="content\art\spells\old files\swirlingvortexs_0.png" />
+    <Content Include="content\art\spells\old files\unicorn.png" />
+    <Content Include="content\art\spells\psd files\explosion.psd" />
+    <Content Include="content\art\spells\ready sprites\ready_sprite_1.png" />
+    <Content Include="content\art\spells\ready sprites\ready_sprite_2.png" />
+    <Content Include="content\art\spells\ready sprites\ready_sprite_3_8by12.png" />
+    <Content Include="content\art\spells\ready sprites\ready_sprite_4.png" />
+    <Content Include="content\art\spells\ready sprites\ready_sprite_5.png" />
+    <Content Include="content\art\spells\ready sprites\ready_sprite_6.png" />
+    <Content Include="content\art\spells\ready sprites\ready_sprite_7.png" />
+    <Content Include="content\art\spells\ready sprites\ready_sprite_8.png" />
+    <Content Include="content\art\spells\ready sprites\ready_sprtes_length.txt" />
+    <Content Include="content\art\spells\unicorns!.png" />
+    <Content Include="content\example_platform.json" />
+    <Content Include="content\game_data.json" />
+    <Content Include="content\obstacles.json" />
+    <Content Include="content\sounds.json" />
+    <Content Include="content\sounds\ambient\elemental_spell.mp3" />
+    <Content Include="content\sounds\ambient\freeze.mp3" />
+    <Content Include="content\sounds\music\without.mp3" />
+    <Content Include="content\sounds\voices\click_there.mp3" />
+    <Content Include="content\sounds\voices\death_grunts.mp3" />
+    <Content Include="content\sounds\voices\death_grunts.wav" />
+    <Content Include="content\sounds\voices\dont_you_dare.mp3" />
+    <Content Include="content\sounds\voices\dont_you_understand.mp3" />
+    <Content Include="content\sounds\voices\higher_rank.mp3" />
+    <Content Include="content\sounds\voices\i_cant_use_that.mp3" />
+    <Content Include="content\sounds\voices\i_will_fight.mp3" />
+    <Content Include="content\sounds\voices\i_will_kill_you.mp3" />
+    <Content Include="content\sounds\voices\i_will_rip_out_your_throat.mp3" />
+    <Content Include="content\sounds\voices\laugh.mp3" />
+    <Content Include="content\sounds\voices\listen_to_me.mp3" />
+    <Content Include="content\sounds\voices\low_health.mp3" />
+    <Content Include="content\sounds\voices\not_high_enough_level.mp3" />
+    <Content Include="content\sounds\voices\out_of_mana.mp3" />
+    <Content Include="content\sounds\voices\prepare_to_die.mp3" />
+    <Content Include="content\sounds\voices\these_enemies_do_not_scare_me.mp3" />
+    <Content Include="content\sounds\voices\where_do_you_think_youre_going.mp3" />
+    <Content Include="content\sounds\voices\where_shall_my_blood_be_spilled.mp3" />
+    <Content Include="content\sounds\voices\where_shall_your_blood_be_spilled.mp3" />
+    <Content Include="content\sounds\voices\worthless.mp3" />
+    <Content Include="content\sounds\voices\your_feeble_efforts_amuse_me.mp3" />
+    <Content Include="content\spell_library.json" />
+    <Content Include="content\sprites.json" />
+    <Content Include="default.html" />
+    <Content Include="distr\client.js" />
+    <Content Include="distr\cursors\dwarven_gauntlet.cur" />
+    <Content Include="distr\cursors\dwarven_gauntlet.png" />
+    <Content Include="distr\cursors\dwarven_gauntlet_pointer.cur" />
+    <Content Include="distr\cursors\dwarven_gauntlet_pointer.png" />
+    <Content Include="distr\editor.css" />
+    <Content Include="distr\fonts\Achafsex.ttf" />
+    <Content Include="distr\fonts\Metamorphous-Regular.ttf" />
+    <Content Include="distr\fonts\OFL.txt" />
+    <Content Include="distr\main.css" />
+    <Content Include="images\Square150x150Logo.scale-240.png" />
+    <Content Include="images\Square44x44Logo.scale-240.png" />
+    <Content Include="images\Wide310x150Logo.scale-240.png" />
+    <Content Include="images\Square71x71Logo.scale-240.png" />
+    <Content Include="images\SplashScreen.scale-240.png" />
+    <Content Include="images\StoreLogo.scale-240.png" />
+    <Content Include="js\default.js" />
+    <Content Include="css\default.css" />
+    <Content Include="css\ui-themed.css" />
+    <Content Include="css\ui-themed.theme-dark.css" />
+    <Content Include="css\ui-themed.theme-light.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <SDKReference Include="Microsoft.Phone.WinJS.2.1, Version=1.0" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\$(WMSJSProjectDirectory)\Microsoft.VisualStudio.$(WMSJSProject).targets" />
+  <!-- To modify your build process, add your task inside one of the targets below then uncomment
+       that target and the DisableFastUpToDateCheck PropertyGroup. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  <PropertyGroup>
+    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
+  </PropertyGroup>
+  -->
+</Project>
