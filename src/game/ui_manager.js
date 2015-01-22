@@ -9,6 +9,11 @@ var AVATAR_IMAGES = [
      "necro.png", "orc.png", "queen.png", "rogue.png"
 ];
 
+var LogMessage = function () {
+    this.message = ko.observable("");
+    this.style = ko.observable("");
+}
+
 var UIManager = function (viewmodel, events) {
     this.viewmodel = viewmodel;
     this.events = events;
@@ -20,8 +25,14 @@ UIManager.prototype.init = function (model) {
     // scores work differently they won't fire unless we force them
     this.reevaluator = ko.observable();
 
-    this.viewmodel.messages = ko.observableArray();
-
+    this.pushMessageIndex = 0;
+    this.viewmodel.messages = [
+        new LogMessage(),
+        new LogMessage(),
+        new LogMessage(),
+        new LogMessage(),
+        new LogMessage(),
+    ];
 
     // Add whatever else the viewmodel needs
     var players = this.viewmodel.players();
@@ -45,7 +56,6 @@ UIManager.prototype.init = function (model) {
                this.model.state === GameState.midround;
     }.bind(this));
 
-
     this.viewmodel.isGameMidround = ko.computed(function () {
         this.reevaluator();
         return this.model.state === GameState.midround;
@@ -68,26 +78,50 @@ UIManager.prototype.init = function (model) {
 
     }.bind(this));
 
-    this.deleteLogMessageFunctions = [];
-    var deleteMessage = function () {
-        this.viewmodel.messages.shift();
-    }.bind(this);
+    // this.deleteLogMessageFunctions = [];
+    // var deleteMessage = function () {
+    //     this.viewmodel.messages.shift();
+    // }.bind(this);
 
     this.events.logGameplayMessage.addEventListener(
         function (message, styleClass) {
-            if (this.viewmodel.messages().length >=
-                MAXIMUM_NUMBER_OF_MESSAGE_BOXES) {
-                window.clearTimeout(this.deleteLogMessageFunctions.pop());
-                deleteMessage();
+            if (this.viewmodel.messages[this.pushMessageIndex].message().length === 0) {
+                this.viewmodel.messages[this.pushMessageIndex].message(message);
+                this.viewmodel.messages[this.pushMessageIndex].style(styleClass);
+                var i = this.pushMessageIndex;
+                setTimeout(function () {
+                        this.viewmodel.messages[i].message("");
+                    }.bind(this), FADE_OUT_MILLISECONDS);
+                this.pushMessageIndex++;
+                if (this.pushMessageIndex >= MAXIMUM_NUMBER_OF_MESSAGE_BOXES) {
+                    this.pushMessageIndex = 0;
+                }
             }
+            // for (var i = 0; i < this.viewmodel.messages.length; i++) {
+            //     if (this.viewmodel.messages[i].message().length === 0) {
+            //         this.viewmodel.messages[i].message(message);
+            //         this.viewmodel.messages[i].style(styleClass);
+            //         setTimeout(function () {
+            //             this.viewmodel.messages[i].message("");
+            //         }.bind(this), FADE_OUT_MILLISECONDS);
+            //         break;
+            //     }
+            // }
 
-            this.viewmodel.messages.push({
-                message: message,
-                style: styleClass
-            });
-            this.deleteLogMessageFunctions
-                .push(window.setTimeout(deleteMessage,
-                                        FADE_OUT_MILLISECONDS));
+            // this.viewmodel.messages.push({
+            //     message: message,
+            //     style: styleClass
+            // });
+
+            // if (this.viewmodel.messages().length >=
+            //     MAXIMUM_NUMBER_OF_MESSAGE_BOXES) {
+            //     window.clearTimeout(this.deleteLogMessageFunctions.pop());
+            //     deleteMessage();
+            // }
+
+            // this.deleteLogMessageFunctions
+            //     .push(window.setTimeout(deleteMessage,
+            //                             FADE_OUT_MILLISECONDS));
         }.bind(this));
 
     this.bindUI();

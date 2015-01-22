@@ -10,7 +10,7 @@ var PlayerManager = require("./player_manager");
 var NetworkManager = require("./network_manager");
 var PredictionManager = require("./prediction_manager");
 var GameplayLogger = require("../utils/logger").GameplayLogger;
-
+var FileLogger = require("../utils/logger").FileLogger;
 
 var GameState = require("./enums").GameState,
     Action = require("./enums").Action;
@@ -98,6 +98,7 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
     networkManager.events = this.events;
 
     Loggers.Gameplay = new GameplayLogger(this.events);
+    Loggers.Debug = new FileLogger("logs/");
 
     // Server / client specializations
     if (!networkManager.isServer()) {
@@ -112,6 +113,8 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
         var StatManager = require("./stat_manager");
         this.stat = new StatManager();
         networkManager.recorder = this.stat;
+
+        Loggers.Debug.log("testov test");
     }
 
     // Event handlers

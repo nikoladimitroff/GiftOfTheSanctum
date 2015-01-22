@@ -29,7 +29,9 @@
     
     <div data-bind="foreach: messages" class="logger-messages-box">
         <div>
-            <span class="logger-message" data-bind="text: message, css: style">
+            <span class="logger-message" data-bind="text: $data.message, class: $data.style(), css: {fade: $data.message().length !== 0,
+                  'log-message': $data.style() == 'log-message',
+                  'warn-message': $data.style() == 'warn-message'}">
             </span>
         </div>
     </div>

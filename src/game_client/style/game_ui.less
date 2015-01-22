@@ -87,6 +87,12 @@
 .logger-message {
     font-size: 20px;
     font-weight: bold;
+    opacity: 0;
+    transition: opacity 3s ease-out;
+
+    &.fade {
+        opacity: 1;
+    }
 
     &.log-message {
         color: green;
@@ -101,3 +107,34 @@
         background: black;
     }
 }
+
+
+@keyframes fadeout {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+/* Firefox < 16 */
+@-moz-keyframes fadeout {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+/* Safari, Chrome and Opera > 12.1 */
+@-webkit-keyframes fadeout {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+/* Internet Explorer */
+@-ms-keyframes fadeout {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+/* Opera < 12.1 */
+@-o-keyframes fadeout {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
