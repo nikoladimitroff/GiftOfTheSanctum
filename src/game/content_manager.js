@@ -5,7 +5,8 @@ var Platform = require("./platform");
 
 var allGameObjects = require("./game_objects");
 var Character = allGameObjects.Character,
-    Spell = allGameObjects.Spell;
+    Spell = allGameObjects.Spell,
+    Achievement = allGameObjects.Achievement;
 var Sprite = require("./sprite");
 
 var fs = require("fs");
@@ -28,6 +29,8 @@ var ContentManager = function () {
     this.root = "content/";
 
     this.audioLibraryKey = "audiolib";
+    this.achievementsKey = "achievementlib";
+    this.achievementIconsPath = "content/art/achievements/"
     this.contentCache[this.audioLibraryKey] = {};
     this.spellsSpritesPath = "content/art/spells/";
     this.spellsIconsPath = "content/art/spells/icons/";
@@ -75,6 +78,14 @@ ContentManager.prototype.loadAudio = function (audioInfo) {
             }
         }.bind(this));
     }.bind(this), "arraybuffer");
+};
+
+ContentManager.prototype.loadAchievement = function (description) {
+    var name = description.name;
+    var filename = name.toLowerCase().replace(/ /g, "_") + this.spellImageFormat;
+    description.icon = this.achievementIconsPath + filename;
+    var achievement = new Achievement(description);
+    this.contentCache[description.name] = new Achievement(description);
 };
 
 ContentManager.prototype.loadCharacter = function (description) {
@@ -163,6 +174,9 @@ ContentManager.prototype.loadGameData = function (gameDataPath,
         });
         self.fetchJSONFile(gameData.sounds, function (sounds) {
             sounds.map(self.loadAudio.bind(self));
+        });
+        self.fetchJSONFile(gameData.achievements, function (sounds) {
+            sounds.map(self.loadAchievement.bind(self));
         });
     });
 };

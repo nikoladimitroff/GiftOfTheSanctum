@@ -122,5 +122,13 @@ Character.prototype.playAnimation = function (action, forward) {
 };
 
 
+var Achievement = function (description) {
+    this.name = description.name;
+    this.icon = description.icon;
+    this.description = description.description;
+    this.category = description.category;
+};
+
 module.exports.Character = Character;
 module.exports.Spell = Spell;
+module.exports.Achievement = Achievement;

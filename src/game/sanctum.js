@@ -155,9 +155,11 @@ Sanctum.prototype.init = function () {
                                                    center);
 
     for (var i = 0; i < this.characters.length; i++) {
+        var playerData = this.characters.shift();
         var player = this.content.get(CHARACTERS[i]);
+        player.name = playerData.name;
+        player.azureId = playerData.azureId;
         player.position = positions[i];
-        player.name = this.characters.shift();
         this.characters.push(player);
     }
 
@@ -192,6 +194,7 @@ Sanctum.prototype.init = function () {
         this.ui.init(this.model);
     }
     else {
+        console.log("CHARS: ", this.characters);
         this.stat.init(this.characters);
     }
     this.events.initializationComplete.fire(this);
@@ -458,6 +461,8 @@ Sanctum.prototype.loop = function (timestamp) {
     }
     if (this.model.state === GameState.gameover) {
         this.events.gameOver.fire(this);
+        if (this.network.isServer())
+            this.stat.save();
         console.log("End of game");
         return;
     }

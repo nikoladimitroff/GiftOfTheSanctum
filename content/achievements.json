@@ -1,0 +1,11 @@
+[{
+    name: "Firemaster",
+    category: "Spellweaving",
+    description: "You've mastered the fire school of magic by casting a Fireball",
+    requirements: "function (places, spells) { return spells['Fireball'] >= 1; }",
+}, {
+    name: "Gladiator",
+    category: "Arena mastery",
+    description: "You didn't bow before your enemies and successfully won 5 games.",
+    requirements: "function (places, spells) { return places[0] >= 5; }",
+}]

@@ -3,6 +3,7 @@
     sprites: "sprites.json",
     sounds: "sounds.json",
     spells: "spell_library.json",
+    achievements: "achievements.json",
     obstacles: "obstacles.json",
     characters: [
         {

@@ -108,15 +108,14 @@ networking.Room.prototype.play = function (socket) {
     if (socket.id == this.hostId) {
         console.log("Game started.");
         this.isRunning = true;
-        var playerNames = this.players.map(function (p) { return p.name; });
-        var playersAzureId = this.players.reduce(function (mapping, p) {
-            mapping[p.name] = p.azureId;
-            return mapping;
-        }, {});
-        this.game = Sanctum.startNewGame(playerNames, -1, this.networkManager);
-        this.game.events.gameOver.addEventListener(function () {
-            this.game.stat.save(playersAzureId);
-        }.bind(this));
+        var playerData = this.players.map(function (p) {
+            return {
+                name: p.name,
+                azureId: p.azureId
+            };
+        });
+        console.log(playerData);
+        this.game = Sanctum.startNewGame(playerData, -1, this.networkManager);
         this.masterSocket.emit("play", {});
     }
 };
