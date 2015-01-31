@@ -1,7 +1,7 @@
 "use strict";
 var networking = require("./networking_objects.js");
 
-var Main = function () {
+var LobbyNetworker = function () {
     this.sockets = [];
     this.rooms = {};
     this.players = {};
@@ -9,7 +9,7 @@ var Main = function () {
     this.masterSocket = null;
 };
 
-Main.prototype.firstFreeRoom = function () {
+LobbyNetworker.prototype.firstFreeRoom = function () {
     for (var roomId in this.rooms) {
         if (this.rooms[roomId].isFree()) {
             return this.rooms[roomId];
@@ -17,7 +17,7 @@ Main.prototype.firstFreeRoom = function () {
     }
 };
 
-Main.prototype.getPlayer = function (socket, data) {
+LobbyNetworker.prototype.getPlayer = function (socket, data) {
     if (data && data.playerName) {
         var player = new networking.Player(socket.id, data.playerName);
         this.players[player.id] = player;
@@ -28,7 +28,7 @@ Main.prototype.getPlayer = function (socket, data) {
     }
 };
 
-Main.prototype.getRoom = function (socket, data) {
+LobbyNetworker.prototype.getRoom = function (socket, data) {
     if (data && data.playerId && this.players[data.playerId]) {
         var freeRoom = this.firstFreeRoom();
         var room = freeRoom || new networking.Room(this.masterSocket);
@@ -41,7 +41,7 @@ Main.prototype.getRoom = function (socket, data) {
     }
 };
 
-Main.prototype.handleDisconnect = function (socket) {
+LobbyNetworker.prototype.handleDisconnect = function (socket) {
     if (this.players[socket.id]) {
         var roomId = this.players[socket.id].roomId;
         var room = this.rooms[roomId];
@@ -57,7 +57,7 @@ Main.prototype.handleDisconnect = function (socket) {
     }
 };
 
-Main.prototype.start = function (io, socket) {
+LobbyNetworker.prototype.start = function (io, socket) {
     this.sockets.push(socket);
     this.masterSocket = io;
 
@@ -67,4 +67,4 @@ Main.prototype.start = function (io, socket) {
     socket.on("disconnect", this.handleDisconnect.bind(this, socket));
 };
 
-module.exports = new Main();
+module.exports = LobbyNetworker;
