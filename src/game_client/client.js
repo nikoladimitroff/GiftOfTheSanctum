@@ -35,10 +35,6 @@ Client.prototype.start = function () {
     this.goToStartScreen();
 };
 
-Client.prototype.gameOver = function () {
-    UIHelper.loadPage("room", null, this);
-};
-
 Client.prototype.initializeEventHandlers = function () {
     this.socket.on("getPlayer", function (data) {
         this.playerId = data.playerId;
@@ -101,6 +97,10 @@ Client.prototype.findSelfIndex = function () {
     return -1;
 };
 
+Client.prototype.gameOver = function () {
+    UIHelper.loadPage("room", null, this);
+};
+
 Client.prototype.doNormalLogin = function (name) {
     this.socket.emit("getPlayer", {playerName: name});
 };
@@ -128,6 +128,11 @@ Client.prototype.goToWaitingScreen = function () {
 
 Client.prototype.goToLobbyScreen = function () {
     UIHelper.loadPage("room", null, this);
+    this.gameSocket.emit("welcome", {
+        name: this.playerName,
+        playerId: this.gameSocket.io.engine.id,
+        azureId: this.azureId
+    });
 };
 
 Client.prototype.startGame = function () {

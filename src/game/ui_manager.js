@@ -1,18 +1,11 @@
 "use strict";
 var GameState = require("./enums").GameState;
-
-var FADE_OUT_MILLISECONDS = 3000;
-var MAXIMUM_NUMBER_OF_MESSAGE_BOXES = 5;
+var Loggers = require("../utils/logger.js");
 
 var AVATAR_IMAGES = [
     "archer.png", "knight.png", "mage.png", "monk.png",
      "necro.png", "orc.png", "queen.png", "rogue.png"
 ];
-
-var LogMessage = function () {
-    this.message = ko.observable("");
-    this.style = ko.observable("");
-}
 
 var UIManager = function (viewmodel, events) {
     this.viewmodel = viewmodel;
@@ -25,18 +18,22 @@ UIManager.prototype.init = function (model) {
     // scores work differently they won't fire unless we force them
     this.reevaluator = ko.observable();
 
-    this.pushMessageIndex = 0;
-    this.viewmodel.messages = [
-        new LogMessage(),
-        new LogMessage(),
-        new LogMessage(),
-        new LogMessage(),
-        new LogMessage(),
-    ];
+    var precomputeLoggerMessages = function (i) {
+        this.reevaluator();
+        return Loggers.GameplayLogger.messages[i];
+    };
+
+    this.viewmodel.messages = [];
+    for (var i = 0;
+         i < Loggers.GameplayLogger.MAXIMUM_NUMBER_OF_MESSAGES;
+         i++) {
+        this.viewmodel.messages[i] = ko.computed(
+            precomputeLoggerMessages.bind(this, i));
+    }
 
     // Add whatever else the viewmodel needs
     var players = this.viewmodel.players();
-    for (var i = 0; i < players.length; i++) {
+    for (i = 0; i < players.length; i++) {
         players[i].score = ko.computed(function (i) {
             this.reevaluator();
             return this.model.characters[i].score;
@@ -73,56 +70,6 @@ UIManager.prototype.init = function (model) {
         this.update();
         this.toggleScoreboard();
     }.bind(this));
-
-    this.events.gameOver.addEventListener(function () {
-
-    }.bind(this));
-
-    // this.deleteLogMessageFunctions = [];
-    // var deleteMessage = function () {
-    //     this.viewmodel.messages.shift();
-    // }.bind(this);
-
-    this.events.logGameplayMessage.addEventListener(
-        function (message, styleClass) {
-            if (this.viewmodel.messages[this.pushMessageIndex].message().length === 0) {
-                this.viewmodel.messages[this.pushMessageIndex].message(message);
-                this.viewmodel.messages[this.pushMessageIndex].style(styleClass);
-                var i = this.pushMessageIndex;
-                setTimeout(function () {
-                        this.viewmodel.messages[i].message("");
-                    }.bind(this), FADE_OUT_MILLISECONDS);
-                this.pushMessageIndex++;
-                if (this.pushMessageIndex >= MAXIMUM_NUMBER_OF_MESSAGE_BOXES) {
-                    this.pushMessageIndex = 0;
-                }
-            }
-            // for (var i = 0; i < this.viewmodel.messages.length; i++) {
-            //     if (this.viewmodel.messages[i].message().length === 0) {
-            //         this.viewmodel.messages[i].message(message);
-            //         this.viewmodel.messages[i].style(styleClass);
-            //         setTimeout(function () {
-            //             this.viewmodel.messages[i].message("");
-            //         }.bind(this), FADE_OUT_MILLISECONDS);
-            //         break;
-            //     }
-            // }
-
-            // this.viewmodel.messages.push({
-            //     message: message,
-            //     style: styleClass
-            // });
-
-            // if (this.viewmodel.messages().length >=
-            //     MAXIMUM_NUMBER_OF_MESSAGE_BOXES) {
-            //     window.clearTimeout(this.deleteLogMessageFunctions.pop());
-            //     deleteMessage();
-            // }
-
-            // this.deleteLogMessageFunctions
-            //     .push(window.setTimeout(deleteMessage,
-            //                             FADE_OUT_MILLISECONDS));
-        }.bind(this));
 
     this.bindUI();
 };

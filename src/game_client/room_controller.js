@@ -13,12 +13,6 @@ RoomController.prototype.init = function (client) {
 
     this.socket.on("chat", this.handleChat.bind(this));
 
-    this.socket.emit("welcome", {
-        name: this.client.playerName,
-        playerId: this.socket.io.engine.id,
-        azureId: this.client.azureId
-    });
-
     $(document).ready(function () {
         $("#startGame").on("click", function () {
             if (this.viewmodel.isHost()) {
@@ -33,7 +27,8 @@ RoomController.prototype.init = function (client) {
         $("#chat_form").submit(function (e) {
             e.preventDefault();
             if ($("#chat_text").val() !== "") {
-                var name = this.viewmodel.players()[this.findSelfIndex()].name;
+                var name = this.viewmodel.players()
+                        [this.client.findSelfIndex()].name;
                 var message = $("#chat_text").val();
 
                 $("#chat_text").val("");

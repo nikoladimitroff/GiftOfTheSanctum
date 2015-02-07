@@ -20,6 +20,7 @@ GameController.prototype.init = function (client) {
         autoresize: 1,
         debug: true
     };
+
     var game = Sanctum.startNewGame(playerNames,
                          this.client.findSelfIndex(),
                          networkManager,
@@ -27,9 +28,9 @@ GameController.prototype.init = function (client) {
                          context,
                          options);
 
-    game.events.gameOver.addEventListener(this.client.gameOver);
+    game.events.gameOver
+        .addEventListener(this.client.gameOver.bind(this.client));
 
 };
 
 module.exports = GameController;
-global.GameController = GameController;
