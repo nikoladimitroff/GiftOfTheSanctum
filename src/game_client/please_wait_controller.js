@@ -6,7 +6,7 @@ var PleaseWaitController = function () {
 
 PleaseWaitController.prototype.init = function (client) {
     this.client = client;
-    this.client.socket.emit("getRoom", {playerId: this.client.playerId});
+    this.client.socket.emit("getRoom", {playerId: this.client.mainSocketId});
 };
 
 module.exports = PleaseWaitController;
