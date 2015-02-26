@@ -2,14 +2,29 @@
 // http://go.microsoft.com/fwlink/?LinkID=329104
 (function () {
     "use strict";
+    /* global loadGame */
 
     var app = WinJS.Application;
     var activation = Windows.ApplicationModel.Activation;
+    Object.defineProperty(Node.prototype, "unsafeInnerHTML", {
+        get: function () {
+            return this.innerHTML;
+        },
+        set: function (value) {
+            WinJS.Utilities.setInnerHTMLUnsafe(this, value);
+        },
+        enumerable: false
+    });
+
 
     app.onactivated = function (args) {
         if (args.detail.kind === activation.ActivationKind.launch) {
+
             if (args.detail.previousExecutionState !==
                 activation.ApplicationExecutionState.terminated) {
+
+                MSApp.execUnsafeLocalFunction(loadGame);
+
                 // TODO: This application has been newly launched. Initialize
                 // your application here.
             } else {

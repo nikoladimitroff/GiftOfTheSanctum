@@ -18,6 +18,9 @@ var Viewmodel = function () {
 
 var Client = function () {
     this.viewmodel = new Viewmodel();
+    this.serverName = "/";
+    // this.serverName =
+    //   "https://enigmatic-savannah-1221.herokuapp.com/";
     this.socket = null;
     this.gameSocket = null;
     this.playerId = null;
@@ -26,7 +29,7 @@ var Client = function () {
 };
 
 Client.prototype.start = function () {
-    this.socket = io.connect("", {
+    this.socket = io.connect(this.serverName, {
         port: NetworkManager.port,
         transports: ["websocket"]
     });
@@ -47,7 +50,7 @@ Client.prototype.initializeEventHandlers = function () {
         this.roomId = data.roomId;
 
         var payload = {port: NetworkManager.port};
-        this.gameSocket = io.connect("/" + this.roomId, payload);
+        this.gameSocket = io.connect(this.serverName + this.roomId, payload);
         this.initializeGameEventHandlers();
 
     }.bind(this));
@@ -139,7 +142,10 @@ Client.prototype.startGame = function () {
     UIHelper.loadPage("game", null, this);
 };
 
-window.onload = function () {
+var loadGame = function () {
     var client = new Client();
     client.start();
 };
+
+window.onload = loadGame;
+global.loadGame = loadGame;

@@ -9,7 +9,7 @@ var RoomController = require("../game_client/room_controller");
 var CONTROLLER_SUFFIX = "Controller";
 
 var UIHelper = function () {
-    this.root = "src/game_client/";
+    this.root = "distr/";
     this.htmlFileExtension = ".html";
 };
 

@@ -1,5 +1,9 @@
 {
   "name": "GoS",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
   "dependencies": {
     "browserify": "^6.3.3",
     "chai": "^1.10.0",

@@ -13,7 +13,7 @@ var network = require("./src/game/network_manager");
 var LobbyNetworker = new require("./src/game/lobby_networker");
 var lobbyNetworker = new LobbyNetworker();
 
-var server = http.createServer(app).listen(network.port);
+var server = http.createServer(app).listen(process.env.PORT || network.port);
 
 var io = require("socket.io").listen(server);
 
@@ -21,4 +21,4 @@ io.sockets.on('connection', function(socket) {
     lobbyNetworker.start(io, socket);
 });
 
-console.log("Server Running on " + network.port);
+console.log("Server Running on " + (process.env.PORT || network.port));
