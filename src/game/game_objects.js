@@ -127,6 +127,11 @@ var Achievement = function (description) {
     this.icon = description.icon;
     this.description = description.description;
     this.category = description.category;
+     /* jshint ignore: start */
+    this.requirements = new Function("game",
+                                     "total",
+                                     description.requirements);
+     /* jshint ignore: end */
 };
 
 module.exports.Character = Character;

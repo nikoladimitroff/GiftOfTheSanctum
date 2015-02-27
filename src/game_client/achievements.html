@@ -1,0 +1,96 @@
+<link rel="stylesheet" type="text/css" href="../../distr/main.css">
+<div class="tabs">
+    <!-- ko foreach: categories -->
+        <!-- ko if: $index() == 0 -->
+        <input data-bind="attr: {id: 'tab-' + ($index() + 1),
+                          class: 'tab-selector-' + ($index() + 1)}"
+                type="radio" name="selectors"/>
+        <label data-bind="attr: {for: 'tab-' + ($index() + 1),
+                          class: 'tab-label tab-label-' + ($index() + 1)}">
+            Summary
+            </label>
+        <!-- /ko -->
+
+        <input data-bind="attr: {id: 'tab-' + ($index() + 2),
+                          class: 'tab-selector-' + ($index() + 2)}"
+                type="radio" name="selectors"/>
+        <label data-bind="attr: {for: 'tab-' + ($index() + 2),
+                          class: 'tab-label tab-label-' + ($index() + 2)},
+                          text: name"></label>
+    <!-- /ko -->
+    <div class="content" data-bind="foreach: categories">
+        
+    <!-- ko if: $index() == 0 -->
+        <section id="achievements-summary" class="content-1">
+            <h1>
+                Achievements
+            </h1>
+            <h2>
+                Summary:
+            </h2>
+            <progress data-bind="attr: {max: $root.total, value: $root.earned}"></progress>
+            <label data-bind="text: $root.earnedText"></label>
+        </section>
+    <!-- /ko -->
+
+        <section data-bind="attr: {class: 'content-' + ($index() + 2)}, foreach: achievements">
+            <div data-bind="css: {achievement: true, 'achievement-earned': !!earned()}">
+                <img data-bind="attr: {src: icon}"></img>
+                <div>
+                    <!-- ko if: !!earned() -->
+                        <h4 data-bind="text: 'Earned On: ' + earned().toDateString()"></h4>
+                    <!-- /ko -->
+                    <h2 data-bind="text: name">This is an achievement</h2>
+                    <p  data-bind="text: description">This is its description.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<script src="../../3rdparty/knockout-3.2.0.js"></script>
+<script>
+    var randname = function () {
+      return Math.random().toString(36).substring(7);
+    };
+    var viewmodel = new function() {
+        this.categories = [
+            "Flamemaster",
+            "Spellweaver",
+            "Adventurer",
+            "Explorer",
+            "Master",
+            "Burglar",
+            "Dragon"
+        ];
+        var achievementsPerCategory = 20;
+        for (var i = 0; i < this.categories.length; i++) {
+            var achievements = [];
+            for (var j = 0; j < achievementsPerCategory; j++) {
+                achievements.push(ko.observable({
+                    name: randname(),
+                    description: randname() + randname() + randname() + randname(),
+                    icon: "../../content/art/microsoft_logo.png",
+                    earned: ko.observable(Math.random() > 0.5 ? new Date(Math.random() * Date.now()) : undefined),
+                }));
+            }
+            this.categories.push({name: this.categories.shift(), achievements: achievements});
+        };
+        
+        this.total = achievementsPerCategory * this.categories.length;
+        this.earned = ko.computed(function () {
+            var totalEarned = 0;
+            for (var i = 0; i < this.categories.length; i++) {
+                for (var j = 0; j < achievementsPerCategory; j++) {
+                    totalEarned += !!this.categories[i].achievements[j]().earned();
+                }
+            }; 
+            return totalEarned;                                       
+        }.bind(this));
+        this.earnedText = ko.computed(function () {
+            return this.earned() + "/" + this.total + " Earned";
+        }.bind(this));
+    };
+    ko.applyBindings(viewmodel);
+    document.querySelector(".tabs input:first-of-type").checked = true;
+</script>

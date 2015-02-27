@@ -30,7 +30,7 @@ var ContentManager = function () {
 
     this.audioLibraryKey = "audiolib";
     this.achievementsKey = "achievementlib";
-    this.achievementIconsPath = "content/art/achievements/"
+    this.achievementIconsPath = "content/art/achievements/";
     this.contentCache[this.audioLibraryKey] = {};
     this.spellsSpritesPath = "content/art/spells/";
     this.spellsIconsPath = "content/art/spells/icons/";
@@ -84,7 +84,6 @@ ContentManager.prototype.loadAchievement = function (description) {
     var name = description.name;
     var filename = name.toLowerCase().replace(/ /g, "_") + this.spellImageFormat;
     description.icon = this.achievementIconsPath + filename;
-    var achievement = new Achievement(description);
     this.contentCache[description.name] = new Achievement(description);
 };
 
@@ -188,8 +187,10 @@ ContentManager.prototype.loadGameDataServer = function (gameDataPath,
     gameData.characters.map(this.loadCharacter.bind(this));
 
     var spellLibrary = this.fetchJSONServer(gameData.spells);
-
     spellLibrary.map(this.loadSpell.bind(this));
+
+    var achievementLibrary = this.fetchJSONServer(gameData.achievements);
+    achievementLibrary.map(this.loadAchievement.bind(this));
 
     var platform = this.fetchJSONServer(gameData.platform);
 
@@ -211,14 +212,11 @@ ContentManager.prototype.get = function (path) {
 };
 
 ContentManager.prototype.getSpellLibrary = function () {
-    var spellLib = {};
-    for (var path in this.contentCache) {
-        var content = this.contentCache[path];
-        if (content instanceof Spell) {
-            spellLib[content.name] = content;
-        }
-    }
-    return spellLib;
+    return this.getLibrary(Spell);
+};
+
+ContentManager.prototype.getAchievementLibrary = function () {
+    return this.getLibrary(Achievement);
 };
 
 ContentManager.prototype.getLibrary = function (type) {

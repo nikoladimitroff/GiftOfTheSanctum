@@ -89,8 +89,13 @@ NetworkManager.prototype.handleUpdate = function (payload /*Array*/) {
         if (data !== undefined) {
             this.updateQueue[payload[i].id].push(data);
             if (this.isServer()) {
-                if (payload[i].t === NetworkManager.EventTypes.Spellcast) {
-                    this.recorder.onSpellcast(data.caster, data.spellName);
+                // I have no idea why this works the way it does
+                // We need some serious refactoring
+                for (var j = 0; j < data.length; j++) {
+                    if (data[j].t === NetworkManager.EventTypes.Spellcast) {
+                        this.recorder.onSpellcast(data[j].data.caster,
+                                                  data[j].data.spellName);
+                    }
                 }
             }
         }

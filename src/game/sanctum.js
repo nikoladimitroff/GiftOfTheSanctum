@@ -195,7 +195,8 @@ Sanctum.prototype.init = function () {
     }
     else {
         console.log("CHARS: ", this.characters);
-        this.stat.init(this.characters);
+        this.stat.init(this.characters,
+                       this.content.getAchievementLibrary());
     }
     this.events.initializationComplete.fire(this);
     this.run(0);

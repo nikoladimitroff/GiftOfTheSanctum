@@ -1,0 +1,161 @@
+@import "./settings";
+@import "./common";
+
+@max-categories: 20;
+@header-height: 15%;
+@achievement-height: 7.5%;
+@category-header-height: 10%;
+@background-color: @light-color;
+@hover-background-color: darkgoldenrod;
+@nav-width: 25%;
+
+body {
+    background: darken(@background-color, 15%);
+    //border: 10px solid @border-color;
+    box-sizing: border-box;
+}
+
+.tabs {
+    position: relative;
+    margin: auto auto;
+    width: 100%;
+}
+
+.tabs input {
+    position: absolute;
+    z-index: 1000;
+    width: 120px;
+    height: 40px;
+    left: 0px;
+    top: 0px;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.loop-tab-input (@index) when (@index > 1) {
+	.tabs input#tab-@{index} {
+		top: @index * 40px;
+	}
+	.loop-tab-input(@index - 1);
+}
+
+// end the loop when index is 0
+.loop-tab-input(1) {}
+// Expand the loop
+.loop-tab-input(@max-categories);
+
+.tabs label.tab-label {
+    float: left;
+    clear: both;
+    width: @nav-width;
+    background: #5ba4a4;
+    background: @background-color;
+    height: @category-header-height;
+    font: @medium-font;
+    border-bottom: 2px solid darkslategray;
+    position: relative;
+    padding: 0 20px;
+    display: block;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-align: right;
+    transition: background-color 0.25s linear;
+}
+
+.tabs input:hover + label.tab-label,  {
+    background: @hover-background-color;
+}
+.tabs input:checked + label.tab-label {
+    background: darken(@hover-background-color, 15%);
+}
+
+.content {
+    height: 100%;
+    z-index: 5;
+    overflow: hidden;
+    section {
+        position: absolute;
+        top: 0;
+        padding: 10px 40px;
+        z-index: 1;
+        opacity: 0;
+        transform: translateY(-450px);
+        transition: all linear 0.5s;
+        overflow-y: auto;
+        max-height: 100%;
+
+        p {
+            text-align: left;
+            margin: 0;
+        }
+    }
+}
+
+.loop-tab-selector-input (@index) when (@index > 0) {
+    .tabs input.tab-selector-@{index}:checked ~ .content .content-@{index} {
+        transform: translateY(0px);
+        z-index: 100;
+        opacity: 1;
+        transition: all ease-out 0.3s 0.3s;
+    }
+	.loop-tab-selector-input(@index - 1);
+}
+
+// end the loop when index is 0
+.loop-tab-selector-input(0) {}
+// Expand the loop
+.loop-tab-selector-input(@max-categories);
+
+.achievement {
+    height: @achievement-height;
+    width: 100%;
+    border: 1px solid hsl(266, 33%, 67%);
+    color: snow;
+    img {
+        margin-right: 20px;
+        width: 30%;
+        float: left;
+    }
+}
+
+.achievement:hover {
+    background: darkslategray;
+}
+
+.achievement-earned {
+    background: @hover-background-color;
+    h4 {
+        float: right;
+    }
+}
+.achievement-earned:hover {
+    background: darken(@hover-background-color, 15%);
+}
+
+#achievements-summary {
+    width: 100% - @nav-width;
+    height: 100%;
+    h1 {
+        font: @heavy-font;
+        text-align: center;
+        padding-top: 20px;
+        margin-bottom: 20px;
+    }
+    h2 {
+        font: @medium-font;
+        text-align: center;
+        padding-top: 20px;
+    }
+    progress[value] {
+        display: inline-block;
+        -webkit-appearance: none;
+        appearance: none;
+        margin-left: 15%;
+        width: 40%;
+        height: 5%;
+    }
+    label {
+        margin-left: 10%;
+        font: @light-font;
+    }
+}

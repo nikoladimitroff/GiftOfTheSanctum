@@ -62,7 +62,6 @@
         "|", "^", "&&", "||", "===", "==", ">=",
         "<=", "<", ">", "!=", "!=="
     ],
-    "requireCamelCaseOrUpperCaseIdentifiers": true,
     "disallowKeywords": ["with"],
     "disallowMixedSpacesAndTabs": true,
     "disallowTrailingWhitespace": true,

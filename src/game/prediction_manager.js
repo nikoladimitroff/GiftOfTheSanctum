@@ -1,7 +1,6 @@
 "use strict";
 
-var PredictionManager = function (player) {
-    this.player = player;
+var PredictionManager = function () {
     this.inputSequence = 0;
     this.inputs = [];
 };
