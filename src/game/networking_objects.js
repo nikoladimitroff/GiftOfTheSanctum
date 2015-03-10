@@ -112,12 +112,11 @@ networking.Room.prototype.leave = function (socket /*, data */) {
 networking.Room.prototype.play = function (socket) {
     if (socket.id === this.hostId) {
         this.isRunning = true;
-        var playerNames = this.players.map(function (p) { return p.name; });
         var playersAzureId = this.players.reduce(function (mapping, p) {
             mapping[p.name] = p.azureId;
             return mapping;
         }, {});
-        this.game = Sanctum.startNewGame(playerNames, -1, this.networkManager);
+        this.game = Sanctum.startNewGame(this.players, -1, this.networkManager);
         this.game.events.gameOver.addEventListener(function () {
             this.game.stat.save(playersAzureId);
         }.bind(this));
