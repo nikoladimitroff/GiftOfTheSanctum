@@ -115,6 +115,10 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
         }
     }.bind(this));
 
+    this.events.roundOver.addEventListener(function (sender) {
+        this.network.cleanUpdateQueue();
+    }.bind(this));
+
     this.events.nextRound.addEventListener(function (sender) {
         if (sender === this.ui) {
             // The next round button has been clicked
@@ -239,8 +243,9 @@ Sanctum.prototype.reset = function () {
     this.effects.reset();
     this.network.reset();
     this.spells = [];
-    if (!this.network.isServer())
-        this.ui.toggleScoreboard();
+    if (!this.network.isServer()) {
+        this.ui.viewmodel.showScoreboard(false);
+    }
 };
 
 Sanctum.prototype.handleInput = function () {
@@ -372,6 +377,8 @@ Sanctum.prototype.processNetworkData = function () {
                     if (event.data.target) {
                         player.target = new Vector(event.data.target.x,
                                                    event.data.target.y);
+                    } else {
+                        player.target = null;
                     }
                     break;
 
@@ -457,6 +464,7 @@ Sanctum.prototype.update = function (delta) {
         this.ui.update();
     }
 
+    
     this.physics.update(this.effects.characters);
     this.physics.update(this.effects.activeSpells);
 

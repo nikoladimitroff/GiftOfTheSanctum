@@ -34,7 +34,7 @@ PredictionManager.prototype.verifyAndFilterInput = function (input,
                                                              playerIndex) {
     var player = this.characters[playerIndex];
     var newPosition = new Vector(input.position.x, input.position.y);
-    if (newPosition.subtract(player.position).length() < 20) { // Magic
+    if (newPosition.subtract(player.position).length() < 40) { // Magic
         this.network.sendVerifiedInput(player.id,
                                        playerIndex,
                                        input.inputSequenceNumber);

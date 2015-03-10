@@ -132,6 +132,7 @@ EffectManager.prototype.castSpell = function (characterId, spellName, target) {
         var radius = spell.collisionRadius + character.collisionRadius;
         spell.position = center.subtract(offset)
                                  .add(forward.multiply(1.1 * radius)); // Magic
+        spell.initialPosition = spell.position.clone();
 
         var magnitude = this.spellLibrary[spellName].initialAcceleration;
         spell.acceleration = forward.multiply(magnitude);

@@ -25,6 +25,7 @@ var ContentManager = function () {
     this.contentCache = {};
     this.loading = 0;
     this.loaded = 0;
+    this.loadingElements = 0;
     this.onResourcesLoaded = function () {};
     this.root = "content/";
 
@@ -38,6 +39,7 @@ var ContentManager = function () {
 };
 
 ContentManager.prototype.loadSprite = function (description) {
+    // this.loading++;
     var path = this.root + description.src;
     if (this.contentCache[path])
         return this.contentCache[path];
@@ -47,12 +49,11 @@ ContentManager.prototype.loadSprite = function (description) {
     image.onload = function () {
         this.contentCache[path] = new Sprite(image, framesPerRow);
         this.loaded++;
-        if (this.loaded === this.loading) {
+        if (this.loaded === this.loading && this.loadingElements === 0) {
             this.onResourcesLoaded();
         }
     }.bind(this);
     image.src = path;
-    this.loading++;
 };
 
 ContentManager.prototype.loadSpell = function (description) {
@@ -64,7 +65,7 @@ ContentManager.prototype.loadSpell = function (description) {
 };
 
 ContentManager.prototype.loadAudio = function (audioInfo) {
-    this.loading++;
+    // this.loading++;
     var path = audioInfo.src;
     this.fetchJSONFile(audioInfo.src, function (data) {
         AudioContext.instance.decodeAudioData(data, function (buffer) {
@@ -73,7 +74,7 @@ ContentManager.prototype.loadAudio = function (audioInfo) {
             audioInfo.buffer = buffer;
             this.contentCache[this.audioLibraryKey][path] = audioInfo;
             this.loaded++;
-            if (this.loaded === this.loading) {
+            if (this.loaded === this.loading && this.loadingElements === 0) {
                 this.onResourcesLoaded();
             }
         }.bind(this));
@@ -167,14 +168,21 @@ ContentManager.prototype.loadGameData = function (gameDataPath,
                 });
             });
         };
+        self.loadingElements = 2;
         self.fetchJSONFile(gameData.sprites, function (sprites) {
+            self.loadingElements--;
+            self.loading += sprites.length;
             sprites.map(self.loadSprite.bind(self));
         });
+
         self.fetchJSONFile(gameData.sounds, function (sounds) {
+            self.loadingElements--;
+            self.loading += sounds.length;
             sounds.map(self.loadAudio.bind(self));
         });
-        self.fetchJSONFile(gameData.achievements, function (sounds) {
-            sounds.map(self.loadAchievement.bind(self));
+
+        self.fetchJSONFile(gameData.achievements, function (achievement) {
+            achievement.map(self.loadAchievement.bind(self));
         });
     });
 };
