@@ -32,8 +32,9 @@ PhysicsManager.prototype.getCollisionPairs = function (group1, group2) {
             var distance = firstCenter.subtract(secondCenter).length();
             var radiusSum = first.collisionRadius + second.collisionRadius;
 
-            if (distance < radiusSum)
+            if (distance < radiusSum) {
                 this.collisions.push(new Pair(first, second));
+            }
         }
     }
     return this.collisions;

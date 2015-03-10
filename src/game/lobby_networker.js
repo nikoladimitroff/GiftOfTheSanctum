@@ -9,6 +9,16 @@ var LobbyNetworker = function () {
     this.masterSocket = null;
 };
 
+LobbyNetworker.prototype.start = function (io, socket) {
+    this.sockets.push(socket);
+    this.masterSocket = io;
+
+    socket.emit("connected", {message: "Hi"});
+    socket.on("getRoom", this.getRoom.bind(this, socket));
+    socket.on("getPlayer", this.getPlayer.bind(this, socket));
+    socket.on("disconnect", this.handleDisconnect.bind(this, socket));
+};
+
 LobbyNetworker.prototype.firstFreeRoom = function () {
     for (var roomId in this.rooms) {
         if (this.rooms[roomId].isFree()) {
@@ -23,7 +33,7 @@ LobbyNetworker.prototype.getPlayer = function (socket, data) {
         this.players[player.id] = player;
         player.azureId = data.azureId;
 
-        var payload = {playerId: player.id, playerName: player.name};
+        var payload = {mainSocketId: player.id, playerName: player.name};
         socket.emit("getPlayer", payload);
     }
 };
@@ -55,16 +65,6 @@ LobbyNetworker.prototype.handleDisconnect = function (socket) {
             delete this.rooms[roomId];
         }
     }
-};
-
-LobbyNetworker.prototype.start = function (io, socket) {
-    this.sockets.push(socket);
-    this.masterSocket = io;
-
-    socket.emit("connected", {message: "Hi"});
-    socket.on("getRoom", this.getRoom.bind(this, socket));
-    socket.on("getPlayer", this.getPlayer.bind(this, socket));
-    socket.on("disconnect", this.handleDisconnect.bind(this, socket));
 };
 
 module.exports = LobbyNetworker;

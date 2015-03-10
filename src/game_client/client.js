@@ -22,8 +22,9 @@ var Client = function () {
     // this.serverName =
     //   "https://enigmatic-savannah-1221.herokuapp.com/";
     this.socket = null;
+    this.mainSocketId = null;
     this.gameSocket = null;
-    this.playerId = null;
+    this.gameSocketId = null;
     this.playerName = null;
     this.roomId = null;
 };
@@ -34,13 +35,13 @@ Client.prototype.start = function () {
         transports: ["websocket"]
     });
 
-    this.initializeEventHandlers();
+    this.initializeLoginEventHandlers();
     this.goToStartScreen();
 };
 
-Client.prototype.initializeEventHandlers = function () {
+Client.prototype.initializeLoginEventHandlers = function () {
     this.socket.on("getPlayer", function (data) {
-        this.playerId = data.playerId;
+        this.mainSocketId = data.mainSocketId;
         this.playerName = data.playerName;
 
         this.goToWaitingScreen();
@@ -58,6 +59,7 @@ Client.prototype.initializeEventHandlers = function () {
 
 Client.prototype.initializeGameEventHandlers = function () {
     this.gameSocket.on("connect", function () {
+        this.gameSocketId = this.gameSocket.io.engine.id;
         this.goToLobbyScreen();
     }.bind(this));
 
@@ -77,11 +79,15 @@ Client.prototype.welcome = function (data) {
 
 Client.prototype.leave = function (data) {
     this.viewmodel.players.remove(function (player) {
-        return player.id == data.playerId;
+        return player.name == data.name; // TODO: Use some kind of ID but not SocketID!!
     });
 };
 
 Client.prototype.join = function (data) {
+    var player = data.player;
+    if (data.player.name === this.playerName) {
+        player.id = this.gameSocketId;
+    }
     this.viewmodel.players.push(data.player);
 };
 
@@ -92,7 +98,8 @@ Client.prototype.becomeHost = function (/* data */) {
 Client.prototype.findSelfIndex = function () {
     var players = this.viewmodel.players();
     for (var i = 0; i < players.length; i++) {
-        if (players[i].id == this.gameSocket.io.engine.id) {
+        if (players[i].id &&
+            players[i].id === this.gameSocket.io.engine.id) {
             return i;
         }
     }
@@ -133,7 +140,7 @@ Client.prototype.goToLobbyScreen = function () {
     UIHelper.loadPage("room", null, this);
     this.gameSocket.emit("welcome", {
         name: this.playerName,
-        playerId: this.gameSocket.io.engine.id,
+        playerId: this.gameSocketId,
         azureId: this.azureId
     });
 };

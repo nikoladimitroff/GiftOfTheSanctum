@@ -15,6 +15,12 @@ networking.Player = function (id, name) {
     this.roomId = null;
 };
 
+networking.Player.prototype.extractTransferObject = function () {
+    return {
+        name: this.name
+    };
+};
+
 networking.Room = function (masterSocket) {
     this.handled = false;
     this.hostId = null;
@@ -27,17 +33,17 @@ networking.Room = function (masterSocket) {
 
     this.game = null;
 
-    this.masterSocket = this.masterSocket.of("/" + this.id);
+    this.roomSocket = this.masterSocket.of("/" + this.id);
 };
 
 networking.Room.prototype.handleRoom = function () {
     if (!this.handled) {
-        this.masterSocket.on("connection", function (socket) {
+        this.roomSocket.on("connection", function (socket) {
             if (!this.hostId || this.players.length < 1) {
                 this.hostId = socket.id;
             }
 
-            this.networkManager.connect(this.masterSocket, socket);
+            this.networkManager.connect(this.roomSocket, socket);
             socket.on("welcome", this.welcome.bind(this, socket));
             socket.on("leave", this.leave.bind(this, socket));
             socket.on("play", this.play.bind(this, socket));
@@ -72,14 +78,13 @@ networking.Room.prototype.welcome = function (socket, data) {
         this.sockets.push(socket);
         this.players.push(player);
 
-        console.log(this.players);
-        this.masterSocket.emit("join", {player: player});
+        this.roomSocket.emit("join", {player: player.extractTransferObject()});
     }
 };
 
 networking.Room.prototype.chat = function (socket, data) {
-    if (this.masterSocket.sockets.indexOf(socket) != -1) {
-        this.masterSocket.emit("chat", data);
+    if (this.roomSocket.sockets.indexOf(socket) != -1) {
+        this.roomSocket.emit("chat", data);
     }
 };
 
@@ -96,27 +101,26 @@ networking.Room.prototype.leave = function (socket /*, data */) {
                 this.sockets[0].emit("becomeHost");
             }
 
-            this.masterSocket.emit("leave", {
+            this.roomSocket.emit("leave", {
                                         roomClosed: this.players.length === 0,
-                                        playerId: socket.id,
+                                        name: player.name,
                                    });
         }
     }
 };
 
 networking.Room.prototype.play = function (socket) {
-    if (socket.id == this.hostId) {
-        console.log("Game started.");
+    if (socket.id === this.hostId) {
         this.isRunning = true;
         var playerData = this.players.map(function (p) {
             return {
                 name: p.name,
-                azureId: p.azureId
+                azureId: p.azureId,
+                id: p.id
             };
         });
-        console.log(playerData);
         this.game = Sanctum.startNewGame(playerData, -1, this.networkManager);
-        this.masterSocket.emit("play", {});
+        this.roomSocket.emit("play", {});
     }
 };
 

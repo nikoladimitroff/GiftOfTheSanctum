@@ -9,6 +9,25 @@ var CastType = {
     instant: "instant",
 };
 
+var effectsMap = {
+    damage: function (target, spell) {
+        target.health -= spell.damageAmount;
+    },
+
+    pushback: function (target, spell, physics, isServer) {
+        if (isServer) {
+            return;
+        }
+        var hitDirection = target.position.subtract(spell.position);
+        Vector.normalize(hitDirection);
+        Vector.multiply(hitDirection,
+                        spell.pushbackForce,
+                        hitDirection);
+        physics.applyForce(target, hitDirection);
+        target.target = null;
+    }
+};
+
 var EffectManager = function () {
     this.spellCooldowns = [];
 };
@@ -45,7 +64,7 @@ EffectManager.prototype.removeSpell = function (spellId, index) {
     return false;
 };
 
-EffectManager.prototype.applyEffects = function (physics, dt) {
+EffectManager.prototype.applyEffects = function (physics, dt, isServer) {
     var collisions = physics.getCollisionPairs(this.characters,
                                                this.activeSpells);
     for (var i = 0; i < collisions.length; i++) {
@@ -54,12 +73,13 @@ EffectManager.prototype.applyEffects = function (physics, dt) {
 
         if (first instanceof Character &&
             second instanceof Spell) {
-            this.pulseSpell(second, physics, first, dt);
+            this.pulseSpell(second, physics, first, dt, isServer);
         }
     }
 };
 
-EffectManager.prototype.pulseSpell = function (spell, physics, hitTarget, dt) {
+EffectManager.prototype.pulseSpell = function (spell, physics,
+                                               hitTarget, dt, isServer) {
     if (spell.castingType == CastType.instant) {
         spell.lastUpdate = (spell.lastUpdate + dt) || dt;
         if (spell.lastUpdate <= 1000) { // magic
@@ -71,27 +91,17 @@ EffectManager.prototype.pulseSpell = function (spell, physics, hitTarget, dt) {
     var targets = physics.getObjectsWithinRadius(this.characters,
                                                  spell.position,
                                                  spell.effectRadius);
-    if (targets.length === 0)
+    if (targets.length === 0) {
         targets.push(hitTarget);
+    }
 
     for (var i = 0; i < targets.length; i++) {
         var target = targets[i];
         for (var j = 0; j < spell.effects.length; j++) {
             var effect = spell.effects[j];
-            switch (effect) {
-                case "damage":
-                    target.health -= spell.damageAmount;
-                    break;
-                case "pushback":
-                    var hitDirection = target.position.subtract(spell.position);
-                    Vector.normalize(hitDirection);
-                    Vector.multiply(hitDirection,
-                                    spell.pushbackForce,
-                                    hitDirection);
-                    physics.applyForce(target, hitDirection);
-                    target.target = null;
-                    break;
-            }
+            var effectFunction = effectsMap[effect];
+
+            effectFunction(target, spell, physics, isServer);
         }
     }
     if (spell.castType == CastType.projectile) {
@@ -183,8 +193,8 @@ EffectManager.prototype.cleanupEffects = function () {
     }
 };
 
-EffectManager.prototype.update = function (delta, physics, platform) {
-    this.applyEffects(physics, delta);
+EffectManager.prototype.update = function (delta, physics, platform, isServer) {
+    this.applyEffects(physics, delta, isServer);
     this.applyPlatformEffect(physics, platform);
     this.cleanupEffects();
 };

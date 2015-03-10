@@ -11,7 +11,8 @@ var NetworkManager = function () {
 
     this.masterSocket = null;
     this.socket = null;
-    this.sockets = [];
+    this.sockets = {};
+
     this.updateQueue = {};
     this.scores = {};
     this.buffer = [];
@@ -30,10 +31,12 @@ NetworkManager.EventTypes = {
 NetworkManager.prototype.connect = function (masterSocket, socket) {
     if (!masterSocket) {
         this.socket = socket;
+        this.gameSocketId = socket.io.engine.id;
     }
     else {
-        this.sockets.push(socket);
+        this.sockets[socket.id] = socket;
         this.masterSocket = masterSocket;
+        this.socket = socket;
     }
 
     socket.on("update", this.handleUpdate.bind(this));
@@ -55,6 +58,7 @@ NetworkManager.prototype.addObject = function (object, index) {
         velocity: object.velocity,
         target: object.target,
         score: object.score,
+        inputSequenceNumber: object.inputSequenceNumber,
         id: index
     };
 
@@ -62,22 +66,16 @@ NetworkManager.prototype.addObject = function (object, index) {
                       data: objectInfo});
 };
 
-NetworkManager.prototype.flush = function (objectId) {
+NetworkManager.prototype.flush = function (playerIndex) {
     if (this.buffer.length > 0) {
         if (!this.isServer()) {
-            this.socket.emit("update", [{data: this.buffer, id: objectId}]);
+            this.socket.emit("update", [{data: this.buffer, id: playerIndex}]);
         } else {
             this.masterSocket.emit("update", this.buffer);
         }
     }
 
     this.buffer = [];
-};
-
-NetworkManager.prototype.addObjectData = function (objects, playerCount) {
-    for (var i = 0; i < playerCount; i++) {
-        this.addCharacterInfo(objects[i], i);
-    }
 };
 
 NetworkManager.prototype.handleUpdate = function (payload /*Array*/) {
@@ -103,10 +101,6 @@ NetworkManager.prototype.handleUpdate = function (payload /*Array*/) {
 };
 
 NetworkManager.prototype.handleDeath = function (data) {
-    if (this.isServer()) {
-        this.masterSocket.emit("death", data);
-    }
-    console.log("client death");
     this.pendingDeaths.push(data.index);
 };
 
@@ -115,12 +109,27 @@ NetworkManager.prototype.getPendingDeaths = function () {
 };
 
 NetworkManager.prototype.sendDie = function (playerIndex) {
-    this.socket.emit("death", {index: playerIndex});
+    this.masterSocket.emit("death", {index: playerIndex});
+    this.pendingDeaths.push(playerIndex);
 };
 
 NetworkManager.prototype.sendScores = function (playerIndex, score) {
-    if (this.isServer())
+    if (this.isServer()) {
         this.masterSocket.emit("scores", {index: playerIndex, score: score});
+    }
+};
+
+NetworkManager.prototype.sendVerifiedInput = function (socketId,
+                                                       playerIndex,
+                                                       sequenceNumber,
+                                                       recoveryPosition) {
+    this.sockets[socketId].emit("input-verification",
+            {
+                playerIndex: playerIndex,
+                sequenceNumber: sequenceNumber,
+                recoveryPosition: recoveryPosition
+            }
+    );
 };
 
 NetworkManager.prototype.handleScores = function (data) {
@@ -160,7 +169,14 @@ NetworkManager.prototype.isServer = function () {
     return this.masterSocket !== null;
 };
 
+NetworkManager.prototype.cleanUpdateQueue = function () {
+    this.lastUpdate = 0;
+    this.updateQueue = {};
+    this.buffer = [];
+};
+
 NetworkManager.prototype.reset = function () {
+    console.log("NetworkManager reset");
     this.lastUpdate = 0;
     this.updateQueue = {};
     this.scores = {};

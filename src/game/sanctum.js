@@ -67,8 +67,8 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
     this.physics = new PhysicsManager();
     this.playerManager = new PlayerManager(this.characters,
                                            this.physics);
-    var player = this.characters[this.playerIndex];
-    this.predictionManager = new PredictionManager(player);
+    this.predictionManager = new PredictionManager(this.characters,
+                                                   networkManager);
     this.effects = new EffectManager();
     this.network = networkManager;
 
@@ -157,8 +157,15 @@ Sanctum.prototype.init = function () {
     for (var i = 0; i < this.characters.length; i++) {
         var playerData = this.characters.shift();
         var player = this.content.get(CHARACTERS[i]);
-        player.name = playerData.name;
-        player.azureId = playerData.azureId;
+
+        if (this.network.isServer()) {
+            player.name = playerData.name;
+            player.id = playerData.id;
+            player.azureId = playerData.azureId;
+        } else {
+            player.name = playerData;
+        }
+
         player.position = positions[i];
         this.characters.push(player);
     }
@@ -194,7 +201,7 @@ Sanctum.prototype.init = function () {
         this.ui.init(this.model);
     }
     else {
-        console.log("CHARS: ", this.characters);
+        // console.log("CHARS: ", this.characters);
         this.stat.init(this.characters,
                        this.content.getAchievementLibrary());
     }
@@ -213,7 +220,6 @@ Sanctum.prototype.loadContent = function () {
 };
 
 Sanctum.prototype.reset = function () {
-    console.log("reset");
     var center = this.platform.size.divide(2);
     var positions = this.platform.generateVertices(this.characters.length,
                                                    150, // Magic
@@ -300,42 +306,69 @@ Sanctum.prototype.processNetworkData = function () {
         });
     }
 
-    if (!payload) { // TODO: This might be useless ?!
-        return;
-    }
+    var playerPayload,
+        event, j;
 
     if (this.network.isServer()) {
         payload = payload.filter(function (item) {
             return item.data !== null;
         });
+
+        for (i = 0; i < payload.length; i++) {
+            playerPayload = payload[i].data;
+
+            if (!playerPayload) {
+                continue;
+            }
+
+            for (j = 0; j < playerPayload.length; j++) {
+                event = playerPayload[j];
+                if (event.t == NetworkManager.EventTypes.ObjectInfo) {
+                    this.predictionManager
+                            .verifyAndFilterInput(event.data, event.data.id);
+                }
+            }
+        }
         this.network.masterSocket.emit("update", payload);
-        return;
     }
 
+    var replayInputs = function (input) {
+        this.position.set(input.data);
+    };
+
     for (i = 0; i < payload.length; i++) {
-        var playerPayload = payload[i].data;
+        playerPayload = payload[i].data;
 
         if (!playerPayload) {
             continue;
         }
 
-        if (payload[i].id == this.playerIndex) {
-            continue;
-        }
+        for (j = 0; j < playerPayload.length; j++) {
+            event = playerPayload[j];
 
-        for (var j = 0; j < playerPayload.length; j++) {
-            var event = playerPayload[j];
             var canSkip = false;
             switch (event.t) {
                 case NetworkManager.EventTypes.ObjectInfo:
                     var player = this.characters[event.data.id];
-                    canSkip = event.data.id == this.playerIndex;
-                    if (canSkip) {
-                        continue;
-                    }
 
-                    player.position.set(event.data.position);
+                    if (!this.network.isServer()) {
+                        if (event.data.id == this.playerIndex) {
+                            var lastVerifiedInput =
+                                this.predictionManager.getLastProcessedInput();
+                            var inputs = this.predictionManager.getInputs();
+                            if (lastVerifiedInput) {
+                                player.position.set(lastVerifiedInput);
+                            }
+                            inputs.forEach(replayInputs.bind(player));
+                        } else {
+                            player.position.set(event.data.position);
+                        }
+                    } else {
+                        player.position.set(event.data.position);
+                    }
                     player.velocity.set(event.data.velocity);
+
+
                     if (event.data.target) {
                         player.target = new Vector(event.data.target.x,
                                                    event.data.target.y);
@@ -385,6 +418,15 @@ Sanctum.prototype.processPendingDeaths = function () {
     this.network.pendingDeaths = [];
 };
 
+Sanctum.prototype.processAuthoritativeDeaths = function () {
+    this.characters.forEach(function (character, characterIndex) {
+        if (character.health <= 0 && !character.isDead) {
+            this.network.sendDie(characterIndex);
+            character.isDead = true;
+        }
+    }.bind(this));
+};
+
 Sanctum.prototype.bindSpells = function (cast0, cast1, cast2,
                                          cast3, cast4, cast5) {
 
@@ -399,6 +441,10 @@ Sanctum.prototype.bindSpells = function (cast0, cast1, cast2,
 Sanctum.prototype.update = function (delta) {
     this.processNetworkData();
 
+    if (this.network.isServer()) {
+        this.processAuthoritativeDeaths();
+    }
+
     if (!this.network.isServer()) {
         var currentPlayer = this.characters[this.playerIndex];
         if (!currentPlayer.isDead) {
@@ -407,17 +453,21 @@ Sanctum.prototype.update = function (delta) {
 
         this.platform.update(delta);
         this.playerManager.update();
-        this.physics.update(this.effects.characters);
-        this.physics.update(this.effects.activeSpells);
-        this.effects.update(delta, this.physics, this.platform);
-
-        if (currentPlayer.health <= 0 && !currentPlayer.isDead) {
-            this.network.sendDie(this.playerIndex);
-            currentPlayer.isDead = true;
-        }
 
         this.ui.update();
     }
+
+    this.physics.update(this.effects.characters);
+    this.physics.update(this.effects.activeSpells);
+
+    if (!this.network.isServer()) {
+        this.effects.update(delta, this.physics, this.platform, false);
+    }
+
+    if (this.network.isServer()) {
+        this.effects.update(delta, this.physics, this.platform, true);
+    }
+
     this.processPendingDeaths();
     if (this.deadCount >= this.characters.length - 1) {
         if (this.currentRound > this.platform.rounds)
@@ -430,7 +480,9 @@ Sanctum.prototype.update = function (delta) {
     if (this.network.lastUpdate >= this.network.updateTime) {
         if (!this.network.isServer()) {
             var player = this.characters[this.playerIndex];
-            // this.predictionManager.addInput(player.position);
+            this.predictionManager.addInput(player.position);
+            player.inputSequenceNumber =
+                    this.predictionManager.inputSequence - 1;
             this.network.addObject(player, this.playerIndex);
             this.network.flush(this.playerIndex);
         }
@@ -462,8 +514,9 @@ Sanctum.prototype.loop = function (timestamp) {
     }
     if (this.model.state === GameState.gameover) {
         this.events.gameOver.fire(this);
-        if (this.network.isServer())
+        if (this.network.isServer()) {
             this.stat.save();
+        }
         console.log("End of game");
         return;
     }
@@ -505,6 +558,7 @@ Sanctum.prototype.getMaxScorePlayerIndex = function () {
 };
 
 Sanctum.prototype.run = function () {
+    this.network.cleanUpdateQueue();
     this.mainSanctumLoop = this.loop.bind(this);
     if (this.network.isServer()) {
         this.mainSanctumLoop = this.loop.bind(this, 1000 / 60);
