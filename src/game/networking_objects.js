@@ -1,4 +1,5 @@
 "use strict";
+var Loggers = require("../utils/logger");
 var NetworkManager = require("./network_manager");
 var Sanctum = require("./sanctum");
 
@@ -111,6 +112,7 @@ networking.Room.prototype.leave = function (socket /*, data */) {
 
 networking.Room.prototype.play = function (socket) {
     if (socket.id === this.hostId) {
+        Loggers.Debug.log("Game started.");
         this.isRunning = true;
         var playerData = this.players.map(function (p) {
             return {

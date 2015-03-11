@@ -1,5 +1,7 @@
 "use strict";
 
+var Loggers = require("../utils/logger");
+
 var process = process || null;
 
 var NetworkManager = function () {
@@ -101,6 +103,10 @@ NetworkManager.prototype.handleUpdate = function (payload /*Array*/) {
 };
 
 NetworkManager.prototype.handleDeath = function (data) {
+    if (this.isServer()) {
+        this.masterSocket.emit("death", data);
+    }
+    Loggers.Debug.log("Client death: {0}", data.index);
     this.pendingDeaths.push(data.index);
 };
 
@@ -142,7 +148,7 @@ NetworkManager.prototype.handleScores = function (data) {
 
 NetworkManager.prototype.sendNextRound = function () {
     this.socket.emit("next-round");
-    console.log("next round send");
+    Loggers.Debug.log("Next round send");
 };
 
 NetworkManager.prototype.handleNextRound = function () {
@@ -150,7 +156,7 @@ NetworkManager.prototype.handleNextRound = function () {
     if (this.isServer()) {
         this.masterSocket.emit("next-round");
     }
-    console.log("next round received");
+    Loggers.Debug.log("Next round received");
 };
 
 

@@ -1,11 +1,15 @@
 [{
-    name: "Firemaster",
-    category: "Spellweaving",
-    description: "You've mastered the fire school of magic by casting a Flamestrike",
-    requirements: "console.log(game, total); return game.spellsCast['Flamestrike'] >= 1;",
+    name: "Spellweaving",
+    achievements: [{
+        name: "Firemaster",
+        description: "You've mastered the fire school of magic by casting a Flamestrike",
+        requirements: "console.log(game, total); return game.spellsCast['Flamestrike'] >= 1;",
+    }]
 }, {
-    name: "Gladiator",
-    category: "Arena mastery",
-    description: "You didn't bow before your enemies and successfully won 5 games.",
-    requirements: "console.log(game, total);  return total.placesFinished[0] >= 5;",
+    name: "Arena mastery",
+    achievements: [{
+        name: "Gladiator",
+        description: "You didn't bow before your enemies and successfully won 5 games.",
+        requirements: "console.log(game, total);  return total.placesFinished[0] >= 5;",
+    }]
 }]

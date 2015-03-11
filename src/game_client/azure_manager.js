@@ -1,4 +1,5 @@
 "use strict";
+var Loggers = require("../utils/logger.js");
 /* global WindowsAzure */
 
 var AzureManager = function AzureManager() {
@@ -19,17 +20,18 @@ Object.defineProperty(AzureManager.prototype, "loggedIn", {
 AzureManager.prototype.login = function (callback) {
     var onsuccess = this.loadInformation.bind(this, callback);
     this.client.login("microsoftaccount").done(onsuccess, function (error) {
-        return console.log(error);
+        Loggers.Debug.log("An error occurred while login: {0}", error);
     });
 };
 
-AzureManager.prototype.lookup = function (onsuccess, onerror) {
-    this.users.lookup(this.client.currentUser.userId)
+AzureManager.prototype.lookup = function (tableName, onsuccess, onerror) {
+    var table = this.client.getTable(tableName);
+    table.lookup(this.client.currentUser.userId)
     .done(function (result) {
-        console.log("Azure success: ", result);
+        Loggers.Debug.log("Azure success: ", result);
         if (onsuccess) onsuccess(result);
     }, function (error) {
-        console.error("Azure error: ", error);
+        Loggers.Debug.error("Azure error: ", error);
         if (onerror) onerror(error);
     });
 };
@@ -37,10 +39,20 @@ AzureManager.prototype.lookup = function (onsuccess, onerror) {
 AzureManager.prototype.loadInformation = function (updateCallback) {
     var onerror = function () {
         this.users.insert({id: this.client.currentUser.userId})
-        .done(this.lookup.bind(this, updateCallback));
+        .done(this.lookup.bind(this, "users", updateCallback));
     }.bind(this);
     var onsuccess = updateCallback;
-    this.lookup(onsuccess, onerror);
+    this.lookup("users", onsuccess, onerror);
+};
+
+AzureManager.prototype.loadStats = function (updateCallback) {
+    var onerror = function () {
+        var message = "Could not load stats at the moment. " +
+                      "Please try again later.";
+        Loggers.Gameplay.error(message);
+    }.bind(this);
+    var onsuccess = updateCallback;
+    this.lookup("user_statistics", onsuccess, onerror);
 };
 
 AzureManager.prototype.save = function (info) {

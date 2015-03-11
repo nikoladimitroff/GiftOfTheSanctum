@@ -4,6 +4,7 @@ var LoginController = require("../game_client/login_controller.js");
 var GameController = require("../game_client/game_controller.js");
 var PleaseWaitController = require("../game_client/please_wait_controller.js");
 var RoomController = require("../game_client/room_controller");
+var AchievementsController = require("../game_client/achievements_controller");
 // jshint ignore: end
 
 var CONTROLLER_SUFFIX = "Controller";

@@ -1,4 +1,5 @@
 "use strict";
+var Loggers = require("../utils/logger");
 var networking = require("./networking_objects.js");
 
 var LobbyNetworker = function () {
@@ -61,7 +62,7 @@ LobbyNetworker.prototype.handleDisconnect = function (socket) {
 
         room.game.disconnectCount = (room.game.disconnectCount + 1) || 1;
         if (room.game.disconnectCount >= room.game.playerCount) {
-            console.log("deleting room");
+            Loggers.Debug.log("deleting room");
             delete this.rooms[roomId];
         }
     }

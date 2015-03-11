@@ -24,6 +24,10 @@ RoomController.prototype.init = function (client) {
             this.socket.emit("leave");
         }.bind(this));
 
+        $("#view-achievements").on("click", function () {
+            this.client.goToAchievementsScreen();
+        }.bind(this));
+
         $("#chat_form").submit(function (e) {
             e.preventDefault();
             if ($("#chat_text").val() !== "") {

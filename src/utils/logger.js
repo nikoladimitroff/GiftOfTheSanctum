@@ -1,6 +1,8 @@
 "use strict";
 var fs = require("fs");
 var path = require("path");
+var StringUtils = require("./string_utils");
+var utcNow = require("./general_utils").utcNow;
 
 var LOG_MESSAGE_CLASS = "log-message";
 var WARN_MESSAGE_CLASS = "warn-message";
@@ -8,6 +10,33 @@ var ERROR_MESSAGE_CLASS = "error-message";
 
 var FADE_OUT_MILLISECONDS = 3000;
 var MAXIMUM_NUMBER_OF_MESSAGES = 5;
+
+function getTimestamp (includeDate) {
+    if (includeDate === undefined)
+        includeDate = true;
+
+    var now = utcNow();
+    if (includeDate) {
+        return StringUtils.format("[{0}.{1}.{2} {3}:{4}:{5}]",
+                                  StringUtils.padLeft(now.getDate(), "00"),
+                                  StringUtils.padLeft(now.getMonth(), "00"),
+                                  StringUtils.padLeft(now.getFullYear(),
+                                                      "0000"),
+                                  StringUtils.padLeft(now.getHours(), "00"),
+                                  StringUtils.padLeft(now.getMinutes(), "00"),
+                                  StringUtils.padLeft(now.getSeconds(), "00"));
+    }
+    else {
+        return StringUtils.format("[{0}:{1}:{2}]",
+                                  StringUtils.padLeft(now.getHours(), "00"),
+                                  StringUtils.padLeft(now.getMinutes(), "00"),
+                                  StringUtils.padLeft(now.getSeconds(), "00"));
+    }
+}
+
+function getLogFilename () {
+    return utcNow().toString().replace(/:/g, "-");
+}
 
 var LogMessage = function () {
     this.message = "";
@@ -42,75 +71,123 @@ GameplayLogger.prototype.genericLog = function (message, styleClass) {
     }
 };
 
-GameplayLogger.prototype.log = function (message) {
+GameplayLogger.prototype.log = function (message /*,  args */) {
+    message = StringUtils.format.apply(undefined, arguments);
     this.genericLog(message, LOG_MESSAGE_CLASS);
 };
 
-GameplayLogger.prototype.warn = function (message) {
+GameplayLogger.prototype.warn = function (message /*,  args */) {
+    message = StringUtils.format.apply(undefined, arguments);
     this.genericLog(message, WARN_MESSAGE_CLASS);
 };
 
-GameplayLogger.prototype.error = function (message) {
+GameplayLogger.prototype.error = function (message /*,  args */) {
+    message = StringUtils.format.apply(undefined, arguments);
     this.genericLog(message, ERROR_MESSAGE_CLASS);
 };
 
+var LogTypes = {
+    Log: "Log",
+    Warning: "Warning",
+    Error: "Error"
+};
+
 var FileLogger = function (logFolderPath) {
-    this.logFolder = logFolderPath;
+    this.logFile = path.join(logFolderPath, getLogFilename() + ".log");
+    // Create the file if it doesn't exist
+    fs.closeSync(fs.openSync(this.logFile, "a"));
 };
 
-FileLogger.prototype.genericLog = function (message, file) {
-    var now = new Date().toLocaleString();
-    var writeMessage = "[" + now + "] " + message + "\r\n";
-    fs.appendFileSync(this.logFolder + file, writeMessage);
+FileLogger.prototype.genericLog = function (message, type) {
+    var formattedMessage = StringUtils.format("[{0}]{1} {2}\r\n",
+                                              type,
+                                              getTimestamp(),
+                                              message);
+    fs.appendFileSync(this.logFile, formattedMessage);
 };
 
-FileLogger.prototype.log = function (message) {
-    this.genericLog(message, "log.txt");
+FileLogger.prototype.log = function (message /*,  args */) {
+    message = StringUtils.format.apply(undefined, arguments);
+    this.genericLog(message, LogTypes.Log);
 };
 
-FileLogger.prototype.warn = function (message) {
-    this.genericLog(message, "warn.txt");
+FileLogger.prototype.warn = function (message /*,  args */) {
+    message = StringUtils.format.apply(undefined, arguments);
+    this.genericLog(message, LogTypes.Warning);
 };
 
-FileLogger.prototype.error = function (message) {
-    this.genericLog(message, "error.txt");
+FileLogger.prototype.error = function (message /*,  args */) {
+    message = StringUtils.format.apply(undefined, arguments);
+    this.genericLog(message, LogTypes.Error);
 };
 
-var GenericLogger = function (loggers) {
+var ConsoleLogger = function () {};
+ConsoleLogger.prototype.log = function (message /*,  args */) {
+    message = getTimestamp(false) + " " +
+              StringUtils.format.apply(undefined, arguments);
+    console.log(message);
+};
+
+ConsoleLogger.prototype.warn = function (message /*,  args */) {
+    message = getTimestamp(false) + " " +
+              StringUtils.format.apply(undefined, arguments);
+    console.warn(message);
+};
+
+ConsoleLogger.prototype.error = function (message /*, args */) {
+    message = getTimestamp(false) + " " +
+              StringUtils.format.apply(undefined, arguments);
+    console.error(message);
+};
+
+var MultipleLogger = function (loggers) {
     this.loggers = loggers;
 };
 
-GenericLogger.prototype.log = function (message) {
+MultipleLogger.prototype.log = function (message /*, args */) {
+    message = StringUtils.format.apply(undefined, arguments);
     for (var i = 0; i < this.loggers.length; i++) {
         this.loggers[i].log(message);
     }
 };
 
-GenericLogger.prototype.warn = function (message) {
+MultipleLogger.prototype.warn = function (message /*, args */) {
+    message = StringUtils.format.apply(undefined, arguments);
     for (var i = 0; i < this.loggers.length; i++) {
         this.loggers[i].warn(message);
     }
 };
 
-GenericLogger.prototype.error = function (message) {
+MultipleLogger.prototype.error = function (message /*, args */) {
+    message = StringUtils.format.apply(undefined, arguments);
     for (var i = 0; i < this.loggers.length; i++) {
         this.loggers[i].error(message);
     }
 };
 
-var logFolder = ["..", "..", "logs"];
-logFolder = logFolder.join(path.sep) + path.sep;
-
+var logFolder = path.join("..", "..", "logs");
+var isBrowser = Boolean(process.browser);
 var Loggers = {
-    GameplayLogger: new GameplayLogger(),
-    DebugLogger: new FileLogger(__dirname + path.sep + logFolder),
+    Gameplay: new GameplayLogger(),
+    Debug: isBrowser ?
+           new ConsoleLogger() :
+           new MultipleLogger([
+               new ConsoleLogger(),
+               new FileLogger(path.join(__dirname, logFolder))
+           ]),
+};
+
+Loggers.asJSON = function (object) {
+    return JSON.stringify(object)
+           .replace(/\{/g, "{{")
+           .replace(/\}/g, "}}");
 };
 
 // TODO: If it is on client stub FileLogger
 
-// Loggers.GenericLogger = new GenericLogger([
+// Loggers.MultipleLogger = new MultipleLogger([
 //     Loggers.GameplayLogger,
-//     stub(Loggers.DebugLogger),
+//     stub(Loggers.Debug),
 // ]);
 
 module.exports = Loggers;

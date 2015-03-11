@@ -1,4 +1,9 @@
 "use strict";
+var Loggers = require("../utils/logger");
+var SanctumEvent = require("../utils/sanctum_event.js");
+var ArrayUtils = require("../utils/array_utils");
+var stub = require("../utils/stub.js");
+
 var PhysicsManager = require("./physics_manager");
 var EffectManager =  require("./effect_manager");
 var InputManager = require("./input_manager");
@@ -14,9 +19,6 @@ var GameState = require("./enums").GameState,
     Action = require("./enums").Action;
 
 var Vector = require("./math/vector");
-var SanctumEvent = require("../utils/sanctum_event.js");
-var ArrayUtils = require("../utils/array_utils");
-var stub = require("../utils/stub.js");
 
 var SPELLCAST_COUNT = 6;
 
@@ -205,7 +207,6 @@ Sanctum.prototype.init = function () {
         this.ui.init(this.model);
     }
     else {
-        // console.log("CHARS: ", this.characters);
         this.stat.init(this.characters,
                        this.content.getAchievementLibrary());
     }
@@ -224,6 +225,7 @@ Sanctum.prototype.loadContent = function () {
 };
 
 Sanctum.prototype.reset = function () {
+    Loggers.Debug.log("Round reset.");
     var center = this.platform.size.divide(2);
     var positions = this.platform.generateVertices(this.characters.length,
                                                    150, // Magic
@@ -516,7 +518,7 @@ Sanctum.prototype.loop = function (timestamp) {
 
     this.model.state = this.update(delta);
     if (this.model.state === GameState.midround) {
-        console.log("End of round");
+        Loggers.Debug.log("End of round");
         this.events.roundOver.fire(this);
         return;
     }
@@ -525,7 +527,7 @@ Sanctum.prototype.loop = function (timestamp) {
         if (this.network.isServer()) {
             this.stat.save();
         }
-        console.log("End of game");
+        Loggers.Debug.log("End of game");
         return;
     }
 

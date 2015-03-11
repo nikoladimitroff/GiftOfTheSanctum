@@ -1,5 +1,5 @@
 "use strict";
-var HelperModule = require("../utils/ui_helper");
+var HelperModule = require("./ui_helper");
 var UIHelper = new HelperModule();
 var NetworkManager = require("../game/network_manager");
 var AzureManager = require("./azure_manager");
@@ -14,10 +14,12 @@ var Viewmodel = function () {
         return "content/art/characters/lobby/" + fileName;
     });
     this.isHost = ko.observable(false);
+    this.isLoggedWithAzure = ko.observable(false);
 };
 
 var Client = function () {
     this.viewmodel = new Viewmodel();
+    this.azureManager = null;
     this.serverName = "/";
     // this.serverName =
     //   "https://enigmatic-savannah-1221.herokuapp.com/";
@@ -116,11 +118,12 @@ Client.prototype.doNormalLogin = function (name) {
 };
 
 Client.prototype.doAzureLogin = function () {
-    var azureController = new AzureManager();
-    azureController.login(function (result) {
+    this.azureManager = this.azureManager || new AzureManager();
+    this.azureManager.login(function (result) {
         console.log("Azure post login: ", result, this);
         this.azureId = result.id;
         this.playerName = result.name;
+        this.viewmodel.isLoggedWithAzure(true);
         this.socket.emit("getPlayer", {
             playerName: this.playerName,
             azureId: this.azureId
@@ -143,6 +146,10 @@ Client.prototype.goToLobbyScreen = function () {
         playerId: this.gameSocketId,
         azureId: this.azureId
     });
+};
+
+Client.prototype.goToAchievementsScreen = function () {
+    UIHelper.loadPage("achievements", null, this);
 };
 
 Client.prototype.startGame = function () {

@@ -1,6 +1,12 @@
 "use strict";
 var Vector = require("./math/vector");
 
+var Settings = {
+    spellIconPath: "/content/art/spells/icons/",
+    achievementIconPath: "/content/art/achievements/",
+    imageFormat: ".png"
+};
+
 var ID_COUNTER = 0;
 
 function copyProperties(object, description) {
@@ -63,7 +69,11 @@ var Spell = function (sprite, description) {
 
     // rendering
     this.sprite = sprite;
-    this.icon = description.icon;
+    if (description.name) {
+        var filename = description.name.toLowerCase().replace(/ /g, "_") +
+                       Settings.imageFormat;
+        this.icon = Settings.spellIconPath + filename;
+    }
     this.rotation = 0;
 
     this.sfx = description.sfx;
@@ -124,7 +134,9 @@ Character.prototype.playAnimation = function (action, forward) {
 
 var Achievement = function (description) {
     this.name = description.name;
-    this.icon = description.icon;
+    var filename = this.name.toLowerCase().replace(/ /g, "_") +
+                   Settings.imageFormat;
+    this.icon = Settings.achievementIconPath + filename;
     this.description = description.description;
     this.category = description.category;
      /* jshint ignore: start */
@@ -137,3 +149,4 @@ var Achievement = function (description) {
 module.exports.Character = Character;
 module.exports.Spell = Spell;
 module.exports.Achievement = Achievement;
+module.exports.Settings = Settings;

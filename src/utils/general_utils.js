@@ -8,4 +8,4 @@ function UTCnow() {
     return nowUtc;
 }
 
-module.exports = UTCnow;
+module.exports.utcNow = UTCnow;

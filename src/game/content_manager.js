@@ -1,16 +1,15 @@
 "use strict";
 /* global AudioContext */
 
-var Platform = require("./platform");
+var fs = require("fs");
 
+var Platform = require("./platform");
 var allGameObjects = require("./game_objects");
 var Character = allGameObjects.Character,
     Spell = allGameObjects.Spell,
-    Achievement = allGameObjects.Achievement;
+    Achievement = allGameObjects.Achievement,
+    GameObjectSettings = allGameObjects.Settings;
 var Sprite = require("./sprite");
-
-var fs = require("fs");
-
 
 function getFilename(path) {
     return path.substring(path.lastIndexOf("/") + 1);
@@ -31,11 +30,8 @@ var ContentManager = function () {
 
     this.audioLibraryKey = "audiolib";
     this.achievementsKey = "achievementlib";
-    this.achievementIconsPath = "content/art/achievements/";
     this.contentCache[this.audioLibraryKey] = {};
     this.spellsSpritesPath = "content/art/spells/";
-    this.spellsIconsPath = "content/art/spells/icons/";
-    this.spellImageFormat = ".png";
 };
 
 ContentManager.prototype.loadSprite = function (description) {
@@ -58,9 +54,9 @@ ContentManager.prototype.loadSprite = function (description) {
 
 ContentManager.prototype.loadSpell = function (description) {
     var name = description.name;
-    var filename = name.toLowerCase().replace(/ /g, "_") + this.spellImageFormat;
+    var filename = name.toLowerCase().replace(/ /g, "_") +
+                   GameObjectSettings.imageFormat;
     var sprite = this.get(this.spellsSpritesPath + filename);
-    description.icon = this.spellsIconsPath + filename;
     this.contentCache[description.name] = new Spell(sprite, description);
 };
 
@@ -81,11 +77,12 @@ ContentManager.prototype.loadAudio = function (audioInfo) {
     }.bind(this), "arraybuffer");
 };
 
-ContentManager.prototype.loadAchievement = function (description) {
-    var name = description.name;
-    var filename = name.toLowerCase().replace(/ /g, "_") + this.spellImageFormat;
-    description.icon = this.achievementIconsPath + filename;
-    this.contentCache[description.name] = new Achievement(description);
+ContentManager.prototype.loadAchievementCategory = function (category) {
+    for (var i = 0; i < category.achievements.length; i++) {
+        var current = category.achievements[i];
+        current.category = category.name;
+        this.contentCache[current.name] = new Achievement(current);
+    }
 };
 
 ContentManager.prototype.loadCharacter = function (description) {
@@ -180,9 +177,8 @@ ContentManager.prototype.loadGameData = function (gameDataPath,
             self.loading += sounds.length;
             sounds.map(self.loadAudio.bind(self));
         });
-
-        self.fetchJSONFile(gameData.achievements, function (achievement) {
-            achievement.map(self.loadAchievement.bind(self));
+        self.fetchJSONFile(gameData.achievements, function (categories) {
+            categories.map(self.loadAchievementCategory.bind(self));
         });
     });
 };
@@ -197,7 +193,7 @@ ContentManager.prototype.loadGameDataServer = function (gameDataPath,
     spellLibrary.map(this.loadSpell.bind(this));
 
     var achievementLibrary = this.fetchJSONServer(gameData.achievements);
-    achievementLibrary.map(this.loadAchievement.bind(this));
+    achievementLibrary.map(this.loadAchievementCategory.bind(this));
 
     var platform = this.fetchJSONServer(gameData.platform);
 

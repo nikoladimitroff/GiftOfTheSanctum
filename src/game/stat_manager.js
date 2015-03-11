@@ -1,8 +1,9 @@
 "use strict";
 // Dynamic require due to browserify
 var http = eval("require('https')"); // jshint ignore: line
+var Loggers = require("../utils/logger");
 var Callbacker = require("../utils/callbacker");
-var utcNow = require("../utils/general_utils");
+var utcNow = require("../utils/general_utils").utcNow;
 
 var StatManager = function () {
     this.serviceUrl = "gift-of-the-sanctum.azure-mobile.net";
@@ -12,7 +13,6 @@ var StatManager = function () {
 StatManager.prototype.init = function (characters, achievements) {
     this.characters = characters;
     this.achievements = achievements;
-    console.log("ACEHIVEMENTS: ", this.achievements);
     this.stats = characters.reduce(function (stats, character) {
         stats[character.name] = {
             spellsCast: {},
@@ -22,6 +22,9 @@ StatManager.prototype.init = function (characters, achievements) {
         return stats;
     }, {});
     this.timestamp = utcNow();
+
+    Loggers.Debug.log("Stat manager initialized with: {0}",
+                      Loggers.asJSON(achievements));
 };
 
 StatManager.prototype.onSpellcast = function (characterId, spell) {
@@ -32,7 +35,7 @@ StatManager.prototype.onSpellcast = function (characterId, spell) {
 };
 
 StatManager.prototype.save = function () {
-    console.log("Saving stats");
+    Loggers.Debug.log("Saving stats");
     this.characters.sort(function (c1, c2) {
         return c1.score - c2.score;
     });
@@ -75,28 +78,31 @@ var getUserUpdateCallback = function (callbacker,
         totalPlaces[place]++;
 
         // Check for achievements
-        var totalAchievements = serverStats[TABLE_COLUMN.achievementsEarned] ||
+        var unparsedAchievs = serverStats[TABLE_COLUMN.achievementsEarned];
+        var totalAchievements = JSON.parse(unparsedAchievs) ||
                                 {};
+
+        var parsedServerStats = {
+            spellsCast: totalSpells,
+            placesFinished: totalPlaces,
+            achievementsEarned: totalAchievements
+        };
         for (var name in allAchievements) {
             var achievement = allAchievements[name];
             if (!totalAchievements[name]) {
                 var isAchieved = false;
                 try {
-                    var parsedServerStats = {
-                        spellsCast: totalSpells,
-                        placesFinished: totalPlaces,
-                        achievementsEarned: totalAchievements
-                    };
                     isAchieved = achievement.requirements(gameStats,
                                                           parsedServerStats);
                 }
                 catch (e) {
-                    console.error("Error with the predicate of achievement: ",
-                                   name, ". Error: ", e);
+                    Loggers.Debug.error("Error with the predicate of" +
+                                        "achievement: {0}. Error: {1}." ,
+                                        name, e);
                 }
                 if (isAchieved) {
                     totalAchievements[name] = utcNow();
-                    console.log("Achievement earned: ", name);
+                    Loggers.Debug.log("Achievement earned: ", name);
                 }
             }
         }
@@ -112,7 +118,7 @@ var getUserUpdateCallback = function (callbacker,
 
 StatManager.prototype.sendRequest = function () {
     var callbacks = new Callbacker(null, null, function (succeeded, failed) {
-        console.log("After game update complete: " +
+        Loggers.Debug.log("After game update complete: " +
                     succeeded + " succeeded, " +
                     failed + " failed.");
     });
@@ -123,7 +129,6 @@ StatManager.prototype.sendRequest = function () {
         if (!gameStats.azureId)
             continue;
         callbacks.attempts++;
-        console.log("before call", this.achievements);
         var updateStats = getUserUpdateCallback(callbacks,
                                                 uploadUserData,
                                                 gameStats,

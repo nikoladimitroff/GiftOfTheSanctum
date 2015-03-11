@@ -20,12 +20,12 @@ UIManager.prototype.init = function (model) {
 
     var precomputeLoggerMessages = function (i) {
         this.reevaluator();
-        return Loggers.GameplayLogger.messages[i];
+        return Loggers.Gameplay.messages[i];
     };
 
     this.viewmodel.messages = [];
     for (var i = 0;
-         i < Loggers.GameplayLogger.MAXIMUM_NUMBER_OF_MESSAGES;
+         i < Loggers.Gameplay.MAXIMUM_NUMBER_OF_MESSAGES;
          i++) {
         this.viewmodel.messages[i] = ko.computed(
             precomputeLoggerMessages.bind(this, i));
