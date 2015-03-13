@@ -4,6 +4,12 @@
 @font-size: 20px;
 @spell-info-size: 64px;
 
+#loading-section {
+    font-size: 50px;
+    color: white;
+    .centered-with-width(50%);
+}
+
 #status-panel {
     .centered-with-width(50%);
     background-color: @dark-color;
@@ -67,13 +73,15 @@
     .maximized;
 }
 
-#next-round-button {
+#next-round-button,
+#game-over-button {
     .centered-with-width(25%);
     bottom: 2.5%;
 }
 
 /* Needed since the .floating-shadow class works bad with absolute positioning */
-#next-round-button:active {
+#next-round-button:active,
+#game-over-button:active {
     top: initial;
 }
 

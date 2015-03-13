@@ -110,7 +110,7 @@ Client.prototype.findSelfIndex = function () {
     return -1;
 };
 
-Client.prototype.gameOver = function () {
+Client.prototype.endGame = function () {
     UIHelper.loadPage("room", null, this);
 };
 

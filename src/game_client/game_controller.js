@@ -26,8 +26,8 @@ GameController.prototype.init = function (client) {
                          context,
                          options);
 
-    game.events.gameOver
-        .addEventListener(this.client.gameOver.bind(this.client));
+    game.events.endGame
+        .addEventListener(this.client.endGame.bind(this.client));
 
 };
 

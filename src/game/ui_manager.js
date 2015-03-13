@@ -10,6 +10,8 @@ var AVATAR_IMAGES = [
 var UIManager = function (viewmodel, events) {
     this.viewmodel = viewmodel;
     this.events = events;
+
+    this.viewmodel.isGameStarted = ko.observable(false);
 };
 
 UIManager.prototype.init = function (model) {
@@ -58,6 +60,13 @@ UIManager.prototype.init = function (model) {
         return this.model.state === GameState.midround;
     }.bind(this));
 
+    this.viewmodel.isGameOver = ko.computed(function () {
+        this.reevaluator();
+        return this.model.state === GameState.gameover;
+    }.bind(this));
+
+    this.viewmodel.isGameStarted(true);
+
     // Rebind
     var gameUI = document.getElementById("game-ui");
     ko.applyBindings(this.viewmodel, gameUI);
@@ -66,10 +75,13 @@ UIManager.prototype.init = function (model) {
         e.preventDefault();
     }, false);
 
-    this.events.roundOver.addEventListener(function () {
+    var roundOverHanlder = function () {
         this.update();
         this.toggleScoreboard();
-    }.bind(this));
+    }.bind(this);
+
+    this.events.roundOver.addEventListener(roundOverHanlder);
+    this.events.gameOver.addEventListener(roundOverHanlder);
 
     this.bindUI();
 };
@@ -123,6 +135,11 @@ UIManager.prototype.bindUI = function () {
         if (this.viewmodel.canStartNextRound()) {
             this.events.nextRound.fire(this);
         }
+    }.bind(this));
+
+    document.getElementById("game-over-button")
+    .addEventListener("click", function () {
+        this.events.endGame.fire(this);
     }.bind(this));
 };
 

@@ -1,59 +1,72 @@
+
 <nav id="game-ui" class="unselectable">
-    <div id="status-panel" >
-        <ul class="bound-spells-list" data-bind="foreach: boundSpells">
-            <li class="bound-spell tooltipable"
-                data-bind="style: {backgroundImage: icon}">
-                <span class="spell-info"
-                      data-bind="attr: {'data-key': key}, 
-                                 text: remainingCooldown">
-                </span>
-                <span class="tooltip">
-                    <span class="name" data-bind="text: name"></span>
-                    <ul class="spell-stats">
-                        <li>
-                            <i class="fa fa-clock-o"></i>
-                            <span data-bind="text: cooldown"></span>
-                        </li>
-                        <li>
-                            <i class="fa fa-heart"></i>
-                            <span data-bind="text: damage"></span>
-                        </li>
-                    </ul>
-                    <br>
-                    <br>
-                    <span class="description" data-bind="text: description"></span>
-                </span>
-            </li>
-        </ul>
-    </div>
-    
-    <div data-bind="foreach: messages" class="logger-messages-box">
-        <div>
-            <span class="logger-message" data-bind="text: message, class: style, css: {fade: message.length !== 0,
-                  'log-message': style == 'log-message',
-                  'warn-message': style == 'warn-message'}">
-            </span>
-        </div>
+
+    <div id="loading-section" data-bind="visible: !isGameStarted">
+        Awesome loading screen
     </div>
 
-    <table id="scoreboard" data-bind="visible: showScoreboard">
-        <thead>
-            <tr>
-                <th>Player</th>
-                <th>Hero</th>
-                <th>Score</th>
-            </tr>
-        </thead>
-        <tbody data-bind="foreach: players">
-            <td data-bind="text: name"></td>
-            <td>
-                <img data-bind="attr: {src: $root.scoreboardAvatars[$index()]}"></img>
-            </td>
-            <td data-bind="text: score"></td>
-        </tbody>
-    </table>
-    <div id="mid-round-lobby" data-bind="visible: isGameMidround">
-        <button id="next-round-button" class="float-shadow" data-bind="css: {disabled: !canStartNextRound()}">Start next round</button>
+    <div style="display: none;" data-bind="visible: isGameStarted">
+
+        <div id="status-panel" >
+            <ul class="bound-spells-list" data-bind="foreach: boundSpells">
+                <li class="bound-spell tooltipable"
+                    data-bind="style: {backgroundImage: icon}">
+                    <span class="spell-info"
+                          data-bind="attr: {'data-key': key}, 
+                                     text: remainingCooldown">
+                    </span>
+                    <span class="tooltip">
+                        <span class="name" data-bind="text: name"></span>
+                        <ul class="spell-stats">
+                            <li>
+                                <i class="fa fa-clock-o"></i>
+                                <span data-bind="text: cooldown"></span>
+                            </li>
+                            <li>
+                                <i class="fa fa-heart"></i>
+                                <span data-bind="text: damage"></span>
+                            </li>
+                        </ul>
+                        <br>
+                        <br>
+                        <span class="description" data-bind="text: description"></span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+        
+        <div data-bind="foreach: messages" class="logger-messages-box">
+            <div>
+                <span class="logger-message" data-bind="text: message, class: style, css: {fade: message.length !== 0,
+                      'log-message': style == 'log-message',
+                      'warn-message': style == 'warn-message'}">
+                </span>
+            </div>
+        </div>
+
+        <table id="scoreboard" data-bind="visible: showScoreboard">
+            <thead>
+                <tr>
+                    <th>Player</th>
+                    <th>Hero</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody data-bind="foreach: players">
+                <td data-bind="text: name"></td>
+                <td>
+                    <img data-bind="attr: {src: $root.scoreboardAvatars[$index()]}"></img>
+                </td>
+                <td data-bind="text: score"></td>
+            </tbody>
+        </table>
+        <div id="mid-round-lobby" data-bind="visible: isGameMidround">
+            <button id="next-round-button" class="float-shadow" data-bind="css: {disabled: !canStartNextRound()}">Start next round</button>
+        </div>
+
+        <div id="mid-round-lobby" data-bind="visible: isGameOver">
+            <button id="game-over-button" class="float-shadow">Go to lobby</button>
+        </div>
     </div>
 </nav>
 

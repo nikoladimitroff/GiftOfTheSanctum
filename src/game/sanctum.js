@@ -91,6 +91,7 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
         nextRound: new SanctumEvent(),
         gameOver: new SanctumEvent(),
         scoresInfo: new SanctumEvent(),
+        endGame: new SanctumEvent()
     };
     networkManager.events = this.events;
 
