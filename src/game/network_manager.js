@@ -1,22 +1,18 @@
 "use strict";
-
 var Loggers = require("../utils/logger");
-
 var process = process || null;
 
 var NetworkManager = function () {
-    this.updateTime = 100; /* millis */
+    this.updateTime = 100; // Magic /* millis */
 
     this.lastUpdate = 0;
     this.port = (process && process.env && process.env.PORT) || 8080;
     this.ip = "0.0.0.0";
-
     this.masterSocket = null;
     this.socket = null;
     this.sockets = {};
 
     this.updateQueue = {};
-    this.scores = {};
     this.buffer = [];
     this.pendingDeaths = [];
 };
@@ -34,12 +30,14 @@ NetworkManager.prototype.connect = function (masterSocket, socket) {
     if (!masterSocket) {
         this.socket = socket;
         this.gameSocketId = socket.io.engine.id;
+        this.cleanupSocketListeners();
     }
     else {
         this.sockets[socket.id] = socket;
         this.masterSocket = masterSocket;
         this.socket = socket;
     }
+
 
     socket.on("update", this.handleUpdate.bind(this));
     socket.on("death", this.handleDeath.bind(this));
@@ -121,6 +119,7 @@ NetworkManager.prototype.sendDie = function (playerIndex) {
 
 NetworkManager.prototype.sendScores = function (playerIndex, score) {
     if (this.isServer()) {
+        this.events.scoresInfo.fire(this, score, playerIndex);
         this.masterSocket.emit("scores", {index: playerIndex, score: score});
     }
 };
@@ -139,9 +138,6 @@ NetworkManager.prototype.sendVerifiedInput = function (socketId,
 };
 
 NetworkManager.prototype.handleScores = function (data) {
-    if (this.isServer()) {
-        this.masterSocket.emit("scores", data);
-    }
     this.events.scoresInfo.fire(this, data.score, data.index);
 };
 
@@ -159,15 +155,17 @@ NetworkManager.prototype.handleNextRound = function () {
     Loggers.Debug.log("Next round received");
 };
 
-
-NetworkManager.prototype.getScores = function () {
-    return this.scores;
-};
-
 NetworkManager.prototype.getLastUpdateFrom = function (objectId) {
     if (!this.updateQueue[objectId]) {
         return null;
     }
+
+    if (!this.isServer()) {
+        if (this.updateQueue[objectId].length > 5) {
+            this.updateQueue[objectId].slice(0, 1);
+        }
+    }
+
     return this.updateQueue[objectId].shift();
 };
 
@@ -175,19 +173,19 @@ NetworkManager.prototype.isServer = function () {
     return this.masterSocket !== null;
 };
 
-NetworkManager.prototype.cleanUpdateQueue = function () {
-    this.lastUpdate = 0;
-    this.updateQueue = {};
-    this.buffer = [];
-};
-
 NetworkManager.prototype.reset = function () {
-    console.log("NetworkManager reset");
     this.lastUpdate = 0;
     this.updateQueue = {};
-    this.scores = {};
     this.buffer = [];
     this.pendingDeaths = [];
+};
+
+NetworkManager.prototype.cleanupSocketListeners = function () {
+    this.socket.removeAllListeners("update");
+    this.socket.removeAllListeners("death");
+    this.socket.removeAllListeners("scores");
+    this.socket.removeAllListeners("next");
+    this.socket.removeAllListeners("round");
 };
 
 module.exports = NetworkManager;

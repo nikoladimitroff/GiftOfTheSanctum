@@ -111,14 +111,10 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
 
     // Event handlers
     this.events.scoresInfo.addEventListener(function (_, score, index) {
-        this.characters[index].score = score;
+        this.characters[index].score += score;
         if (!this.network.isServer()) {
             this.ui.update();
         }
-    }.bind(this));
-
-    this.events.roundOver.addEventListener(function (sender) {
-        this.network.cleanUpdateQueue();
     }.bind(this));
 
     this.events.nextRound.addEventListener(function (sender) {
@@ -431,7 +427,6 @@ Sanctum.prototype.processAuthoritativeDeaths = function () {
     this.characters.forEach(function (character, characterIndex) {
         if (character.health <= 0 && !character.isDead) {
             this.network.sendDie(characterIndex);
-            character.isDead = true;
         }
     }.bind(this));
 };
@@ -454,6 +449,14 @@ Sanctum.prototype.update = function (delta) {
         this.processAuthoritativeDeaths();
     }
 
+    this.processPendingDeaths();
+    if (this.deadCount >= this.characters.length - 1) {
+        if (this.currentRound > this.platform.rounds)
+            return GameState.gameover;
+        else
+            return GameState.midround;
+    }
+
     if (!this.network.isServer()) {
         var currentPlayer = this.characters[this.playerIndex];
         if (!currentPlayer.isDead) {
@@ -466,7 +469,6 @@ Sanctum.prototype.update = function (delta) {
         this.ui.update();
     }
 
-    
     this.physics.update(this.effects.characters);
     this.physics.update(this.effects.activeSpells);
 
@@ -478,13 +480,6 @@ Sanctum.prototype.update = function (delta) {
         this.effects.update(delta, this.physics, this.platform, true);
     }
 
-    this.processPendingDeaths();
-    if (this.deadCount >= this.characters.length - 1) {
-        if (this.currentRound > this.platform.rounds)
-            return GameState.gameover;
-        else
-            return GameState.midround;
-    }
 
     this.network.lastUpdate += delta;
     if (this.network.lastUpdate >= this.network.updateTime) {
@@ -507,8 +502,12 @@ Sanctum.prototype.render = function (delta) {
     var following = !currentPlayer.isDead ?
                     this.playerIndex : this.getMaxScorePlayerIndex();
     this.renderer.camera.follow(this.characters[following].position);
+    var filteredCharacters = this.characters
+        .filter(function (character) {
+            return !character.isDead;
+        });
     this.renderer.render(delta,
-                         [this.characters, this.effects.activeSpells],
+                         [filteredCharacters, this.effects.activeSpells],
                          this.platform,
                          this.characters[this.playerIndex].isDead);
 };
@@ -568,7 +567,6 @@ Sanctum.prototype.getMaxScorePlayerIndex = function () {
 };
 
 Sanctum.prototype.run = function () {
-    this.network.cleanUpdateQueue();
     this.mainSanctumLoop = this.loop.bind(this);
     if (this.network.isServer()) {
         this.mainSanctumLoop = this.loop.bind(this, 1000 / 60);

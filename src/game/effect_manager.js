@@ -101,7 +101,9 @@ EffectManager.prototype.pulseSpell = function (spell, physics,
             var effect = spell.effects[j];
             var effectFunction = effectsMap[effect];
 
-            effectFunction(target, spell, physics, isServer);
+            if (effectFunction) {
+                effectFunction(target, spell, physics, isServer);
+            }
         }
     }
     if (spell.castType == CastType.projectile) {

@@ -9,6 +9,10 @@ var PredictionManager = function (characters, network) {
     this.lastProcessedInputNumber = 0;
     this.inputs = [];
 
+    if (this.network.isServer()) {
+        this.cleanupSocketListeners();
+    }
+
     this.network.socket.on("input-verification",
                             this.handleInputVerification.bind(this));
 };
@@ -64,6 +68,10 @@ PredictionManager.prototype.handleInputVerification = function (data) {
         }
         return item.sequenceNumber > data.sequenceNumber;
     });
+};
+
+PredictionManager.prototype.cleanupSocketListeners = function () {
+    this.network.socket.removeAllListeners("input-verification");
 };
 
 module.exports = PredictionManager;

@@ -29,6 +29,7 @@ var Client = function () {
     this.gameSocketId = null;
     this.playerName = null;
     this.roomId = null;
+    this.networkManager = null;
 };
 
 Client.prototype.start = function () {
@@ -141,6 +142,8 @@ Client.prototype.goToWaitingScreen = function () {
 
 Client.prototype.goToLobbyScreen = function () {
     UIHelper.loadPage("room", null, this);
+    this.networkManager = new NetworkManager();
+    this.networkManager.connect(null, this.gameSocket);
     this.gameSocket.emit("welcome", {
         name: this.playerName,
         playerId: this.gameSocketId,

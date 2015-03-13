@@ -11,6 +11,8 @@ RoomController.prototype.init = function (client) {
     this.viewmodel = client.viewmodel;
     this.findSelfIndex = client.findSelfIndex;
 
+    this.cleanupSocketListeners();
+
     this.socket.on("chat", this.handleChat.bind(this));
 
     $(document).ready(function () {
@@ -61,6 +63,10 @@ RoomController.prototype.handleChat = function (data) {
         });
         $("#chat").scrollTop($("#chat")[0].scrollHeight);
     }
+};
+
+RoomController.prototype.cleanupSocketListeners = function () {
+    this.socket.removeAllListeners("chat");
 };
 
 module.exports = RoomController;

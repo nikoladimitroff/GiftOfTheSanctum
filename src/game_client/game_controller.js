@@ -1,5 +1,4 @@
 "use strict";
-var NetworkManager = require("../game/network_manager");
 var Sanctum = require("../game/sanctum");
 
 var GameController = function () {
@@ -8,8 +7,7 @@ var GameController = function () {
 
 GameController.prototype.init = function (client) {
     this.client = client;
-    var networkManager = new NetworkManager();
-    networkManager.connect(null, this.client.gameSocket);
+
     var context = document.getElementById("game-canvas").getContext("2d");
     var viewmodel = this.client.viewmodel;
     var playerNames = viewmodel.players()
@@ -23,7 +21,7 @@ GameController.prototype.init = function (client) {
 
     var game = Sanctum.startNewGame(playerNames,
                          this.client.findSelfIndex(),
-                         networkManager,
+                         this.client.networkManager,
                          viewmodel,
                          context,
                          options);
