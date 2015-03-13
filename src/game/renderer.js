@@ -17,17 +17,20 @@ Renderer.prototype.init = function (camera) {
 
     if (this.autoresize !== 0) {
         var onresize = function () {
+            window.innerWidth = 1280; // Magic
+            window.innerHeight = 800; // Magic
+
             this.context.canvas.width = this.autoresize * window.innerWidth;
             this.context.canvas.height = this.autoresize * window.innerHeight;
 
             this.camera.viewport.x = this.context.canvas.width;
             this.camera.viewport.y = this.context.canvas.height;
         }.bind(this);
+
         onresize();
         window.onresize = onresize;
     }
 };
-
 
 Renderer.prototype.getViewportCenter = function () {
     return new Vector(this.context.canvas.width / 2,

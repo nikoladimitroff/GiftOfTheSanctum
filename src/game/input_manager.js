@@ -87,8 +87,16 @@ InputManager.prototype.init = function (canvas, camera) {
     }.bind(this), false);
 
     canvas.addEventListener("mousemove", function (args) {
-        this.mouse.absolute.x = camera.position.x + args.clientX;
-        this.mouse.absolute.y = camera.position.y + args.clientY;
+        var xRatio = 1, yRatio = 1;
+        xRatio = 1280 / args.target.clientWidth; // Magic
+        yRatio = 800 / args.target.clientHeight; // Magic
+
+        this.mouse.absolute.x = Math.floor(
+                                    (camera.position.x + args.clientX) *
+                                     xRatio);
+        this.mouse.absolute.y = Math.floor(
+                                    (camera.position.y + args.clientY) *
+                                     yRatio);
     }.bind(this), false);
 
     var onscroll = function (args) {
