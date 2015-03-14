@@ -161,8 +161,8 @@ NetworkManager.prototype.getLastUpdateFrom = function (objectId) {
     }
 
     if (!this.isServer()) {
-        if (this.updateQueue[objectId].length > 5) {
-            this.updateQueue[objectId].slice(0, 1);
+        if (this.updateQueue[objectId].length > 5) { // Magic
+            this.updateQueue[objectId] = this.updateQueue[objectId].slice(0, 1);
         }
     }
 
