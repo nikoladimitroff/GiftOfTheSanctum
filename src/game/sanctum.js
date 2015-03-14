@@ -365,7 +365,11 @@ Sanctum.prototype.processNetworkData = function () {
                             }
                             inputs.forEach(replayInputs.bind(player));
                         } else {
-                            player.position.set(event.data.position);
+                            var tmp = new Vector();
+                            tmp.set(event.data.position);
+                            if (tmp.subtract(player.position).length() > 60) { // Magic
+                                player.position.set(event.data.position);
+                            }
                         }
                     } else {
                         player.position.set(event.data.position);
@@ -373,11 +377,11 @@ Sanctum.prototype.processNetworkData = function () {
                     player.velocity.set(event.data.velocity);
 
 
-                    if (event.data.target) {
+                    if (event.data.target &&
+                        event.data.id != this.playerIndex) {
+
                         player.target = new Vector(event.data.target.x,
                                                    event.data.target.y);
-                    } else {
-                        player.target = null;
                     }
                     break;
 
