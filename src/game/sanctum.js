@@ -364,6 +364,8 @@ Sanctum.prototype.processNetworkData = function () {
                                 player.position.set(lastVerifiedInput);
                             }
                             inputs.forEach(replayInputs.bind(player));
+                            this.model.latency = Date.now() -
+                                    event.data.timestamp;
                         } else {
                             var tmp = new Vector();
                             tmp.set(event.data.position);

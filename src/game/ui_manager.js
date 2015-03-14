@@ -55,6 +55,11 @@ UIManager.prototype.init = function (model) {
                this.model.state === GameState.midround;
     }.bind(this));
 
+    this.viewmodel.latency = ko.computed(function () {
+        this.reevaluator();
+        return "Latency: " + this.model.latency + " ms";
+    }.bind(this));
+
     this.viewmodel.isGameMidround = ko.computed(function () {
         this.reevaluator();
         return this.model.state === GameState.midround;
