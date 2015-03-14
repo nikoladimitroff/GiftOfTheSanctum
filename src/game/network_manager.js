@@ -59,7 +59,8 @@ NetworkManager.prototype.addObject = function (object, index) {
         target: object.target,
         score: object.score,
         inputSequenceNumber: object.inputSequenceNumber,
-        id: index
+        id: index,
+        timestamp: Date.now()
     };
 
     this.buffer.push({t: NetworkManager.EventTypes.ObjectInfo, /* EventType */

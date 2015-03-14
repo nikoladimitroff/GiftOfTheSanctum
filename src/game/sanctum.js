@@ -367,7 +367,20 @@ Sanctum.prototype.processNetworkData = function () {
                         } else {
                             var tmp = new Vector();
                             tmp.set(event.data.position);
-                            if (tmp.subtract(player.position).length() > 60) { // Magic
+
+                            // var differentTargets = (player.target && event.data.target) ? !(player.target.equals(event.data.target)) : true;
+                            var allowedPacketTimestamp = (Date.now() -
+                                    event.data.timestamp) < 600; // Magic
+                            var abovePacketTimestamp = (Date.now() -
+                                    event.data.timestamp) > 2000; // Magic
+
+                            var isClosePosition = tmp
+                                    .subtract(player.position).length() < 60;
+
+                            if ((abovePacketTimestamp) ||
+                                (allowedPacketTimestamp &&
+                                !isClosePosition)) {
+
                                 player.position.set(event.data.position);
                             }
                         }
