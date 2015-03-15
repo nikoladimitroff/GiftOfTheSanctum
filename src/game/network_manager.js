@@ -15,6 +15,8 @@ var NetworkManager = function () {
     this.updateQueue = {};
     this.buffer = [];
     this.pendingDeaths = [];
+
+    this.contentLoaded = {};
 };
 
 
@@ -31,14 +33,16 @@ NetworkManager.prototype.connect = function (masterSocket, socket) {
         this.socket = socket;
         this.gameSocketId = socket.io.engine.id;
         this.cleanupSocketListeners();
-    }
-    else {
+    } else {
         this.sockets[socket.id] = socket;
         this.masterSocket = masterSocket;
         this.socket = socket;
     }
 
-
+    // Don't forget to add event to this.cleanupSocketListeners();
+    socket.on("partly-content-loaded",
+              this.handlePartlyContentLoaded.bind(this));
+    socket.on("content-loaded", this.handleContentLoaded.bind(this));
     socket.on("update", this.handleUpdate.bind(this));
     socket.on("death", this.handleDeath.bind(this));
     socket.on("scores", this.handleScores.bind(this));
@@ -148,12 +152,49 @@ NetworkManager.prototype.sendNextRound = function () {
     Loggers.Debug.log("Next round send");
 };
 
+NetworkManager.prototype.sendContentLoaded = function () {
+    if (!this.isServer()) {
+        this.socket.emit("content-loaded", {socketId: this.gameSocketId});
+    }
+};
+
 NetworkManager.prototype.handleNextRound = function () {
     this.events.nextRound.fire(this);
     if (this.isServer()) {
         this.masterSocket.emit("next-round");
     }
     Loggers.Debug.log("Next round received");
+};
+
+NetworkManager.prototype.handlePartlyContentLoaded = function (/* data */) {
+    /** data.playerIndex
+        data.contentLoaded
+        data.maximumContentNumber
+    **/
+
+};
+
+NetworkManager.prototype.handleContentLoaded = function (data) {
+    if (this.isServer()) {
+        /**
+            data.socketId
+        **/
+        if (this.sockets[data.socketId]) {
+            var playerIndex = this.sockets[data.socketId].playerIndex;
+            this.masterSocket.emit("content-loaded",
+                                    {playerIndex: playerIndex});
+        }
+    } else {
+        /**
+            data.playerIndex
+        **/
+        this.contentLoaded[data.playerIndex] = true;
+        if (this.events) {
+            this.events.playerContentLoaded.fire(this,
+                                                 this.contentLoaded,
+                                                 data.playerIndex);
+        }
+    }
 };
 
 NetworkManager.prototype.getLastUpdateFrom = function (objectId) {
@@ -181,7 +222,15 @@ NetworkManager.prototype.reset = function () {
     this.pendingDeaths = [];
 };
 
+NetworkManager.prototype.resetGame = function () {
+    this.reset();
+    this.events = null;
+    this.contentLoaded = {};
+};
+
 NetworkManager.prototype.cleanupSocketListeners = function () {
+    this.socket.removeAllListeners("partly-content-loaded");
+    this.socket.removeAllListeners("content-loaded");
     this.socket.removeAllListeners("update");
     this.socket.removeAllListeners("death");
     this.socket.removeAllListeners("scores");

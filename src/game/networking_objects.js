@@ -23,7 +23,7 @@ networking.Player.prototype.extractTransferObject = function () {
 };
 
 networking.Room = function (masterSocket) {
-    this.handled = false;
+    this.started = false;
     this.hostId = null;
     this.isRunning = false;
     this.id = networking.token();
@@ -37,13 +37,14 @@ networking.Room = function (masterSocket) {
     this.roomSocket = this.masterSocket.of("/" + this.id);
 };
 
-networking.Room.prototype.handleRoom = function () {
-    if (!this.handled) {
+networking.Room.prototype.startRoom = function () {
+    if (!this.started) {
         this.roomSocket.on("connection", function (socket) {
             if (!this.hostId || this.players.length < 1) {
                 this.hostId = socket.id;
             }
 
+            socket.playerIndex = this.players.length;
             this.networkManager.connect(this.roomSocket, socket);
             socket.on("welcome", this.welcome.bind(this, socket));
             socket.on("leave", this.leave.bind(this, socket));
@@ -53,7 +54,7 @@ networking.Room.prototype.handleRoom = function () {
 
         }.bind(this));
 
-        this.handled = true;
+        this.started = true;
     }
 };
 
@@ -64,16 +65,16 @@ networking.Room.prototype.findPlayer = function (id) {
 };
 
 networking.Room.prototype.welcome = function (socket, data) {
-    if (data && data.playerId) {
-        var player = new networking.Player(data.playerId, data.name);
+    if (data && data.socketId) {
+        var player = new networking.Player(data.socketId, data.name);
         player.roomId = this.id;
         player.azureId = data.azureId;
 
-        var isHost = this.hostId == data.playerId;
+        var isHost = this.hostId == data.socketId;
         socket.emit("welcome", {
             isHost: isHost,
             players: this.players,
-            playerId: data.playerId,
+            playerIndex: socket.playerIndex
         });
 
         this.sockets.push(socket);

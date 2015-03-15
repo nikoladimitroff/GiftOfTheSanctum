@@ -56,6 +56,9 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
         UIManager = stub(UIManager);
     }
 
+    this.playerLoadingProgress = playerNames.map(function () {
+        return false;
+    });
     this.characters = playerNames;
     this.previousTime = 0;
     this.currentRound = 0;
@@ -65,7 +68,7 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
     this.keybindings = {};
     this.model = {};
 
-    this.content = new ContentManager();
+    this.content = new ContentManager(this.events);
     this.physics = new PhysicsManager();
     this.playerManager = new PlayerManager(this.characters,
                                            this.physics);
@@ -86,14 +89,19 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
     // Events
     this.events = {
         contentLoaded: new SanctumEvent(),
+        playerContentLoaded: new SanctumEvent(),
         initializationComplete: new SanctumEvent(),
         roundOver: new SanctumEvent(),
         nextRound: new SanctumEvent(),
         gameOver: new SanctumEvent(),
         scoresInfo: new SanctumEvent(),
-        endGame: new SanctumEvent()
+        endGame: new SanctumEvent(),
+        partlyContentLoaded: new SanctumEvent(),
     };
     networkManager.events = this.events;
+
+    this.content.events = this.events;
+
 
     // Server / client specializations
     if (!networkManager.isServer()) {
@@ -127,6 +135,24 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
             // The network manager received a "next-round" command
             this.reset();
             this.run();
+        }
+    }.bind(this));
+
+    this.events.contentLoaded.addEventListener(function () {
+        this.network.sendContentLoaded();
+    }.bind(this));
+
+    this.events.playerContentLoaded.addEventListener(function (sender,
+                                                               overalProgress,
+                                                               playerIndex) {
+        for (var key in overalProgress) {
+            this.playerLoadingProgress[key] = overalProgress[key];
+        }
+        this.playerLoadingProgress[playerIndex] = true;
+        if (this.playerLoadingProgress.every(function (isLoaded) {
+            return isLoaded;
+        })) {
+            this.init();
         }
     }.bind(this));
 };
@@ -214,8 +240,11 @@ Sanctum.prototype.init = function () {
 Sanctum.prototype.loadContent = function () {
     var callback = function () {
         this.events.contentLoaded.fire(this);
-        this.init();
+        if (this.network.isServer()) {
+            this.init();
+        }
     }.bind(this);
+
     this.content.loadGameData("game_data.json",
                               callback,
                               this.network.isServer());
@@ -377,7 +406,7 @@ Sanctum.prototype.processNetworkData = function () {
                                     event.data.timestamp) > 2000; // Magic
 
                             var isClosePosition = tmp
-                                    .subtract(player.position).length() < 60;
+                                    .subtract(player.position).length() < 60; // Magic
 
                             if ((abovePacketTimestamp) ||
                                 (allowedPacketTimestamp &&

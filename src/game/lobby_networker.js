@@ -46,7 +46,7 @@ LobbyNetworker.prototype.getRoom = function (socket, data) {
         this.rooms[room.id] = this.rooms[room.id] || room;
         this.players[data.playerId].roomId = room.id;
 
-        room.handleRoom();
+        room.startRoom();
 
         socket.emit("getRoom", {roomId: room.id});
     }

@@ -63,7 +63,7 @@ Client.prototype.initializeLoginEventHandlers = function () {
 Client.prototype.initializeGameEventHandlers = function () {
     this.gameSocket.on("connect", function () {
         this.gameSocketId = this.gameSocket.io.engine.id;
-        this.goToLobbyScreen();
+        this.goToRoomView();
     }.bind(this));
 
     this.gameSocket.on("welcome", this.welcome.bind(this));
@@ -78,6 +78,7 @@ Client.prototype.welcome = function (data) {
         this.viewmodel.players.push(data.players[i]);
     }
     this.viewmodel.isHost(data.isHost);
+    this.playerIndex = data.playerIndex;
 };
 
 Client.prototype.leave = function (data) {
@@ -111,6 +112,7 @@ Client.prototype.findSelfIndex = function () {
 };
 
 Client.prototype.endGame = function () {
+    this.networkManager.resetGame();
     UIHelper.loadPage("room", null, this);
 };
 
@@ -140,13 +142,14 @@ Client.prototype.goToWaitingScreen = function () {
     UIHelper.loadPage("please_wait", null, this);
 };
 
-Client.prototype.goToLobbyScreen = function () {
+Client.prototype.goToRoomView = function () {
     UIHelper.loadPage("room", null, this);
     this.networkManager = new NetworkManager();
     this.networkManager.connect(null, this.gameSocket);
+
     this.gameSocket.emit("welcome", {
         name: this.playerName,
-        playerId: this.gameSocketId,
+        socketId: this.gameSocketId,
         azureId: this.azureId
     });
 };
