@@ -7,11 +7,20 @@ var AVATAR_IMAGES = [
      "necro.png", "orc.png", "queen.png", "rogue.png"
 ];
 
-var UIManager = function (viewmodel, events) {
+var UIManager = function (viewmodel, events, loadingProgress) {
     this.viewmodel = viewmodel;
+    this.viewmodel.loadingProgress = loadingProgress;
+
+    this.viewmodel.loadingAvatars = AVATAR_IMAGES.map(function (path) {
+        return "content/art/characters/lobby/" + path;
+    });
+
     this.events = events;
 
     this.viewmodel.isGameStarted = ko.observable(false);
+
+    var loadingSection = document.getElementById("loading-section");
+    ko.applyBindings(this.viewmodel, loadingSection);
 };
 
 UIManager.prototype.init = function (model) {

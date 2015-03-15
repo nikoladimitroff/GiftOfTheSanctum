@@ -45,6 +45,7 @@ ContentManager.prototype.loadSprite = function (description) {
     image.onload = function () {
         this.contentCache[path] = new Sprite(image, framesPerRow);
         this.loaded++;
+        this.events.partlyContentLoaded.fire(this, this.loaded, this.loading);
         if (this.loaded === this.loading && this.loadingElements === 0) {
             this.onResourcesLoaded();
         }
@@ -70,6 +71,8 @@ ContentManager.prototype.loadAudio = function (audioInfo) {
             audioInfo.buffer = buffer;
             this.contentCache[this.audioLibraryKey][path] = audioInfo;
             this.loaded++;
+            this.events.partlyContentLoaded.fire(this, this.loaded,
+                                                this.loading);
             if (this.loaded === this.loading && this.loadingElements === 0) {
                 this.onResourcesLoaded();
             }

@@ -15,8 +15,6 @@ var NetworkManager = function () {
     this.updateQueue = {};
     this.buffer = [];
     this.pendingDeaths = [];
-
-    this.contentLoaded = {};
 };
 
 
@@ -158,6 +156,18 @@ NetworkManager.prototype.sendContentLoaded = function () {
     }
 };
 
+NetworkManager.prototype.sendPartlyContentLoaded = function (loaded,
+                                                             needsToLoad) {
+    if (!this.isServer()) {
+        this.socket.emit("partly-content-loaded",
+            {
+                socketId: this.gameSocketId,
+                loaded: loaded,
+                needsToLoad: needsToLoad
+            });
+    }
+};
+
 NetworkManager.prototype.handleNextRound = function () {
     this.events.nextRound.fire(this);
     if (this.isServer()) {
@@ -166,12 +176,34 @@ NetworkManager.prototype.handleNextRound = function () {
     Loggers.Debug.log("Next round received");
 };
 
-NetworkManager.prototype.handlePartlyContentLoaded = function (/* data */) {
-    /** data.playerIndex
-        data.contentLoaded
-        data.maximumContentNumber
+NetworkManager.prototype.handlePartlyContentLoaded = function (data) {
+    /** data.socketId
+        data.loaded
+        data.needsToLoad
     **/
-
+    if (this.isServer()) {
+        if (this.sockets[data.socketId]) {
+            var playerIndex = this.sockets[data.socketId].playerIndex;
+            this.masterSocket.emit("partly-content-loaded",
+                {
+                    playerIndex: playerIndex,
+                    loaded: data.loaded,
+                    needsToLoad: data.needsToLoad
+                });
+        }
+    } else {
+        /**
+            data.playerIndex
+            data.loaded
+            data.needsToLoad
+        **/
+        if (this.events) {
+            this.events.partlyContentLoaded.fire(this,
+                                                 data.loaded,
+                                                 data.needsToLoad,
+                                                 data.playerIndex);
+        }
+    }
 };
 
 NetworkManager.prototype.handleContentLoaded = function (data) {
@@ -180,19 +212,26 @@ NetworkManager.prototype.handleContentLoaded = function (data) {
             data.socketId
         **/
         if (this.sockets[data.socketId]) {
-            var playerIndex = this.sockets[data.socketId].playerIndex;
-            this.masterSocket.emit("content-loaded",
-                                    {playerIndex: playerIndex});
+            this.sockets[data.socketId].contentLoaded = true;
+
+            var flag = true;
+            for (var socketId in this.sockets) {
+                if (!this.sockets[socketId].contentLoaded) {
+                    flag = false;
+                    break;
+                }
+            }
+            if (flag) {
+                this.events.contentLoaded.fire(this);
+                this.masterSocket.emit("content-loaded");
+                for (socketId in this.sockets) {
+                    this.sockets[socketId].contentLoaded = false;
+                }
+            }
         }
     } else {
-        /**
-            data.playerIndex
-        **/
-        this.contentLoaded[data.playerIndex] = true;
         if (this.events) {
-            this.events.playerContentLoaded.fire(this,
-                                                 this.contentLoaded,
-                                                 data.playerIndex);
+            this.events.contentLoaded.fire(this);
         }
     }
 };
@@ -225,7 +264,6 @@ NetworkManager.prototype.reset = function () {
 NetworkManager.prototype.resetGame = function () {
     this.reset();
     this.events = null;
-    this.contentLoaded = {};
 };
 
 NetworkManager.prototype.cleanupSocketListeners = function () {

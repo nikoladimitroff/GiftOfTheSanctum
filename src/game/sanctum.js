@@ -50,15 +50,13 @@ Camera.prototype.follow = function (target) {
 
 var Sanctum = function (playerNames, selfIndex, networkManager,
                         viewmodel, context, options) {
+
     options = options || {};
     if (options.inEditor) {
         networkManager = new (stub(NetworkManager))();
         UIManager = stub(UIManager);
     }
 
-    this.playerLoadingProgress = playerNames.map(function () {
-        return false;
-    });
     this.characters = playerNames;
     this.previousTime = 0;
     this.currentRound = 0;
@@ -68,7 +66,7 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
     this.keybindings = {};
     this.model = {};
 
-    this.content = new ContentManager(this.events);
+    this.content = new ContentManager();
     this.physics = new PhysicsManager();
     this.playerManager = new PlayerManager(this.characters,
                                            this.physics);
@@ -89,7 +87,6 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
     // Events
     this.events = {
         contentLoaded: new SanctumEvent(),
-        playerContentLoaded: new SanctumEvent(),
         initializationComplete: new SanctumEvent(),
         roundOver: new SanctumEvent(),
         nextRound: new SanctumEvent(),
@@ -98,19 +95,28 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
         endGame: new SanctumEvent(),
         partlyContentLoaded: new SanctumEvent(),
     };
-    networkManager.events = this.events;
 
+    networkManager.events = this.events;
     this.content.events = this.events;
 
 
     // Server / client specializations
     if (!networkManager.isServer()) {
+        this.playerLoadingProgress = playerNames.map(function () {
+            return ko.observable({
+                loaded: 0,
+                needsToLoad: 0
+            });
+        });
+
         this.input = new InputManager();
         this.audio = new AudioManager();
         this.renderer = new Renderer(context,
                                      options.debug,
                                      options.autoresize);
-        this.ui = new UIManager(viewmodel, this.events);
+        this.ui = new UIManager(viewmodel,
+                                this.events,
+                                this.playerLoadingProgress);
     }
     else {
         var StatManager = require("./stat_manager");
@@ -138,20 +144,25 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
         }
     }.bind(this));
 
-    this.events.contentLoaded.addEventListener(function () {
-        this.network.sendContentLoaded();
+    this.events.partlyContentLoaded.addEventListener(function (sender,
+                                                               loaded,
+                                                               needsToLoad,
+                                                               playerIndex) {
+        if (sender == this.content) {
+            this.network.sendPartlyContentLoaded(loaded, needsToLoad);
+        } else if (sender == this.network) {
+            this.playerLoadingProgress[playerIndex]({
+                loaded: loaded,
+                needsToLoad: needsToLoad
+            });
+            // this.playerLoadingProgress[playerIndex].needsToLoad = needsToLoad;
+        }
     }.bind(this));
 
-    this.events.playerContentLoaded.addEventListener(function (sender,
-                                                               overalProgress,
-                                                               playerIndex) {
-        for (var key in overalProgress) {
-            this.playerLoadingProgress[key] = overalProgress[key];
-        }
-        this.playerLoadingProgress[playerIndex] = true;
-        if (this.playerLoadingProgress.every(function (isLoaded) {
-            return isLoaded;
-        })) {
+    this.events.contentLoaded.addEventListener(function (sender) {
+        if (sender == this) {
+            this.network.sendContentLoaded();
+        } else if (sender == this.network) {
             this.init();
         }
     }.bind(this));
@@ -240,9 +251,6 @@ Sanctum.prototype.init = function () {
 Sanctum.prototype.loadContent = function () {
     var callback = function () {
         this.events.contentLoaded.fire(this);
-        if (this.network.isServer()) {
-            this.init();
-        }
     }.bind(this);
 
     this.content.loadGameData("game_data.json",
@@ -403,7 +411,7 @@ Sanctum.prototype.processNetworkData = function () {
                             var allowedPacketTimestamp = (Date.now() -
                                     event.data.timestamp) < 600; // Magic
                             var abovePacketTimestamp = (Date.now() -
-                                    event.data.timestamp) > 2000; // Magic
+                                    event.data.timestamp) > 3000; // Magic
 
                             var isClosePosition = tmp
                                     .subtract(player.position).length() < 60; // Magic

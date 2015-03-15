@@ -1,13 +1,20 @@
 
-<nav id="game-ui" class="unselectable">
+<nav id="game-wrapper" class="unselectable">
 
-    <div id="loading-section" data-bind="visible: !isGameStarted">
+    <div id="loading-section" data-bind="visible: !isGameStarted()">
         Loading - Wait for all players to connect
+        <div class="loading-character-wrapper" data-bind="foreach: loadingProgress, width: 205 * loadingProgress().length">
+                    <img data-bind="attr: {src: $root.loadingAvatars[$index()],
+                    width: loaded/needsToLoad * 150,
+                    height: loaded/needsToLoad * 250}"
+                    width="10"
+                    height="10"/>
+        </div>
     </div>
 
-    <div style="display: none;" data-bind="visible: isGameStarted">
+    <div id="game-ui" style="display: none;" data-bind="visible: isGameStarted">
 
-        <div id="status-panel" >
+        <div id="status-panel">
             <ul class="bound-spells-list" data-bind="foreach: boundSpells">
                 <li class="bound-spell tooltipable"
                     data-bind="style: {backgroundImage: icon}">

@@ -45,6 +45,8 @@ networking.Room.prototype.startRoom = function () {
             }
 
             socket.playerIndex = this.players.length;
+            socket.contentLoaded = false;
+
             this.networkManager.connect(this.roomSocket, socket);
             socket.on("welcome", this.welcome.bind(this, socket));
             socket.on("leave", this.leave.bind(this, socket));
