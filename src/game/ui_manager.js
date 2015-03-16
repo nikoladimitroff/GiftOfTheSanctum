@@ -8,8 +8,26 @@ var AVATAR_IMAGES = [
 ];
 
 var UIManager = function (viewmodel, events, loadingProgress) {
+    // Ko.computed are evaluated when their depedencies change but since our
+    // scores work differently they won't fire unless we force them
+    this.reevaluator = ko.observable();
+    this.loadingReevaluator = ko.observable();
+
     this.viewmodel = viewmodel;
-    this.viewmodel.loadingProgress = loadingProgress;
+    this.loadingProgress = loadingProgress;
+
+    var precomputeLoadingProgress = function (i) {
+        this.loadingReevaluator();
+        return this.loadingProgress[i];
+    };
+    this.viewmodel.loadingProgress = [];
+
+    for (var i = 0; i < loadingProgress.length; i++) {
+        this.viewmodel.loadingProgress[i] = ko.computed(
+            precomputeLoadingProgress.bind(this, i));
+    }
+
+    // this.viewmodel.loadingProgress = loadingProgress;
 
     this.viewmodel.loadingAvatars = AVATAR_IMAGES.map(function (path) {
         return "content/art/characters/lobby/" + path;
@@ -25,9 +43,6 @@ var UIManager = function (viewmodel, events, loadingProgress) {
 
 UIManager.prototype.init = function (model) {
     this.model = model;
-    // Ko.computed are evaluated when their depedencies change but since our
-    // scores work differently they won't fire unless we force them
-    this.reevaluator = ko.observable();
 
     var precomputeLoggerMessages = function (i) {
         this.reevaluator();
@@ -163,6 +178,11 @@ UIManager.prototype.update = function () {
     this.viewmodel.players.sort(function (p1, p2) {
         return p1.score - p2.score;
     });
+};
+
+UIManager.prototype.updateLoading = function () {
+    // Force update
+    this.loadingReevaluator.notifySubscribers();
 };
 
 UIManager.prototype.toggleScoreboard = function () {

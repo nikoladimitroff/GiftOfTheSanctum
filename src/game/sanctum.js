@@ -103,10 +103,10 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
     // Server / client specializations
     if (!networkManager.isServer()) {
         this.playerLoadingProgress = playerNames.map(function () {
-            return ko.observable({
+            return {
                 loaded: 0,
                 needsToLoad: 0
-            });
+            };
         });
 
         this.input = new InputManager();
@@ -151,11 +151,11 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
         if (sender == this.content) {
             this.network.sendPartlyContentLoaded(loaded, needsToLoad);
         } else if (sender == this.network) {
-            this.playerLoadingProgress[playerIndex]({
+            this.playerLoadingProgress[playerIndex] = {
                 loaded: loaded,
                 needsToLoad: needsToLoad
-            });
-            // this.playerLoadingProgress[playerIndex].needsToLoad = needsToLoad;
+            };
+            this.ui.updateLoading();
         }
     }.bind(this));
 
