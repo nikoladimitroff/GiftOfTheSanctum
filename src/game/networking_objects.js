@@ -10,8 +10,8 @@ networking.token = function () {
     return Math.random().toString(36).substr(2);
 };
 
-networking.Player = function (id, name) {
-    this.id = id;
+networking.Player = function (socketId, name) {
+    this.socketId = socketId;
     this.name = name;
     this.roomId = null;
 };
@@ -35,34 +35,32 @@ networking.Room = function (masterSocket) {
     this.game = null;
 
     this.roomSocket = this.masterSocket.of("/" + this.id);
+    this.startRoom();
 };
 
 networking.Room.prototype.startRoom = function () {
-    if (!this.started) {
-        this.roomSocket.on("connection", function (socket) {
-            if (!this.hostId || this.players.length < 1) {
-                this.hostId = socket.id;
-            }
+    this.roomSocket.on("connection", function (socket) {
+        if (!this.hostId || this.players.length < 1) {
+            this.hostId = socket.id;
+        }
 
-            socket.playerIndex = this.players.length;
-            socket.contentLoaded = false;
+        // There is a problem when users are disconnecting!!
+        socket.playerIndex = this.players.length;
+        socket.contentLoaded = false;
 
-            this.networkManager.connect(this.roomSocket, socket);
-            socket.on("welcome", this.welcome.bind(this, socket));
-            socket.on("leave", this.leave.bind(this, socket));
-            socket.on("play", this.play.bind(this, socket));
-            socket.on("chat", this.chat.bind(this, socket));
-            socket.on("disconnect", this.leave.bind(this, socket));
+        this.networkManager.connect(this.roomSocket, socket);
+        socket.on("welcome", this.welcome.bind(this, socket));
+        socket.on("leave", this.leave.bind(this, socket));
+        socket.on("play", this.play.bind(this, socket));
+        socket.on("chat", this.chat.bind(this, socket));
+        socket.on("disconnect", this.leave.bind(this, socket));
 
-        }.bind(this));
-
-        this.started = true;
-    }
+    }.bind(this));
 };
 
 networking.Room.prototype.findPlayer = function (id) {
     for (var i = 0; i < this.players.length; i++)
-        if (this.players[i].id == id)
+        if (this.players[i].socketId == id)
             return this.players[i];
 };
 
@@ -101,14 +99,23 @@ networking.Room.prototype.leave = function (socket /*, data */) {
             this.removeSocket(socket);
 
             if (socket.id == this.hostId && this.players.length > 0) {
-                this.hostId = this.players[0].id;
+                this.hostId = this.players[0].socketId;
                 this.sockets[0].emit("becomeHost");
             }
+
+            this.sockets.forEach(function (socketElement) {
+                if (socket.playerIndex < socketElement.playerIndex) {
+                    socketElement.playerIndex -= 1;
+                }
+            });
 
             this.roomSocket.emit("leave", {
                                         roomClosed: this.players.length === 0,
                                         name: player.name,
+                                        playerIndex: socket.playerIndex
                                    });
+
+            this.networkManager.disconnect(socket.id);
         }
     }
 };
@@ -121,7 +128,7 @@ networking.Room.prototype.play = function (socket) {
             return {
                 name: p.name,
                 azureId: p.azureId,
-                id: p.id
+                id: p.socketId
             };
         });
         this.game = Sanctum.startNewGame(playerData, -1, this.networkManager);
@@ -135,6 +142,7 @@ networking.Room.prototype.isFree = function () {
 
 networking.Room.prototype.removePlayer = function (player) {
     var playerIndex = this.players.indexOf(player);
+    // this.players[playerIndex] = null;
 
     if (playerIndex > -1) {
         this.players.splice(playerIndex, 1);

@@ -404,8 +404,8 @@ Sanctum.prototype.processNetworkData = function () {
                             this.model.latency = Date.now() -
                                     event.data.timestamp;
                         } else {
-                            var tmp = new Vector();
-                            tmp.set(event.data.position);
+                            var eventPositionCopy = new Vector();
+                            eventPositionCopy.set(event.data.position);
 
                             // var differentTargets = (player.target && event.data.target) ? !(player.target.equals(event.data.target)) : true;
                             var allowedPacketTimestamp = (Date.now() -
@@ -413,7 +413,7 @@ Sanctum.prototype.processNetworkData = function () {
                             var abovePacketTimestamp = (Date.now() -
                                     event.data.timestamp) > 3000; // Magic
 
-                            var isClosePosition = tmp
+                            var isClosePosition = eventPositionCopy
                                     .subtract(player.position).length() < 60; // Magic
 
                             if ((abovePacketTimestamp) ||
@@ -545,6 +545,7 @@ Sanctum.prototype.update = function (delta) {
             this.predictionManager.addInput(player.position);
             player.inputSequenceNumber =
                     this.predictionManager.inputSequence - 1;
+
             this.network.addObject(player, this.playerIndex);
             this.network.flush(this.playerIndex);
         }

@@ -3,12 +3,14 @@
 
     <div id="loading-section" data-bind="visible: !isGameStarted()">
         Loading - Wait for all players to connect
-        <div class="loading-character-wrapper" data-bind="foreach: loadingProgress, width: 205 * loadingProgress().length">
-                    <img data-bind="attr: {src: $root.loadingAvatars[$index()],
-                    width: loaded/needsToLoad * 150,
-                    height: loaded/needsToLoad * 250}"
-                    width="10"
-                    height="10"/>
+        <div class="loading-wrapper" data-bind="foreach: loadingProgress">
+            <div class="loading-character-wrapper">
+                <img data-bind="attr: {src: $root.loadingAvatars[$index()],
+                width: loaded/needsToLoad * 150,
+                height: loaded/needsToLoad * 250}"
+                width="10"
+                height="10"/>
+            </div>
         </div>
     </div>
 

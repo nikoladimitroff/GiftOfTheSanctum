@@ -14,7 +14,6 @@ LobbyNetworker.prototype.start = function (io, socket) {
     this.sockets.push(socket);
     this.masterSocket = io;
 
-    socket.emit("connected", {message: "Hi"});
     socket.on("getRoom", this.getRoom.bind(this, socket));
     socket.on("getPlayer", this.getPlayer.bind(this, socket));
     socket.on("disconnect", this.handleDisconnect.bind(this, socket));
@@ -31,22 +30,20 @@ LobbyNetworker.prototype.firstFreeRoom = function () {
 LobbyNetworker.prototype.getPlayer = function (socket, data) {
     if (data && data.playerName) {
         var player = new networking.Player(socket.id, data.playerName);
-        this.players[player.id] = player;
+        this.players[player.socketId] = player;
         player.azureId = data.azureId;
 
-        var payload = {mainSocketId: player.id, playerName: player.name};
+        var payload = {mainSocketId: player.socketId, playerName: player.name};
         socket.emit("getPlayer", payload);
     }
 };
 
 LobbyNetworker.prototype.getRoom = function (socket, data) {
-    if (data && data.playerId && this.players[data.playerId]) {
+    if (data && data.socketId && this.players[data.socketId]) {
         var freeRoom = this.firstFreeRoom();
         var room = freeRoom || new networking.Room(this.masterSocket);
         this.rooms[room.id] = this.rooms[room.id] || room;
-        this.players[data.playerId].roomId = room.id;
-
-        room.startRoom();
+        this.players[data.socketId].roomId = room.id;
 
         socket.emit("getRoom", {roomId: room.id});
     }

@@ -72,7 +72,8 @@ NetworkManager.prototype.addObject = function (object, index) {
 NetworkManager.prototype.flush = function (playerIndex) {
     if (this.buffer.length > 0) {
         if (!this.isServer()) {
-            this.socket.emit("update", [{data: this.buffer, id: playerIndex}]);
+            this.socket.emit("update", [{data: this.buffer,
+                                         id: playerIndex}]);
         } else {
             this.masterSocket.emit("update", this.buffer);
         }
@@ -264,6 +265,10 @@ NetworkManager.prototype.reset = function () {
 NetworkManager.prototype.resetGame = function () {
     this.reset();
     this.events = null;
+};
+
+NetworkManager.prototype.disconnect = function (socketId) {
+    delete this.sockets[socketId];
 };
 
 NetworkManager.prototype.cleanupSocketListeners = function () {

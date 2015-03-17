@@ -47,13 +47,16 @@ Client.prototype.initializeLoginEventHandlers = function () {
         this.mainSocketId = data.mainSocketId;
         this.playerName = data.playerName;
 
-        this.goToWaitingScreen();
+        this.socket.emit("getRoom", {socketId: this.mainSocketId});
     }.bind(this));
 
     this.socket.on("getRoom", function (data) {
         this.roomId = data.roomId;
 
-        var payload = {port: NetworkManager.port};
+        var payload = {
+            port: NetworkManager.port,
+            "force new connection": true
+        };
         this.gameSocket = io.connect(this.serverName + this.roomId, payload);
         this.initializeGameEventHandlers();
 
@@ -82,9 +85,16 @@ Client.prototype.welcome = function (data) {
 };
 
 Client.prototype.leave = function (data) {
+    if (data.playerIndex == this.playerIndex) {
+        this.reset();
+        this.goToStartScreen();
+    }
     this.viewmodel.players.remove(function (player) {
         return player.name == data.name; // TODO: Use some kind of ID but not SocketID!!
     });
+    if (this.playerIndex > data.playerIndex) {
+        this.playerIndex -= 1;
+    }
 };
 
 Client.prototype.join = function (data) {
@@ -160,6 +170,18 @@ Client.prototype.goToAchievementsScreen = function () {
 
 Client.prototype.startGame = function () {
     UIHelper.loadPage("game", null, this);
+};
+
+Client.prototype.reset = function () {
+    this.gameSocket.disconnect();
+    this.networkManager.resetGame();
+
+    this.viewmodel = new Viewmodel();
+    this.gameSocket = null;
+    this.gameSocketId = null;
+    this.playerName = null;
+    this.roomId = null;
+    this.networkManager = null;
 };
 
 var loadGame = function () {
