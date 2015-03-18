@@ -529,14 +529,8 @@ Sanctum.prototype.update = function (delta) {
     this.physics.update(this.effects.characters);
     this.physics.update(this.effects.activeSpells);
 
-    if (!this.network.isServer()) {
-        this.effects.update(delta, this.physics, this.platform, false);
-    }
-
-    if (this.network.isServer()) {
-        this.effects.update(delta, this.physics, this.platform, true);
-    }
-
+    this.effects.update(delta, this.physics, this.platform,
+                        this.network.isServer());
 
     this.network.lastUpdate += delta;
     if (this.network.lastUpdate >= this.network.updateTime) {

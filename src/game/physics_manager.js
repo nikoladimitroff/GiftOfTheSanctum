@@ -10,8 +10,14 @@ var PhysicsManager = function (friction) {
     this.collisions = [];
 };
 
+var deadObjectFilter = function (collection) {
+    return !collection.isDead;
+};
+
 PhysicsManager.prototype.update = function (objects) {
-    this.integrator.integrate(objects, this.fixedStep, this.friction);
+    this.integrator.integrate(objects.filter(deadObjectFilter),
+                              this.fixedStep,
+                              this.friction);
 };
 
 function Pair(first, second) {
@@ -20,13 +26,16 @@ function Pair(first, second) {
 }
 
 PhysicsManager.prototype.getCollisionPairs = function (group1, group2) {
+    var filteredGroup1 = group1.filter(deadObjectFilter),
+        filteredGroup2 = group2.filter(deadObjectFilter);
+
     this.collisions = [];
-    for (var i = 0; i < group1.length; i++) {
-        var first = group1[i];
+    for (var i = 0; i < filteredGroup1.length; i++) {
+        var first = filteredGroup1[i];
         var firstCenter = first.getCenter();
 
-        for (var j = 0; j < group2.length; j++) {
-            var second = group2[j];
+        for (var j = 0; j < filteredGroup2.length; j++) {
+            var second = filteredGroup2[j];
 
             var secondCenter = second.getCenter();
             var distance = firstCenter.subtract(secondCenter).length();
