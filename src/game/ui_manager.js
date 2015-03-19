@@ -44,6 +44,14 @@ var UIManager = function (viewmodel, events, loadingProgress) {
 UIManager.prototype.init = function (model) {
     this.model = model;
 
+    ko.bindingHandlers.orbStyle = {
+        update: function (element, valueAccessor) {
+            var value = ko.utils.unwrapObservable(valueAccessor());
+            element.style.background = "linear-gradient(to top, red " +
+                value + "%, rgba(0, 0, 0, 0.5) 0%)";
+        }.bind(this)
+    };
+
     var precomputeLoggerMessages = function (i) {
         this.reevaluator();
         return Loggers.Gameplay.messages[i];
@@ -63,6 +71,12 @@ UIManager.prototype.init = function (model) {
         players[i].score = ko.computed(function (i) {
             this.reevaluator();
             return this.model.characters[i].score;
+        }.bind(this, i));
+
+        players[i].healthPercentage = ko.computed(function (i) {
+            this.reevaluator();
+            return 100 * this.model.characters[i].health /
+            this.model.characters[i].startingHealth;
         }.bind(this, i));
     }
     this.viewmodel.scoreboardAvatars = AVATAR_IMAGES.map(function (path) {
@@ -92,6 +106,17 @@ UIManager.prototype.init = function (model) {
     this.viewmodel.isGameOver = ko.computed(function () {
         this.reevaluator();
         return this.model.state === GameState.gameover;
+    }.bind(this));
+
+    this.viewmodel.health = ko.computed(function () {
+        this.reevaluator();
+        return this.model.characters[this.model.playerIndex].health;
+    }.bind(this));
+
+    this.viewmodel.healthPercentage = ko.computed(function () {
+        this.reevaluator();
+        return 100 * this.model.characters[this.model.playerIndex].health /
+        this.model.characters[this.model.playerIndex].startingHealth;
     }.bind(this));
 
     this.viewmodel.isGameStarted(true);

@@ -226,6 +226,7 @@ Sanctum.prototype.init = function () {
             state: GameState.midround,
             keybindings: this.keybindings,
             boundSpells: this.spellBindings,
+            playerIndex: this.playerIndex,
             // Getters
             getSpellIcon: this.effects.getSpellIcon.bind(this.effects),
             getSpellDamage: this.effects.getSpellDamage.bind(this.effects),
