@@ -133,15 +133,11 @@ EffectManager.prototype.castSpell = function (characterId, spellName, target) {
 
         var radius = spell.collisionRadius + character.collisionRadius;
         spell.position = center.subtract(offset)
-                                 .add(forward.multiply(1.1 * radius)); // Magic
+                         .add(forward.multiply(1.1 * radius)); // Magic
         spell.initialPosition = spell.position.clone();
 
-        var magnitude = this.spellLibrary[spellName].initialAcceleration;
-        spell.acceleration = forward.multiply(magnitude);
-        var speed = this.spellLibrary[spellName].initialVelocity;
-        spell.velocity = character.velocity.add(forward.multiply(speed));
-
         spell.rotation = -Math.PI / 2 + Vector.right.angleTo360(forward);
+        spell.target = target.clone();
     }
     if (spell.castType == CastType.instant) {
         var distance = target.subtract(character.getCenter()).length();
@@ -149,6 +145,7 @@ EffectManager.prototype.castSpell = function (characterId, spellName, target) {
         if (!isInRange)
             return null;
         spell.position = target.subtract(spell.size);
+        spell.target = target;
     }
     this.activeSpells.push(spell);
 

@@ -649,7 +649,7 @@ Sanctum.startNewGame = function (players, selfIndex, networkManager,
                            context,
                            options);
     game.loadContent();
-    game.bindSpells("Unicorns!", "Frostfire", "Heal",
+    game.bindSpells("Fireball", "Frostfire", "Heal",
                     "Flamestrike", "Electric bolt", "Deathbolt");
     Sanctum.activeGame = game;
     return game;

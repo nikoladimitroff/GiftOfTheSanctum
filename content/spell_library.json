@@ -15,7 +15,7 @@
     damageAmount: 60,
     pushbackForce: 100,
     cooldown: 1000, // cooldown of the spell
-    movementFunction: "linear", // determines the projectile's path - "quadratic", "homing", "sin"
+    movementFunction: "quadratic", // determines the projectile's path - "quadratic", "homing", "sin"
     initialAcceleration: 150, // the projectile's initial acceleration magnitude
     initialVelocity: 450, // the projectile's initial velocity
     range: 1000, // maximum distance the projectile may fly (or the instant cast to hit),
@@ -101,6 +101,7 @@
     targeted: false,
     effects: [
         "damage",
+        "pushback",
         "haste"
     ],
     effectRadius: 0,
@@ -108,7 +109,7 @@
     pushbackForce: 10,
     haste: -15,
     cooldown: 1000,
-    movementFunction: "linear",
+    movementFunction: "quadratic",
     initialAcceleration: 450, 
     initialVelocity: 450, 
     range: 500,

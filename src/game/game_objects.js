@@ -58,8 +58,7 @@ var Spell = function (sprite, description) {
     this.position = new Vector();
     this.velocity = new Vector(0, 0);
     this.acceleration = new Vector(0, 0);
-    this.initialVelocity = description.initialVelocity || 0;
-    this.initialAcceleration = description.initialAcceleration || 0;
+    this.speed = description.speed || 100; // magic
     this.movementFunction = description.movementFunction || "linear";
     this.frictionless = true;
 

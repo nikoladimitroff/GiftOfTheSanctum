@@ -109,7 +109,7 @@ steering.quadratic = function (obj) {
         var y = (a * x * x + b * x + c) * scale;
         var p = new Vector(x, y);
         var dir = matrix.invert().transform(p).subtract(center).normalized();
-
+        console.log(obj.target);
         return dir.multiply(obj.speed);
     }
     return Vector.zero;
