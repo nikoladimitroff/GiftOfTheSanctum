@@ -16,7 +16,16 @@ var Action = {
     spellcast5: "spellcast5",
 };
 
+var UserState = {
+    loginPage: "login_page",
+    gameMatching: "game_matching",
+    loggingIn: "logging_in",
+    loby: "loby",
+    playing: "playing",
+};
+
 module.exports = {
     Action: Action,
-    GameState: GameState
+    GameState: GameState,
+    UserState: UserState
 };

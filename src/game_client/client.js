@@ -3,6 +3,7 @@ var HelperModule = require("./ui_helper");
 var UIHelper = new HelperModule();
 var NetworkManager = require("../game/network_manager");
 var AzureManager = require("./azure_manager");
+var UserState = require("../game/enums").UserState;
 
 var Viewmodel = function () {
     this.players = ko.observableArray();
@@ -21,6 +22,7 @@ var Client = function () {
     this.viewmodel = new Viewmodel();
     this.azureManager = null;
     this.serverName = "/";
+    this.userState = UserState.loginPage;
     // this.serverName =
     //   "https://enigmatic-savannah-1221.herokuapp.com/";
     this.socket = null;
@@ -55,6 +57,7 @@ Client.prototype.initializeLoginEventHandlers = function () {
 
         var payload = {
             port: NetworkManager.port,
+            transports: ["websocket"],
             "force new connection": true
         };
         this.gameSocket = io.connect(this.serverName + this.roomId, payload);
@@ -65,6 +68,7 @@ Client.prototype.initializeLoginEventHandlers = function () {
 
 Client.prototype.initializeGameEventHandlers = function () {
     this.gameSocket.on("connect", function () {
+        this.userState = UserState.loby;
         this.gameSocketId = this.gameSocket.io.engine.id;
         this.goToRoomView();
     }.bind(this));
@@ -127,7 +131,10 @@ Client.prototype.endGame = function () {
 };
 
 Client.prototype.doNormalLogin = function (name) {
-    this.socket.emit("getPlayer", {playerName: name});
+    if (this.userState == UserState.loginPage) {
+        this.userState = UserState.gameMatching;
+        this.socket.emit("getPlayer", {playerName: name});
+    }
 };
 
 Client.prototype.doAzureLogin = function () {
@@ -169,6 +176,7 @@ Client.prototype.goToAchievementsScreen = function () {
 };
 
 Client.prototype.startGame = function () {
+    this.userState = UserState.playing;
     UIHelper.loadPage("game", null, this);
 };
 
@@ -176,6 +184,7 @@ Client.prototype.reset = function () {
     this.gameSocket.disconnect();
     this.networkManager.resetGame();
 
+    this.userState = UserState.loginPage;
     this.viewmodel = new Viewmodel();
     this.gameSocket = null;
     this.gameSocketId = null;
