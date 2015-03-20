@@ -8,6 +8,11 @@
     src: "art/environment/lava.jpg",
     framesPerRow: []
 }, {
+    src: "art/characters/click_arrow.png",
+    framesPerRow: [
+        20
+    ]
+}, {
     src: "art/characters/sprite/archer.png",
     framesPerRow: [
         7, 7, 7, 7,

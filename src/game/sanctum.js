@@ -174,6 +174,10 @@ var OBJECTS = {
     platform: "Basic platform",
 };
 
+// var SPRITES = {
+//     clickArrow: "content/art/characters/click_arrow.png"
+// };
+
 var CHARACTERS = [
     "character_archer",
     "character_knight",
@@ -211,6 +215,7 @@ Sanctum.prototype.init = function () {
     }
 
     var spellLibrary = this.content.getSpellLibrary();
+
     this.effects.init(spellLibrary, this.characters, this.platform);
 
     if (!this.network.isServer()) {
@@ -218,7 +223,7 @@ Sanctum.prototype.init = function () {
         this.renderer.init(camera);
         this.audio.init(this.content.get(this.content.audioLibraryKey));
         this.effects.audio = this.audio;
-        this.audio.play(this.platform.soundtrack);
+        // this.audio.play(this.platform.soundtrack);
         this.input.init(this.renderer.context.canvas, camera);
         this.keybindings = this.content.get("keybindings");
         this.model = {
@@ -348,6 +353,7 @@ Sanctum.prototype.processNetworkData = function () {
         });
     }
 
+
     var playerPayload,
         event, j;
 
@@ -373,6 +379,7 @@ Sanctum.prototype.processNetworkData = function () {
         }
         this.network.masterSocket.emit("update", payload);
     }
+
 
     var replayInputs = function (input) {
         this.position.set(input.data);
@@ -476,7 +483,9 @@ Sanctum.prototype.processPendingDeaths = function () {
                                                  function (player) {
             return !player.isDead;
         });
-        this.network.sendScores(lastManIndex, this.deadCount);
+        if (lastManIndex) {
+            this.network.sendScores(lastManIndex, this.deadCount);
+        }
     }
     this.network.pendingDeaths = [];
 };
@@ -555,6 +564,7 @@ Sanctum.prototype.render = function (delta) {
     var following = !currentPlayer.isDead ?
                     this.playerIndex : this.getMaxScorePlayerIndex();
     this.renderer.camera.follow(this.characters[following].position);
+
     var filteredCharacters = this.characters
         .filter(function (character) {
             return !character.isDead;
