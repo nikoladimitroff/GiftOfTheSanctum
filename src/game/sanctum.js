@@ -344,56 +344,55 @@ Sanctum.prototype.handleInput = function () {
     this.input.swap();
 };
 
-Sanctum.prototype.processNetworkData = function () {
+Sanctum.prototype.getVerifiedNetworkData = function () {
     var payload = [];
-    for (var i = 0; i < this.characters.length; i++) {
+    var payloadPerPlayer, i;
+
+    for (i = 0; i < this.characters.length; i++) {
         payload.push({
             id: i,
             data: this.network.getLastUpdateFrom(i)
         });
     }
 
-
-    var playerPayload,
-        event, j;
+    payload = payload.filter(function (item) {
+        return item.data !== null;
+    });
 
     if (this.network.isServer()) {
-        payload = payload.filter(function (item) {
-            return item.data !== null;
-        });
+        var verifyInput = function (event) {
+            if (event.t == NetworkManager.EventTypes.ObjectInfo) {
+                this.predictionManager
+                    .verifyInput(event.data, event.data.id);
+            }
+        }.bind(this);
 
         for (i = 0; i < payload.length; i++) {
-            playerPayload = payload[i].data;
+            payloadPerPlayer = payload[i].data;
 
-            if (!playerPayload) {
+            if (!payloadPerPlayer) {
                 continue;
             }
 
-            for (j = 0; j < playerPayload.length; j++) {
-                event = playerPayload[j];
-                if (event.t == NetworkManager.EventTypes.ObjectInfo) {
-                    this.predictionManager
-                            .verifyAndFilterInput(event.data, event.data.id);
-                }
-            }
+            payloadPerPlayer.forEach(verifyInput);
         }
-        this.network.masterSocket.emit("update", payload);
     }
 
+    return payload;
+};
 
-    var replayInputs = function (input) {
-        this.position.set(input.data);
-    };
+Sanctum.prototype.processNetworkData = function (payload) {
+    var i, j, payloadPerPlayer, event;
 
     for (i = 0; i < payload.length; i++) {
-        playerPayload = payload[i].data;
+        payloadPerPlayer = payload[i].data;
 
-        if (!playerPayload) {
+        if (!payloadPerPlayer) {
             continue;
         }
 
-        for (j = 0; j < playerPayload.length; j++) {
-            event = playerPayload[j];
+        for (j = 0; j < payloadPerPlayer.length; j++) {
+            event = payloadPerPlayer[j];
 
             var canSkip = false;
             switch (event.t) {
@@ -401,41 +400,17 @@ Sanctum.prototype.processNetworkData = function () {
                     var player = this.characters[event.data.id];
 
                     if (!this.network.isServer()) {
+                        this.predictionManager.predictPlayerMovement(player,
+                                                                     event);
                         if (event.data.id == this.playerIndex) {
-                            var lastVerifiedInput =
-                                this.predictionManager.getLastProcessedInput();
-                            var inputs = this.predictionManager.getInputs();
-                            if (lastVerifiedInput) {
-                                player.position.set(lastVerifiedInput);
-                            }
-                            inputs.forEach(replayInputs.bind(player));
                             this.model.latency = Date.now() -
-                                    event.data.timestamp;
-                        } else {
-                            var eventPositionCopy = new Vector();
-                            eventPositionCopy.set(event.data.position);
-
-                            // var differentTargets = (player.target && event.data.target) ? !(player.target.equals(event.data.target)) : true;
-                            var allowedPacketTimestamp = (Date.now() -
-                                    event.data.timestamp) < 600; // Magic
-                            var abovePacketTimestamp = (Date.now() -
-                                    event.data.timestamp) > 3000; // Magic
-
-                            var isClosePosition = eventPositionCopy
-                                    .subtract(player.position).length() < 60; // Magic
-
-                            if ((abovePacketTimestamp) ||
-                                (allowedPacketTimestamp &&
-                                !isClosePosition)) {
-
-                                player.position.set(event.data.position);
-                            }
+                                event.data.timestamp;
                         }
+
                     } else {
                         player.position.set(event.data.position);
                     }
                     player.velocity.set(event.data.velocity);
-
 
                     if (event.data.target &&
                         event.data.id != this.playerIndex) {
@@ -483,7 +458,7 @@ Sanctum.prototype.processPendingDeaths = function () {
                                                  function (player) {
             return !player.isDead;
         });
-        if (lastManIndex) {
+        if (lastManIndex !== null) {
             this.network.sendScores(lastManIndex, this.deadCount);
         }
     }
@@ -510,7 +485,11 @@ Sanctum.prototype.bindSpells = function (cast0, cast1, cast2,
 };
 
 Sanctum.prototype.update = function (delta) {
-    this.processNetworkData();
+    var verifiedNetworkData = this.getVerifiedNetworkData();
+    if (this.network.isServer()) {
+        this.network.masterSocket.emit("update", verifiedNetworkData);
+    }
+    this.processNetworkData(verifiedNetworkData);
 
     if (this.network.isServer()) {
         this.processAuthoritativeDeaths();

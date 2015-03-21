@@ -34,7 +34,7 @@ PredictionManager.prototype.getInputs = function () {
     return this.inputs;
 };
 
-PredictionManager.prototype.verifyAndFilterInput = function (input,
+PredictionManager.prototype.verifyInput = function (input,
                                                              playerIndex) {
     var player = this.characters[playerIndex];
     var newPosition = new Vector(input.position.x, input.position.y);
@@ -68,6 +68,41 @@ PredictionManager.prototype.handleInputVerification = function (data) {
         }
         return item.sequenceNumber > data.sequenceNumber;
     });
+};
+
+PredictionManager.prototype.replayInputs = function (player, input) {
+    player.position.set(input.data);
+};
+
+PredictionManager.prototype.predictPlayerMovement = function (player, event) {
+    if (event.data.id == this.playerIndex) {
+        var lastVerifiedInput =
+            this.predictionManager.getLastProcessedInput();
+        var inputs = this.predictionManager.getInputs();
+        if (lastVerifiedInput) {
+            player.position.set(lastVerifiedInput);
+        }
+        inputs.forEach(this.replayInputs.bind(this, player));
+    } else {
+        var eventPositionCopy = new Vector();
+        eventPositionCopy.set(event.data.position);
+
+        // var differentTargets = (player.target && event.data.target) ? !(player.target.equals(event.data.target)) : true;
+        var allowedPacketTimestamp = (Date.now() -
+                event.data.timestamp) < 600; // Magic
+        var abovePacketTimestamp = (Date.now() -
+                event.data.timestamp) > 3000; // Magic
+
+        var isClosePosition = eventPositionCopy
+                .subtract(player.position).length() < 60; // Magic
+
+        if ((abovePacketTimestamp) ||
+            (allowedPacketTimestamp &&
+            !isClosePosition)) {
+
+            player.position.set(event.data.position);
+        }
+    }
 };
 
 PredictionManager.prototype.cleanupSocketListeners = function () {

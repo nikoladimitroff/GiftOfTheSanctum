@@ -59,7 +59,6 @@ NetworkManager.prototype.addObject = function (object, index) {
         position: object.position,
         velocity: object.velocity,
         target: object.target,
-        score: object.score,
         inputSequenceNumber: object.inputSequenceNumber,
         id: index,
         timestamp: Date.now()
@@ -243,7 +242,7 @@ NetworkManager.prototype.getLastUpdateFrom = function (objectId) {
     }
 
     if (!this.isServer()) {
-        if (this.updateQueue[objectId].length > 5) { // Magic
+        if (this.updateQueue[objectId].length > 15) { // Magic
             this.updateQueue[objectId] = this.updateQueue[objectId].slice(0, 1);
         }
     }
