@@ -15,8 +15,8 @@
     </div>
 
     <div id="game-ui" style="display: none;" data-bind="visible: isGameStarted">
-        <div class="orb" data-bind="orbStyle: healthPercentage"></div>
-        <div class="health-status" data-bind="text: health"></div>
+        <div class="orb" data-bind="style: { 'background-position-y': healthPercentage() + '%' }"></div>
+        <div class="health-status" data-bind="text: health"></div>  
 
         <div id="status-panel">
             <ul class="bound-spells-list" data-bind="foreach: boundSpells">

@@ -70,13 +70,11 @@
     left: 5vh;
     width: 15vh;
     height: 4vh;
-    text-align: center;
-    white-space: nowrap;
     overflow: hidden;
-    text-decoration: none;
+    text-align: center;
     text-overflow: ellipsis;
+    font: @light-font;
     font-size: 4vh;
-    font-weight: bolder;
     color: red;
 }
 
@@ -85,31 +83,17 @@
     bottom: 6vh;
     left: 5vh;
     width: 15vh;
-    height: 15vh;
-    border-radius: 50%;
-    border: 2px solid rgba(0, 0, 0, 0.5);
-    
-    -webkit-transition: background 2000ms linear;
-    -moz-transition: background 2000ms linear;
-    -o-transition: background 2000ms linear;
-    -ms-transition: background 2000ms linear;
-    transition: background 2000ms linear;
-    
-    background: -webkit-linear-gradient(to top, red 100%, rgba(0, 0, 0, 0.5) 0%);
-    background: -o-linear-gradient(to top, red 100%, rgba(0, 0, 0, 0.5) 0%);
-    background: -moz-linear-gradient(to top, red 100%, rgba(0, 0, 0, 0.5) 0%);
-    background: linear-gradient(to top, red 100%, rgba(0, 0, 0, 0.5) 0%);
-    
-    -webkit-filter: blur(2px);
-    -moz-filter: blur(2px);
-    -ms-filter: blur(2px);
-    -o-filter: blur(2px);
-    filter: blur(2px);
+    height: 15vh;    
+    background: @orb-gradient;
+    background-size: 30vh 30vh;
+    background-position-y: 100%;
+    border: 1px solid red;
+    box-shadow: inset 0 0 20px #666, 0 0 5px #999;
+    transition: all 0.5s ease-in-out;
+    .css-circle;
+    .glass-efect;
 }
 
 .orb:hover {
-    width: 15vh;
-    height: 15vh;
-    border-radius: 50%;
-    border: 2px solid blue;
+    border: 1px solid blue;
 }

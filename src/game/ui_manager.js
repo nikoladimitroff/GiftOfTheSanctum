@@ -44,14 +44,6 @@ var UIManager = function (viewmodel, events, loadingProgress) {
 UIManager.prototype.init = function (model) {
     this.model = model;
 
-    ko.bindingHandlers.orbStyle = {
-        update: function (element, valueAccessor) {
-            var value = ko.utils.unwrapObservable(valueAccessor());
-            element.style.background = "linear-gradient(to top, red " +
-                value + "%, rgba(0, 0, 0, 0.5) 0%)";
-        }.bind(this)
-    };
-
     var precomputeLoggerMessages = function (i) {
         this.reevaluator();
         return Loggers.Gameplay.messages[i];
