@@ -1,5 +1,5 @@
 "use strict";
-
+var Loggers = require("../utils/logger");
 var Vector = require("./math/vector");
 var Character = require("./game_objects").Character,
     Spell = require("./game_objects").Spell;
@@ -80,10 +80,12 @@ EffectManager.prototype.applyEffects = function (physics, dt, isServer) {
 
 EffectManager.prototype.pulseSpell = function (spell, physics,
                                                hitTarget, dt, isServer) {
-    if (spell.castingType == CastType.instant) {
+    if (spell.castType == CastType.instant) {
         spell.lastUpdate = (spell.lastUpdate + dt) || dt;
         if (spell.lastUpdate <= 1000) { // magic
             return;
+        } else {
+            spell.lastUpdate = 0;
         }
     }
 
@@ -103,6 +105,8 @@ EffectManager.prototype.pulseSpell = function (spell, physics,
 
             if (effectFunction) {
                 effectFunction(target, spell, physics, isServer);
+            } else {
+                Loggers.Debug.error("{0} does not exist!", effect);
             }
         }
     }
