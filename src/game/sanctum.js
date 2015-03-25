@@ -400,8 +400,10 @@ Sanctum.prototype.processNetworkData = function (payload) {
                     var player = this.characters[event.data.id];
 
                     if (!this.network.isServer()) {
-                        this.predictionManager.predictPlayerMovement(player,
-                                                                     event);
+                        this.predictionManager
+                                .predictPlayerMovement(player,
+                                                       event,
+                                                       this.playerIndex);
                         if (event.data.id == this.playerIndex) {
                             this.model.latency = Date.now() -
                                 event.data.timestamp;

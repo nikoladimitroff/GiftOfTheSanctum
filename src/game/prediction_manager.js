@@ -34,8 +34,7 @@ PredictionManager.prototype.getInputs = function () {
     return this.inputs;
 };
 
-PredictionManager.prototype.verifyInput = function (input,
-                                                             playerIndex) {
+PredictionManager.prototype.verifyInput = function (input, playerIndex) {
     var player = this.characters[playerIndex];
     var newPosition = new Vector(input.position.x, input.position.y);
     if (newPosition.subtract(player.position).length() < 60) { // Magic
@@ -71,18 +70,22 @@ PredictionManager.prototype.handleInputVerification = function (data) {
 };
 
 PredictionManager.prototype.replayInputs = function (player, input) {
-    player.position.set(input.data);
+    if (input.data) {
+        this.position.set(input.data);
+    }
 };
 
-PredictionManager.prototype.predictPlayerMovement = function (player, event) {
-    if (event.data.id == this.playerIndex) {
+PredictionManager.prototype.predictPlayerMovement = function (player,
+                                                              event,
+                                                              playerIndex) {
+    if (event.data.id == playerIndex) {
         var lastVerifiedInput =
-            this.predictionManager.getLastProcessedInput();
-        var inputs = this.predictionManager.getInputs();
+            this.getLastProcessedInput();
+        var inputs = this.getInputs();
         if (lastVerifiedInput) {
             player.position.set(lastVerifiedInput);
         }
-        inputs.forEach(this.replayInputs.bind(this, player));
+        inputs.forEach(this.replayInputs.bind(player));
     } else {
         var eventPositionCopy = new Vector();
         eventPositionCopy.set(event.data.position);
