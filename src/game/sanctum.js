@@ -223,7 +223,7 @@ Sanctum.prototype.init = function () {
         this.renderer.init(camera);
         this.audio.init(this.content.get(this.content.audioLibraryKey));
         this.effects.audio = this.audio;
-        // this.audio.play(this.platform.soundtrack);
+        this.audio.play(this.platform.soundtrack);
         this.input.init(this.renderer.context.canvas, camera);
         this.keybindings = this.content.get("keybindings");
         this.model = {

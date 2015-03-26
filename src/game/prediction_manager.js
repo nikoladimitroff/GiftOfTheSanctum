@@ -37,7 +37,7 @@ PredictionManager.prototype.getInputs = function () {
 PredictionManager.prototype.verifyInput = function (input, playerIndex) {
     var player = this.characters[playerIndex];
     var newPosition = new Vector(input.position.x, input.position.y);
-    if (newPosition.subtract(player.position).length() < 60) { // Magic
+    if (newPosition.subtract(player.position).length() < 90) { // Magic
         this.network.sendVerifiedInput(player.id,
                                        playerIndex,
                                        input.inputSequenceNumber);
@@ -90,18 +90,22 @@ PredictionManager.prototype.predictPlayerMovement = function (player,
         var eventPositionCopy = new Vector();
         eventPositionCopy.set(event.data.position);
 
-        // var differentTargets = (player.target && event.data.target) ? !(player.target.equals(event.data.target)) : true;
+        var isTargetDifferent = (player.target && event.data.target) ?
+                            !(player.target.equals(event.data.target)) : true;
         var allowedPacketTimestamp = (Date.now() -
                 event.data.timestamp) < 600; // Magic
         var abovePacketTimestamp = (Date.now() -
                 event.data.timestamp) > 3000; // Magic
 
         var isClosePosition = eventPositionCopy
-                .subtract(player.position).length() < 60; // Magic
+                .subtract(player.position).length() < 90; // Magic
+        var isVeryFarPosition = eventPositionCopy
+                .subtract(player.position).length() > 200; // Magic
 
         if ((abovePacketTimestamp) ||
             (allowedPacketTimestamp &&
-            !isClosePosition)) {
+            !isClosePosition && isTargetDifferent) ||
+            (allowedPacketTimestamp && isVeryFarPosition)) {
 
             player.position.set(event.data.position);
         }
