@@ -1,60 +1,63 @@
 "use strict";
 var GameState = require("./enums").GameState;
 var Loggers = require("../utils/logger.js");
+var LoadingScreen = require("./loading_screen");
+var SanctumEvent = require("../utils/sanctum_event");
 
 var AVATAR_IMAGES = [
     "archer.png", "knight.png", "mage.png", "monk.png",
      "necro.png", "orc.png", "queen.png", "rogue.png"
 ];
 
-var UIManager = function (viewmodel, events, loadingProgress) {
+var UIManager = function (viewmodel, gameEvents) {
     // Ko.computed are evaluated when their depedencies change but since our
     // scores work differently they won't fire unless we force them
     this.reevaluator = ko.observable();
-    this.loadingReevaluator = ko.observable();
 
     this.viewmodel = viewmodel;
-    this.loadingProgress = loadingProgress;
 
-    var precomputeLoadingProgress = function (i) {
-        this.loadingReevaluator();
-        return this.loadingProgress[i];
+    this.events = {
+        nextRound: new SanctumEvent(),
+        exitGame: new SanctumEvent()
     };
-    this.viewmodel.loadingProgress = [];
-
-    for (var i = 0; i < loadingProgress.length; i++) {
-        this.viewmodel.loadingProgress[i] = ko.computed(
-            precomputeLoadingProgress.bind(this, i));
-    }
-
-    // this.viewmodel.loadingProgress = loadingProgress;
-
-    this.viewmodel.loadingAvatars = AVATAR_IMAGES.map(function (path) {
-        return "content/art/characters/lobby/" + path;
-    });
-
-    this.events = events;
+    this.gameEvents = gameEvents;
 
     this.viewmodel.isGameStarted = ko.observable(false);
+};
 
-    var loadingSection = document.getElementById("loading-section");
-    ko.applyBindings(this.viewmodel, loadingSection);
+UIManager.prototype.showLoadingScreen = function (characters,
+                                                  playerCharacterIndex,
+                                                  background,
+                                                  loadingProgress) {
+
+    var loadingSection = document.querySelector("#loading-screen canvas");
+    this.loadingScreen = new LoadingScreen(characters,
+                                           playerCharacterIndex,
+                                           background,
+                                           loadingProgress,
+                                           loadingSection);
 };
 
 UIManager.prototype.init = function (model) {
     this.model = model;
 
-    var precomputeLoggerMessages = function (i) {
-        this.reevaluator();
-        return Loggers.Gameplay.messages[i];
+    ko.bindingHandlers.orbStyle = {
+        update: function (element, valueAccessor) {
+            var value = ko.utils.unwrapObservable(valueAccessor());
+            element.style.background = "linear-gradient(to top, red " +
+                value + "%, rgba(0, 0, 0, 0.5) 0%)";
+        }.bind(this)
     };
 
     this.viewmodel.messages = [];
-    for (var i = 0;
-         i < Loggers.Gameplay.MAXIMUM_NUMBER_OF_MESSAGES;
-         i++) {
-        this.viewmodel.messages[i] = ko.computed(
-            precomputeLoggerMessages.bind(this, i));
+    var maxMessages = Loggers.Gameplay.MAXIMUM_NUMBER_OF_MESSAGES;
+    var messageFunction = function (i) {
+        this.reevaluator();
+        return Loggers.Gameplay.messages[i];
+    };
+    for (var i = 0; i < maxMessages; i++) {
+        var boundMessageFunction = messageFunction.bind(this, i);
+        this.viewmodel.messages[i] = ko.computed(boundMessageFunction);
     }
 
     // Add whatever else the viewmodel needs
@@ -112,6 +115,10 @@ UIManager.prototype.init = function (model) {
     }.bind(this));
 
     this.viewmodel.isGameStarted(true);
+    this.loadingScreen.destroy();
+    var canvas = document.querySelector("#loading-screen canvas");
+    canvas.parentNode.removeChild(canvas);
+    this.loadingScreen = null;
 
     // Rebind
     var gameUI = document.getElementById("game-ui");
@@ -126,8 +133,8 @@ UIManager.prototype.init = function (model) {
         this.toggleScoreboard();
     }.bind(this);
 
-    this.events.roundOver.addEventListener(roundOverHanlder);
-    this.events.gameOver.addEventListener(roundOverHanlder);
+    this.gameEvents.roundOver.addEventListener(roundOverHanlder);
+    this.gameEvents.gameOver.addEventListener(roundOverHanlder);
 
     this.bindUI();
 };
@@ -183,23 +190,18 @@ UIManager.prototype.bindUI = function () {
         }
     }.bind(this));
 
-    document.getElementById("game-over-button")
+    document.getElementById("exit-game-button")
     .addEventListener("click", function () {
-        this.events.endGame.fire(this);
+        this.events.exitGame.fire(this);
     }.bind(this));
 };
 
 UIManager.prototype.update = function () {
-    // Force update
-    this.reevaluator.notifySubscribers();
     this.viewmodel.players.sort(function (p1, p2) {
         return p1.score - p2.score;
     });
-};
-
-UIManager.prototype.updateLoading = function () {
     // Force update
-    this.loadingReevaluator.notifySubscribers();
+    this.reevaluator.notifySubscribers();
 };
 
 UIManager.prototype.toggleScoreboard = function () {

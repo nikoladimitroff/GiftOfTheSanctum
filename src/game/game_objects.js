@@ -27,23 +27,44 @@ function copyProperties(object, description) {
     }
 }
 
+var DEFAULT_CHARACTER = {
+    health: 600,
+    speed: 300,
+    size: new Vector(64, 64),
+    mass: 1,
+    animations: {
+        walk: 8,
+        spellcast0: 0,
+        spellcast1: 0,
+        spellcast2: 0,
+        spellcast3: 0,
+        spellcast4: 0,
+        spellcast5: 0,
+    },
+    voice: {
+        cast: "sounds/voices/laugh.mp3",
+        move: "sounds/voices/where_shall_my_blood_be_spilled.mp3"
+    },
+};
+
 var Character = function (sprite, description) {
     this.position = new Vector(210, 210);
     this.velocity = new Vector(0, 0);
     this.acceleration = new Vector(0, 0);
     this.rotation = 0;
-    this.startingHealth = description.health;
-    this.health = description.health;
-    this.speed = description.speed || 100;
+    this.mass = description.mass || 1;
+    this.startingHealth = this.health = description.health ||
+                                        DEFAULT_CHARACTER.health;
+    this.speed = description.speed || DEFAULT_CHARACTER.speed;
     this.score = 0;
     this.isDead = false;
     this.movementFunction = "linear";
 
-    this.animations = description.animations;
+    this.animations = description.animations || DEFAULT_CHARACTER.animations;
     this.sprite = sprite;
-    this.voice = description.voice;
+    this.voice = description.voice || DEFAULT_CHARACTER.voice;
 
-    description.size = description.size || new Vector(64, 64);
+    description.size = description.size || DEFAULT_CHARACTER.size;
     this.size = new Vector(description.size.x, description.size.y);
 
     this.collisionRadius = Math.max(this.size.x, this.size.y) / 2;

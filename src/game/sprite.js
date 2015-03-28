@@ -2,7 +2,7 @@
 
 var Sprite = function (image, framesPerRow) {
     this.image = image;
-    this.framesPerRow = framesPerRow;
+    this.framesPerRow = framesPerRow || [1];
     var maxFrames = Math.max.apply(undefined, framesPerRow);
     this.frameWidth = image.width / maxFrames;
     this.frameHeight = image.height / framesPerRow.length;

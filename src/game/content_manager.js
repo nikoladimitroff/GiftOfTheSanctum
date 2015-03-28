@@ -2,6 +2,7 @@
 /* global AudioContext */
 
 var fs = require("fs");
+var Q = require("q");
 
 var Platform = require("./platform");
 var allGameObjects = require("./game_objects");
@@ -10,6 +11,8 @@ var Character = allGameObjects.Character,
     Achievement = allGameObjects.Achievement,
     GameObjectSettings = allGameObjects.Settings;
 var Sprite = require("./sprite");
+var SanctumEvent = require("../utils/sanctum_event.js");
+var Loggers = require("../utils/logger");
 
 function getFilename(path) {
     return path.substring(path.lastIndexOf("/") + 1);
@@ -22,35 +25,62 @@ function getFilenameWithoutExtension(path) {
 
 var ContentManager = function () {
     this.contentCache = {};
-    this.loading = 0;
-    this.loaded = 0;
-    this.loadingElements = 0;
-    this.onResourcesLoaded = function () {};
+    this._loading = 0;
+    this._loaded = 0;
     this.root = "content/";
 
     this.audioLibraryKey = "audiolib";
     this.achievementsKey = "achievementlib";
     this.contentCache[this.audioLibraryKey] = {};
     this.spellsSpritesPath = "content/art/spells/";
+    this.events = {
+        charactersLoaded: new SanctumEvent(),
+        loadingProgress: new SanctumEvent()
+    };
+    this._loadingDeferred = null;
+};
+
+
+ContentManager.prototype._notifyLoadingProgress = function () {
+    if (this._loadingDeferred !== null) {
+        this._loaded++;
+        this._loadingDeferred.notify(this._loaded / this._loading);
+    }
 };
 
 ContentManager.prototype.loadSprite = function (description) {
-    // this.loading++;
-    var path = this.root + description.src;
-    if (this.contentCache[path])
-        return this.contentCache[path];
+    var deferred = Q.defer();
+    var imageSource = description.src || description;
+    var framesPerRow = description.framesPerRow || [1];
 
+    var path = this.root + imageSource;
     var image = new Image();
-    var framesPerRow = description.framesPerRow;
     image.onload = function () {
         this.contentCache[path] = new Sprite(image, framesPerRow);
-        this.loaded++;
-        this.events.partlyContentLoaded.fire(this, this.loaded, this.loading);
-        if (this.loaded === this.loading && this.loadingElements === 0) {
-            this.onResourcesLoaded();
-        }
+        this._notifyLoadingProgress();
+        deferred.resolve();
     }.bind(this);
     image.src = path;
+
+    return deferred.promise;
+};
+
+ContentManager.prototype.loadAudio = function (audioInfo) {
+    var deferred = Q.defer();
+    var path = audioInfo.src;
+    this.fetchJSONFile(audioInfo.src, "arraybuffer")
+    .done(function (data) {
+        AudioContext.instance.decodeAudioData(data, function (buffer) {
+            if (audioInfo.volume === undefined)
+                audioInfo.volume = 1;
+            audioInfo.buffer = buffer;
+            this.contentCache[this.audioLibraryKey][path] = audioInfo;
+            this._notifyLoadingProgress();
+            deferred.resolve();
+        }.bind(this));
+    }.bind(this));
+
+    return deferred.promise;
 };
 
 ContentManager.prototype.loadSpell = function (description) {
@@ -59,25 +89,7 @@ ContentManager.prototype.loadSpell = function (description) {
                    GameObjectSettings.imageFormat;
     var sprite = this.get(this.spellsSpritesPath + filename);
     this.contentCache[description.name] = new Spell(sprite, description);
-};
-
-ContentManager.prototype.loadAudio = function (audioInfo) {
-    // this.loading++;
-    var path = audioInfo.src;
-    this.fetchJSONFile(audioInfo.src, function (data) {
-        AudioContext.instance.decodeAudioData(data, function (buffer) {
-            if (audioInfo.volume === undefined)
-                audioInfo.volume = 1;
-            audioInfo.buffer = buffer;
-            this.contentCache[this.audioLibraryKey][path] = audioInfo;
-            this.loaded++;
-            this.events.partlyContentLoaded.fire(this, this.loaded,
-                                                this.loading);
-            if (this.loaded === this.loading && this.loadingElements === 0) {
-                this.onResourcesLoaded();
-            }
-        }.bind(this));
-    }.bind(this), "arraybuffer");
+    this._notifyLoadingProgress();
 };
 
 ContentManager.prototype.loadAchievementCategory = function (category) {
@@ -86,6 +98,7 @@ ContentManager.prototype.loadAchievementCategory = function (category) {
         current.category = category.name;
         this.contentCache[current.name] = new Achievement(current);
     }
+    this._notifyLoadingProgress();
 };
 
 ContentManager.prototype.loadCharacter = function (description) {
@@ -106,8 +119,8 @@ ContentManager.prototype.loadPlatform = function (description, isServer) {
                                 this.get(description.outsideTexture).image,
                                 description);
     }
-
     this.contentCache[description.name] = platform;
+    this._notifyLoadingProgress();
 };
 
 ContentManager.prototype.loadKeybindings = function (keybindings) {
@@ -115,82 +128,147 @@ ContentManager.prototype.loadKeybindings = function (keybindings) {
     this.contentCache[keybindingsKey] = keybindings;
 };
 
-ContentManager.prototype.fetchJSONFile = function (path,
-                                                   callback,
-                                                   responseType) {
-
-    var xhr = new XMLHttpRequest();
+ContentManager.prototype.fetchJSONFile = function (path, responseType) {
     path = this.root + path;
-    xhr.open("GET", path);
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-            if (xhr.status === 200) {
-                if (responseType !== undefined) {
-                    callback(xhr.response);
-                }
-                else {
-                    var data = "Object(" + xhr.responseText + ")";
-                    data = eval(data); // jshint ignore: line
-                    callback(data);
-                }
+    var deferred = Q.defer();
+
+    var onload = function () {
+        if (xhr.status === 200) {
+            if (responseType !== undefined) {
+                deferred.resolve(xhr.response);
             }
             else {
-                console.warn("Couldn't fetch json file");
+                var data = "Object(" + xhr.responseText + ")";
+                data = eval(data); // jshint ignore: line
+                data.thisIsSparta = path;
+                deferred.resolve(data);
             }
         }
+        else {
+            Loggers.Debug.warn("Couldn't fetch json file: {0}. Error code: {1}",
+                               path,
+                               xhr.status);
+            deferred.reject(new Error(xhr.status));
+        }
     };
+    var onerror = function () {
+        var message = "Couldn't fetch json file: {0}" +
+                      "due to networking problems";
+        Loggers.Debug.warn(message, path);
+        deferred.reject(new Error());
+    };
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", path);
+    xhr.onload = onload;
+    xhr.onerror = onerror;
     if (responseType !== undefined) {
         xhr.responseType = responseType;
     }
     xhr.send();
+    return deferred.promise;
 };
 
-ContentManager.prototype.loadGameData = function (gameDataPath,
-                                                  callback,
-                                                  isServer) {
+ContentManager.prototype.loadPregameData = function (spritesFilePath,
+                                                     charactersFilePath,
+                                                     backgroundPath) {
 
+    if (this._loadingDeferred !== null) {
+        var message = "Pregame data must be loaded before core game data!";
+        Loggers.Debug.error(message);
+        throw new Error(message);
+    }
+    var deferred = Q.defer();
+
+    var backgroundPromise = this.loadSprite(backgroundPath);
+    var charactersPromise = this.fetchJSONFile(spritesFilePath)
+        .then(function (sprites) {
+            return Q.all(sprites.map(this.loadSprite.bind(this)));
+        }.bind(this))
+        .then(function () {
+            return this.fetchJSONFile(charactersFilePath);
+        }.bind(this))
+        .then(function (charactersDescription) {
+            charactersDescription.forEach(this.loadCharacter.bind(this));
+        }.bind(this));
+    Q.all([charactersPromise, backgroundPromise])
+    .done(deferred.resolve, deferred.reject);
+
+    return deferred.promise;
+};
+
+ContentManager.prototype.loadGameData = function (gameDataPath, isServer) {
+    var deferred = Q.defer();
+    this._loadingDeferred = deferred;
+    this._loading = 1; // the platform
+    this._loaded = 0;
     if (isServer) {
-        this.loadGameDataServer(gameDataPath, callback);
-        return;
+        this.loadGameDataServer(gameDataPath);
+        deferred.resolve();
+        return deferred.promise;
     }
 
     var self = this;
-    this.fetchJSONFile(gameDataPath, function (gameData) {
+    this.fetchJSONFile(gameDataPath)
+    .then(function (gameData) {
         self.loadKeybindings(gameData.keybindings);
-        self.onResourcesLoaded = function () {
-            gameData.characters.map(self.loadCharacter.bind(self));
-            self.fetchJSONFile(gameData.spells, function (spellLibrary) {
-                spellLibrary.map(self.loadSpell.bind(self));
 
-                self.fetchJSONFile(gameData.platform, function (platform) {
-                    self.loadPlatform(platform);
-                    callback();
+        var spritePromise = self.fetchJSONFile(gameData.sprites)
+        .then(function (sprites) {
+            self._loading += sprites.length;
+            return Q.all(sprites.map(self.loadSprite.bind(self)));
+        });
+        var audioPromise = self.fetchJSONFile(gameData.sounds)
+        .then(function (sounds) {
+            self._loading += sounds.length;
+            return Q.all(sounds.map(self.loadAudio.bind(self)));
+        });
+        var resourcePromise = Q.all([spritePromise, audioPromise]);
+
+        var achievementPromise = self.fetchJSONFile(gameData.achievements)
+        .then(function (categories) {
+            self._loading += categories.length;
+            return Q.fcall(function () {
+                categories.forEach(self.loadAchievementCategory.bind(self));
+            });
+        });
+
+        var spellPromise = self.fetchJSONFile(gameData.spells)
+        .then(function (spellLibrary) {
+            self._loading += spellLibrary.length;
+            return resourcePromise.then(function () {
+                return Q.fcall(function () {
+                    spellLibrary.forEach(self.loadSpell.bind(self));
                 });
             });
-        };
-        self.loadingElements = 2;
-        self.fetchJSONFile(gameData.sprites, function (sprites) {
-            self.loadingElements--;
-            self.loading += sprites.length;
-            sprites.map(self.loadSprite.bind(self));
         });
+        var platformPromise = self.fetchJSONFile(gameData.platform)
+        .then(function (platform) {
+            return resourcePromise.then(function () {
+                return Q.fcall(function () {
+                    self.loadPlatform(platform);
+                });
+            });
+        });
+        return Q.all([
+            achievementPromise,
+            spellPromise,
+            platformPromise
+         ]);
+    })
+    .then(function () {
+        return Q.delay(1000000);
+    }).done(deferred.resolve, deferred.reject);
 
-        self.fetchJSONFile(gameData.sounds, function (sounds) {
-            self.loadingElements--;
-            self.loading += sounds.length;
-            sounds.map(self.loadAudio.bind(self));
-        });
-        self.fetchJSONFile(gameData.achievements, function (categories) {
-            categories.map(self.loadAchievementCategory.bind(self));
-        });
-    });
+    return deferred.promise;
 };
 
-ContentManager.prototype.loadGameDataServer = function (gameDataPath,
-                                                        callback) {
+ContentManager.prototype.loadGameDataServer = function (gameDataPath) {
 
     var gameData = this.fetchJSONServer(gameDataPath);
-    gameData.characters.map(this.loadCharacter.bind(this));
+
+    var characterLibrary = this.fetchJSONServer(gameData.characters);
+    characterLibrary.map(this.loadCharacter.bind(this));
 
     var spellLibrary = this.fetchJSONServer(gameData.spells);
     spellLibrary.map(this.loadSpell.bind(this));
@@ -201,7 +279,6 @@ ContentManager.prototype.loadGameDataServer = function (gameDataPath,
     var platform = this.fetchJSONServer(gameData.platform);
 
     this.loadPlatform(platform, true);
-    callback();
 };
 
 ContentManager.prototype.fetchJSONServer = function (path) {
@@ -225,12 +302,28 @@ ContentManager.prototype.getAchievementLibrary = function () {
     return this.getLibrary(Achievement);
 };
 
+ContentManager.prototype.getCharacters = function () {
+    return this.getLibraryArray(Character);
+};
+
 ContentManager.prototype.getLibrary = function (type) {
     var lib = {};
     for (var path in this.contentCache) {
         var content = this.contentCache[path];
         if (content instanceof type) {
-            lib[content.name] = content;
+            lib[content.name || path] = content;
+        }
+    }
+
+    return lib;
+};
+
+ContentManager.prototype.getLibraryArray = function (type) {
+    var lib = [];
+    for (var path in this.contentCache) {
+        var content = this.contentCache[path];
+        if (content instanceof type) {
+            lib.push(content);
         }
     }
 

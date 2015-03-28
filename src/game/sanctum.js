@@ -17,36 +17,10 @@ var PredictionManager = require("./prediction_manager");
 
 var GameState = require("./enums").GameState,
     Action = require("./enums").Action;
-
+var Camera = require("./camera");
 var Vector = require("./math/vector");
 
 var SPELLCAST_COUNT = 6;
-
-var Camera = function (viewport, platformSize) {
-    this.viewport = viewport;
-    this.platformSize = platformSize;
-    this.position = new Vector();
-};
-
-Camera.prototype.follow = function (target) {
-    var position = this.position;
-
-    position.x = target.x - this.viewport.x / 2;
-    position.y = target.y - this.viewport.y / 2;
-
-    if (position.x < 0) {
-        position.x = 0;
-    }
-    if (position.y < 0) {
-        position.y = 0;
-    }
-    if (position.x + this.viewport.x > this.platformSize.x) {
-        position.x = this.platformSize.x - this.viewport.x;
-    }
-    if (position.y + this.viewport.y > this.platformSize.y) {
-        position.y = this.platformSize.y - this.viewport.y;
-    }
-};
 
 var Sanctum = function (playerNames, selfIndex, networkManager,
                         viewmodel, context, options) {
@@ -86,27 +60,17 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
 
     // Events
     this.events = {
-        contentLoaded: new SanctumEvent(),
         initializationComplete: new SanctumEvent(),
         roundOver: new SanctumEvent(),
-        nextRound: new SanctumEvent(),
         gameOver: new SanctumEvent(),
-        scoresInfo: new SanctumEvent(),
         endGame: new SanctumEvent(),
-        partlyContentLoaded: new SanctumEvent(),
     };
-
-    networkManager.events = this.events;
-    this.content.events = this.events;
 
 
     // Server / client specializations
     if (!networkManager.isServer()) {
         this.playerLoadingProgress = playerNames.map(function () {
-            return {
-                loaded: 0,
-                needsToLoad: 0
-            };
+            return 0;
         });
 
         this.input = new InputManager();
@@ -114,9 +78,7 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
         this.renderer = new Renderer(context,
                                      options.debug,
                                      options.autoresize);
-        this.ui = new UIManager(viewmodel,
-                                this.events,
-                                this.playerLoadingProgress);
+        this.ui = new UIManager(viewmodel, this.events);
     }
     else {
         var StatManager = require("./stat_manager");
@@ -125,44 +87,34 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
     }
 
     // Event handlers
-    this.events.scoresInfo.addEventListener(function (_, score, index) {
+    this.network.events.scoresInfo.addEventListener(function (_, score, index) {
         this.characters[index].score += score;
         if (!this.network.isServer()) {
             this.ui.update();
         }
     }.bind(this));
 
-    this.events.nextRound.addEventListener(function (sender) {
-        if (sender === this.ui) {
+    this.network.events.nextRound.addEventListener(function (/* sender */) {
+        // The network manager received a "next-round" command
+        this.reset();
+        this.run();
+    }.bind(this));
+
+    if (!this.network.isServer()) {
+        this.ui.events.nextRound.addEventListener(function (/* sender */) {
             // The next round button has been clicked
             this.network.sendNextRound();
-        }
-        else if (sender === this.network) {
-            // The network manager received a "next-round" command
-            this.reset();
-            this.run();
-        }
-    }.bind(this));
+        }.bind(this));
+    }
 
-    this.events.partlyContentLoaded.addEventListener(function (sender,
-                                                               loaded,
-                                                               needsToLoad,
+    this.network.events.partlyContentLoaded.addEventListener(function (sender,
+                                                               progress,
                                                                playerIndex) {
-        if (sender == this.content) {
-            this.network.sendPartlyContentLoaded(loaded, needsToLoad);
-        } else if (sender == this.network) {
-            this.playerLoadingProgress[playerIndex] = {
-                loaded: loaded,
-                needsToLoad: needsToLoad
-            };
-            this.ui.updateLoading();
-        }
-    }.bind(this));
-
-    this.events.contentLoaded.addEventListener(function (sender) {
-        if (sender == this) {
-            this.network.sendContentLoaded();
-        } else if (sender == this.network) {
+        this.playerLoadingProgress[playerIndex] = progress;
+        var gameReady = this.playerLoadingProgress.every(function (progress) {
+            return progress >= 1;
+        });
+        if (gameReady) {
             this.init();
         }
     }.bind(this));
@@ -255,13 +207,35 @@ Sanctum.prototype.init = function () {
 };
 
 Sanctum.prototype.loadContent = function () {
-    var callback = function () {
-        this.events.contentLoaded.fire(this);
-    }.bind(this);
+    if (!this.network.isServer()) {
+        var characters = [];
+        for (var i = 0; i < this.characters.length; i++) {
+            characters[i] = this.content.get(CHARACTERS[i]);
+            characters[i].name = this.characters[i];
+        }
+        var backgroundPath = "content/art/environment/forest2.png";
+        this.ui.showLoadingScreen(characters,
+                                  this.playerIndex,
+                                  this.content.get(backgroundPath).image,
+                                  this.playerLoadingProgress);
+    }
+    var progressUpdate = function (progress) {
+        this.playerLoadingProgress[this.playerIndex] = progress;
+        this.network.sendPartlyContentLoaded(progress);
+    };
 
-    this.content.loadGameData("game_data.json",
-                              callback,
-                              this.network.isServer());
+    var completedCallback = this.network.isServer() ?
+                            this.init.bind(this) :
+                            undefined;
+    var rejectedCallback = function (error) {
+        Loggers.Debug.error("Could not load the game content: {0}", error);
+    };
+    var notifiedCallback = this.network.isServer() ?
+                           undefined :
+                           progressUpdate.bind(this);
+
+    this.content.loadGameData("game_data.json", this.network.isServer())
+    .done(completedCallback, rejectedCallback, notifiedCallback);
 };
 
 Sanctum.prototype.reset = function () {
@@ -621,18 +595,30 @@ Sanctum.prototype.run = function () {
     this.mainSanctumLoop(0);
 };
 
-Sanctum.startNewGame = function (players, selfIndex, networkManager,
-                                 viewmodel, context, options) {
+Sanctum.createNewGame = function (players, selfIndex, networkManager,
+                                  viewmodel, context, options) {
     var game = new Sanctum(players,
                            selfIndex,
                            networkManager,
                            viewmodel,
                            context,
                            options);
-    game.loadContent();
-    game.bindSpells("Fireball", "Frostfire", "Heal",
-                    "Flamestrike", "Electric bolt", "Deathbolt");
-    Sanctum.activeGame = game;
+    var start = function () {
+        game.loadContent();
+        game.bindSpells("Fireball", "Frostfire", "Heal",
+                        "Flamestrike", "Electric bolt", "Deathbolt");
+        Sanctum.activeGame = game;
+    };
+
+    if (!game.network.isServer()) {
+        game.content.loadPregameData("loading_screen_sprites.json",
+                                     "characters.json",
+                                     "art/environment/forest2.png")
+        .done(start);
+    }
+    else {
+        start();
+    }
     return game;
 };
 

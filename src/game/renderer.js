@@ -22,12 +22,24 @@ Renderer.prototype.init = function (camera) {
 
             this.camera.viewport.x = this.context.canvas.width;
             this.camera.viewport.y = this.context.canvas.height;
+
+            // Let me have pixelzz!
+            this.context.imageSmoothingEnabled = false;
         }.bind(this);
         onresize();
         window.onresize = onresize;
     }
 };
 
+Renderer.prototype._parseCoordinates = function (coords) {
+    var canvas = this.context.canvas;
+    if (coords.x < 0) {
+        coords.x += canvas.width;
+    }
+    if (coords.y < 0) {
+        coords.y += canvas.height;
+    }
+};
 
 Renderer.prototype.getViewportCenter = function () {
     return new Vector(this.context.canvas.width / 2,
@@ -38,7 +50,6 @@ Renderer.prototype.getPlatformCenter = function (platform) {
     return new Vector(-this.camera.position.x + platform.width / 2,
                       -this.camera.position.y + platform.height / 2);
 };
-
 
 Renderer.prototype.getPlatformSourceVectors = function (platform) {
     var platformRatio = new Vector(platform.texture.width / platform.width,
@@ -112,6 +123,15 @@ Renderer.prototype.renderVector = function (vector, position, color, offset) {
     this.context.stroke();
     this.context.fill();
     this.context.restore();
+};
+
+Renderer.prototype.renderBackground = function (backgroundTexture) {
+    this.context.drawImage(backgroundTexture,
+                           0, 0,
+                           backgroundTexture.width, backgroundTexture.height,
+                           0, 0,
+                           this.camera.viewport.x, this.camera.viewport.y
+                           );
 };
 
 Renderer.prototype.renderOverlay = function () {
@@ -189,9 +209,14 @@ Renderer.prototype.renderCollection = function (dt, gameObjects) {
 
         if (this.debugRender) {
             this.renderCircle(obj.getCenter(), obj.collisionRadius);
-            this.renderVector(obj.totalVelocity, obj.position, "red");
-            var offset = new Vector(0, obj.size.y / 3);
-            this.renderVector(obj.acceleration, obj.position, "blue", offset);
+            if (obj.totalVelocity) {
+                this.renderVector(obj.totalVelocity, obj.position, "red");
+                var offset = new Vector(0, obj.size.y / 3);
+                this.renderVector(obj.acceleration,
+                                  obj.position,
+                                  "blue",
+                                  offset);
+            }
             if (obj.target) {
                 this.renderCircle(obj.target, obj.collisionRadius);
             }
@@ -209,6 +234,30 @@ Renderer.prototype.renderCollection = function (dt, gameObjects) {
     }
 };
 
+Renderer.prototype.renderText = function (message, position,
+                                          color, font, shouldCenter) {
+    if (color === undefined) {
+        color = "black";
+    }
+    if (font === undefined) {
+        font = "16pt Segoe UI";
+    }
+    this._parseCoordinates(position);
+    this.context.save();
+    this.context.fillStyle = color;
+    this.context.font = font;
+    var positionX = position.x;
+    if (positionX === "center") {
+        positionX = this.context.canvas.width / 2;
+    }
+    if (shouldCenter) {
+        positionX = positionX - this.context.measureText(message).width / 2;
+    }
+
+    this.context.fillText(message, positionX, position.y);
+    this.context.restore();
+};
+
 Renderer.prototype.render = function (dt,
                                       objectCollections,
                                       platform,
@@ -216,7 +265,14 @@ Renderer.prototype.render = function (dt,
 
     var context = this.context;
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
-    this.renderPlatform(platform);
+    if (platform) {
+        if (platform instanceof HTMLImageElement) {
+            this.renderBackground(platform);
+        }
+        else {
+            this.renderPlatform(platform);
+        }
+    }
 
     context.save();
     context.translate(-this.camera.position.x, -this.camera.position.y);

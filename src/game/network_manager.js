@@ -1,5 +1,6 @@
 "use strict";
 var Loggers = require("../utils/logger");
+var SanctumEvent = require("../utils/sanctum_event");
 var process = process || null;
 
 var NetworkManager = function () {
@@ -15,6 +16,12 @@ var NetworkManager = function () {
     this.updateQueue = {};
     this.buffer = [];
     this.pendingDeaths = [];
+
+    this.events = {
+        nextRound: new SanctumEvent(),
+        scoresInfo: new SanctumEvent(),
+        partlyContentLoaded: new SanctumEvent()
+    };
 };
 
 
@@ -40,7 +47,6 @@ NetworkManager.prototype.connect = function (masterSocket, socket) {
     // Don't forget to add event to this.cleanupSocketListeners();
     socket.on("partly-content-loaded",
               this.handlePartlyContentLoaded.bind(this));
-    socket.on("content-loaded", this.handleContentLoaded.bind(this));
     socket.on("update", this.handleUpdate.bind(this));
     socket.on("death", this.handleDeath.bind(this));
     socket.on("scores", this.handleScores.bind(this));
@@ -150,21 +156,12 @@ NetworkManager.prototype.sendNextRound = function () {
     Loggers.Debug.log("Next round send");
 };
 
-NetworkManager.prototype.sendContentLoaded = function () {
+NetworkManager.prototype.sendPartlyContentLoaded = function (progress) {
     if (!this.isServer()) {
-        this.socket.emit("content-loaded", {socketId: this.gameSocketId});
-    }
-};
-
-NetworkManager.prototype.sendPartlyContentLoaded = function (loaded,
-                                                             needsToLoad) {
-    if (!this.isServer()) {
-        this.socket.emit("partly-content-loaded",
-            {
-                socketId: this.gameSocketId,
-                loaded: loaded,
-                needsToLoad: needsToLoad
-            });
+        this.socket.emit("partly-content-loaded", {
+            socketId: this.gameSocketId,
+            progress: progress
+        });
     }
 };
 
@@ -178,60 +175,25 @@ NetworkManager.prototype.handleNextRound = function () {
 
 NetworkManager.prototype.handlePartlyContentLoaded = function (data) {
     /** data.socketId
-        data.loaded
-        data.needsToLoad
+        data.progress
     **/
     if (this.isServer()) {
         if (this.sockets[data.socketId]) {
             var playerIndex = this.sockets[data.socketId].playerIndex;
-            this.masterSocket.emit("partly-content-loaded",
-                {
-                    playerIndex: playerIndex,
-                    loaded: data.loaded,
-                    needsToLoad: data.needsToLoad
-                });
+            this.masterSocket.emit("partly-content-loaded", {
+                playerIndex: playerIndex,
+                progress: data.progress
+            });
         }
     } else {
         /**
             data.playerIndex
-            data.loaded
-            data.needsToLoad
+            data.progress
         **/
         if (this.events) {
             this.events.partlyContentLoaded.fire(this,
-                                                 data.loaded,
-                                                 data.needsToLoad,
+                                                 data.progress,
                                                  data.playerIndex);
-        }
-    }
-};
-
-NetworkManager.prototype.handleContentLoaded = function (data) {
-    if (this.isServer()) {
-        /**
-            data.socketId
-        **/
-        if (this.sockets[data.socketId]) {
-            this.sockets[data.socketId].contentLoaded = true;
-
-            var flag = true;
-            for (var socketId in this.sockets) {
-                if (!this.sockets[socketId].contentLoaded) {
-                    flag = false;
-                    break;
-                }
-            }
-            if (flag) {
-                this.events.contentLoaded.fire(this);
-                this.masterSocket.emit("content-loaded");
-                for (socketId in this.sockets) {
-                    this.sockets[socketId].contentLoaded = false;
-                }
-            }
-        }
-    } else {
-        if (this.events) {
-            this.events.contentLoaded.fire(this);
         }
     }
 };

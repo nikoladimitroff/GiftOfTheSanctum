@@ -141,7 +141,6 @@ EffectManager.prototype.castSpell = function (characterId, spellName, target) {
         spell.initialPosition = spell.position.clone();
 
         spell.rotation = -Math.PI / 2 + Vector.right.angleTo360(forward);
-        spell.target = target.clone();
     }
     if (spell.castType == CastType.instant) {
         var distance = target.subtract(character.getCenter()).length();
@@ -149,8 +148,8 @@ EffectManager.prototype.castSpell = function (characterId, spellName, target) {
         if (!isInRange)
             return null;
         spell.position = target.subtract(spell.size);
-        spell.target = target;
     }
+    spell.target = target.clone();
     this.activeSpells.push(spell);
 
     this.spellCooldowns[characterId][spellName] = Date.now();

@@ -1,0 +1,10 @@
+[
+    {  sprite: "art/characters/sprite/archer.png" },
+    {  sprite: "art/characters/sprite/knight.png", },
+    {  sprite: "art/characters/sprite/mage.png", },
+    {  sprite: "art/characters/sprite/monk.png", },
+    {  sprite: "art/characters/sprite/necro.png", },
+    {  sprite: "art/characters/sprite/orc.png", },
+    {  sprite: "art/characters/sprite/queen.png", },
+    {  sprite: "art/characters/sprite/rogue.png", }
+]

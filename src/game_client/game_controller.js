@@ -11,7 +11,7 @@ GameController.prototype.init = function (client) {
     var context = document.getElementById("game-canvas").getContext("2d");
     var viewmodel = this.client.viewmodel;
     var playerNames = viewmodel.players()
-                            .map(function (player) { return player.name; });
+                      .map(function (player) { return player.name; });
 
     var options = {
         inEditor: false,
@@ -19,16 +19,15 @@ GameController.prototype.init = function (client) {
         debug: true
     };
 
-    var game = Sanctum.startNewGame(playerNames,
-                         this.client.findSelfIndex(),
-                         this.client.networkManager,
-                         viewmodel,
-                         context,
-                         options);
+    var game = Sanctum.createNewGame(playerNames,
+                                  this.client.findSelfIndex(),
+                                  this.client.networkManager,
+                                  viewmodel,
+                                  context,
+                                  options);
 
-    game.events.endGame
-        .addEventListener(this.client.endGame.bind(this.client));
-
+    game.ui.events.exitGame
+    .addEventListener(this.client.endGame.bind(this.client));
 };
 
 module.exports = GameController;

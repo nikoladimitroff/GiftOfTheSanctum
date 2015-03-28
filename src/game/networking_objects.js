@@ -131,7 +131,7 @@ networking.Room.prototype.play = function (socket) {
                 id: p.socketId
             };
         });
-        this.game = Sanctum.startNewGame(playerData, -1, this.networkManager);
+        this.game = Sanctum.createNewGame(playerData, -1, this.networkManager);
         this.roomSocket.emit("play", {});
     }
 };

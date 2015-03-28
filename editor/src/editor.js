@@ -216,7 +216,8 @@ function main() {
         inEditor: true,
         autoresize: 0.4
     };
-    var game = Sanctum.startNewGame(players, 0, null, null, context, options);
+    var game = Sanctum.createNewGame(players, 0, null, null, context, options);
+    Sanctum.startGame(game);
 
 
     game.events.initializationComplete.addEventListener(function () {
