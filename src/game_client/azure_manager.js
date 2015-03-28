@@ -17,7 +17,13 @@ Object.defineProperty(AzureManager.prototype, "loggedIn", {
     configurable: true
 });
 
-AzureManager.prototype.login = function (callback) {
+AzureManager.prototype.login = function (callback, token) {
+    if (token) {
+        this.client.currentUser = token;
+        this.loadInformation(callback);
+        return;
+    }
+
     var onsuccess = this.loadInformation.bind(this, callback);
     this.client.login("microsoftaccount").done(onsuccess, function (error) {
         Loggers.Debug.log("An error occurred while login: {0}", error);

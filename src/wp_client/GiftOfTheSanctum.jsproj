@@ -56,6 +56,9 @@
     <Content Include="3rdparty\font-awesome-4.2.0\fonts\FontAwesome.otf" />
     <Content Include="3rdparty\jquery-2.1.3.min.wp.js" />
     <Content Include="3rdparty\knockout-3.2.0.wp.js" />
+    <Content Include="3rdparty\MobileServices.winjs.intellisense.js" />
+    <Content Include="3rdparty\MobileServices.winjs.js" />
+    <Content Include="3rdparty\MobileServices.winjs.pri" />
     <Content Include="3rdparty\MobileServices.Web-1.2.5.js" />
     <Content Include="3rdparty\MobileServices.Web-1.2.5.min.js" />
     <Content Include="3rdparty\socket.io-1.2.0.js" />
@@ -199,9 +202,6 @@
     <Content Include="distr\fonts\Metamorphous-Regular.ttf" />
     <Content Include="distr\fonts\OFL.txt" />
     <Content Include="distr\game.html" />
-    <Content Include="distr\game_ui.html" />
-    <Content Include="distr\health_orb.html" />
-    <Content Include="distr\lobby.html" />
     <Content Include="distr\login.html" />
     <Content Include="distr\main.css" />
     <Content Include="distr\please_wait.html" />
@@ -219,6 +219,10 @@
     <Content Include="css\ui-themed.theme-dark.css" />
     <Content Include="css\ui-themed.theme-light.css" />
     <Content Include="js\default.js" />
+    <Content Include="sanctum_widgets.xml">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <SDKReference Include="Microsoft.Phone.WinJS.2.1, Version=1.0" />

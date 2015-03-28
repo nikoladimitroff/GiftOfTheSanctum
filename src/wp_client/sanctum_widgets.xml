@@ -1,0 +1,14 @@
+﻿<VoiceCommands xmlns="http://schemas.microsoft.com/voicecommands/1.1">
+  <CommandSet xml:lang="en-us" Name="sanctumvcd">
+    <CommandPrefix>Sanctum</CommandPrefix>
+    <Example>Sanctum take me on an adventure</Example>
+    
+    <Command Name="playGame">
+      <Example>take me on an adventure</Example>
+      <ListenFor>Take me on an adventure</ListenFor>
+      <ListenFor>I feel like casting spells</ListenFor>
+      <Feedback>Sanctum is taking you to the castle.</Feedback>
+      <Navigate/>
+    </Command>
+  </CommandSet>
+</VoiceCommands>

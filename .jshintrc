@@ -1,5 +1,5 @@
 {
-    "predef": ["$", "jQuery", "io", "ko", "Windows", "WinJS", "MSApp"],
+    "predef": ["$", "jQuery", "io", "ko", "Windows", "WinJS", "MSApp", "Client"],
     "browser": true,
     "devel": true,
     "node": true,

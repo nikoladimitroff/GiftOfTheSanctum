@@ -18,7 +18,7 @@ var Viewmodel = function () {
     this.isLoggedWithAzure = ko.observable(false);
 };
 
-var Client = function () {
+global.Client = function () {
     this.viewmodel = new Viewmodel();
     this.azureManager = null;
     this.serverName = "/";
@@ -139,16 +139,32 @@ Client.prototype.doNormalLogin = function (name) {
 
 Client.prototype.doAzureLogin = function () {
     this.azureManager = this.azureManager || new AzureManager();
-    this.azureManager.login(function (result) {
-        console.log("Azure post login: ", result, this);
-        this.azureId = result.id;
-        this.playerName = result.name;
-        this.viewmodel.isLoggedWithAzure(true);
-        this.socket.emit("getPlayer", {
-            playerName: this.playerName,
-            azureId: this.azureId
-        });
-    }.bind(this));
+    var token = this.getAzureResult();
+    this.azureManager.login(this.postAzureLogin.bind(this), token);
+};
+
+Client.prototype.postAzureLogin = function (result) {
+    console.log("Azure post login: ", result, this);
+    this.storeAzureResult(this.azureManager.client.currentUser);
+    this.azureId = result.id;
+    this.playerName = result.name;
+    this.viewmodel.isLoggedWithAzure(true);
+    this.socket.emit("getPlayer", {
+        playerName: this.playerName,
+        azureId: this.azureId
+    });
+};
+
+Client.prototype.getAzureResult = function () {
+    if (window.localStorage !== undefined) {
+        return JSON.parse(window.localStorage.getItem("azureLoginData"));
+    }
+};
+
+Client.prototype.storeAzureResult = function (token) {
+    if (window.localStorage !== undefined) {
+        window.localStorage.setItem("azureLoginData", JSON.stringify(token));
+    }
 };
 
 Client.prototype.goToStartScreen = function () {
@@ -199,4 +215,3 @@ var loadGame = function () {
 };
 
 window.onload = loadGame;
-global.loadGame = loadGame;

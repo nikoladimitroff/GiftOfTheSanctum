@@ -2,7 +2,6 @@
 // http://go.microsoft.com/fwlink/?LinkID=329104
 (function () {
     "use strict";
-    /* global loadGame */
 
     var app = WinJS.Application;
     var activation = Windows.ApplicationModel.Activation;
@@ -16,15 +15,55 @@
         enumerable: false
     });
 
+    Client.prototype.storeAzureResult = function (result) {
+        if (localSettings !== undefined) {
+            localSettings.values.azureLoginData = JSON.stringify(result);
+        }
+    };
+
+    Client.prototype.getAzureResult = function () {
+        if (localSettings !== undefined) {
+            return JSON.parse(localSettings.values.azureLoginData);
+        }
+    };
+
+    var applicationData = Windows.Storage.ApplicationData.current;
+    var localSettings = applicationData.localSettings;
+    var client = null;
+
+    function loadGame() {
+        client = new Client();
+        client.start();
+    }
+
+    function azureLoadGame() {
+        client = new Client();
+        client.start();
+        client.doAzureLogin();
+    }
 
     app.onactivated = function (args) {
         if (args.detail.kind === activation.ActivationKind.launch) {
 
             if (args.detail.previousExecutionState !==
                 activation.ApplicationExecutionState.terminated) {
+                var uri = new Windows.Foundation
+                    .Uri("ms-appx:///sanctum_widgets.xml");
+                Windows.Storage.StorageFile.getFileFromApplicationUriAsync(uri)
+                    .then(
+                    // Success function.
+                    function (vcd) {
+                        Windows.Media.SpeechRecognition.VoiceCommandManager
+                            .installCommandSetsFromStorageFileAsync(vcd);
+                    },
+                    // Error function.
+                    function (err) {
+                        if (WinJS.log !== undefined) {
+                            WinJS.log("File access failed.", err);
+                        }
+                    });
 
-                MSApp.execUnsafeLocalFunction(loadGame);
-
+                loadGame();
                 // TODO: This application has been newly launched. Initialize
                 // your application here.
             } else {
@@ -33,6 +72,39 @@
             }
             args.setPromise(WinJS.UI.processAll());
         }
+        else if (args.detail.kind ==
+            activation.ActivationKind.webAuthenticationBrokerContinuation) {
+            var token = JSON.parse(decodeURIComponent(args.detail
+                .webAuthenticationResult.responseData).split("token=")[1]);
+            client.azureManager.client.currentUser = token.user;
+            client.azureManager.client.currentUser
+                .mobileServiceAuthenticationToken = token.authenticationToken;
+            client.azureManager
+                .loadInformation(client.postAzureLogin.bind(client));
+        }
+        else if (args.detail.kind === activation.ActivationKind.voiceCommand) {
+            var speechRecognitionResult = args.detail.result;
+            var voiceCommandName = speechRecognitionResult.rulePath[0];
+
+            var textSpoken =
+                speechRecognitionResult.text !==
+                undefined ? speechRecognitionResult.text : "EXCEPTION";
+
+            // var navigationTarget = speechRecognitionResult
+            //     .semanticInterpretation.properties.NavigationTarget[0];
+            if (voiceCommandName === "playGame") {
+                azureLoadGame();
+            }
+            else {
+                azureLoadGame();
+            }
+
+            var messageDialog =
+                new Windows.UI.Popups.MessageDialog(
+                textSpoken, "Text spoken");
+            messageDialog.showAsync();
+        }
+
     };
 
     // app.oncheckpoint = function (args) {

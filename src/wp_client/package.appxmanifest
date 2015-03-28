@@ -22,11 +22,13 @@
         <m3:SplashScreen Image="images\SplashScreen.png" />
         <m3:InitialRotationPreference>
           <m3:Rotation Preference="landscape" />
+          <m3:Rotation Preference="landscapeFlipped" />
         </m3:InitialRotationPreference>
       </m3:VisualElements>
     </Application>
   </Applications>
   <Capabilities>
     <Capability Name="internetClientServer" />
+    <DeviceCapability Name="microphone" />
   </Capabilities>
 </Package>
