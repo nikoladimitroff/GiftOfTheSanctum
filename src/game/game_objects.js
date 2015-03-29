@@ -1,5 +1,6 @@
 "use strict";
 var Vector = require("./math/vector");
+var Loggers = require("../utils/logger");
 
 var Settings = {
     spellIconPath: "/content/art/spells/icons/",

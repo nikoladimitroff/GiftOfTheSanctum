@@ -141,15 +141,15 @@ EffectManager.prototype.castSpell = function (characterId, spellName, target) {
         spell.initialPosition = spell.position.clone();
 
         spell.rotation = -Math.PI / 2 + Vector.right.angleTo360(forward);
+        spell.target = target.clone();
     }
     if (spell.castType == CastType.instant) {
         var distance = target.subtract(character.getCenter()).length();
         var isInRange = this.spellLibrary[spellName].range > distance;
         if (!isInRange)
             return null;
-        spell.position = target.subtract(spell.size);
+        spell.position = target.subtract(spell.size.divide(2));
     }
-    spell.target = target.clone();
     this.activeSpells.push(spell);
 
     this.spellCooldowns[characterId][spellName] = Date.now();
@@ -179,15 +179,20 @@ EffectManager.prototype.cleanupEffects = function () {
     var now = Date.now();
     for (var i = 0; i < this.activeSpells.length; i++) {
         var spell = this.activeSpells[i];
-        var removeInstantSpell = spell.castType == CastType.instant &&
+        var removeInstantSpell = spell.castType === CastType.instant &&
                                  now - spell.timestamp >= spell.duration;
+
         var pos = spell.position;
         var distanceTravelled = pos.subtract(spell.initialPosition).length();
         var outsideRange = spell.range > 0 && distanceTravelled >= spell.range;
         var outsideMap = pos.x < 0 || pos.x > this.platform.size.x ||
                          pos.y < 0 || pos.y > this.platform.size.y;
-        var removeProjectileSpell = spell.castType == CastType.projectile &&
-                                    (outsideMap || outsideRange);
+        var targetProximitySquared = 50 * 50; // magic
+        var reachedTarget = spell.target === null;
+        var removeProjectileSpell = spell.castType === CastType.projectile &&
+                                    (outsideMap ||
+                                     outsideRange ||
+                                     reachedTarget);
 
         if (removeInstantSpell || removeProjectileSpell) {
             if (this.removeSpell(spell.id, i))
