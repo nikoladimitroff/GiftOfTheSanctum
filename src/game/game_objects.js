@@ -1,6 +1,6 @@
 "use strict";
 var Vector = require("./math/vector");
-var Loggers = require("../utils/logger");
+var nowUTC = require("../utils/general_utils").nowUTC;
 
 var Settings = {
     spellIconPath: "/content/art/spells/icons/",
@@ -101,7 +101,7 @@ var Spell = function (sprite, description) {
 
     // stamps and stuff
     this.initialPosition = this.position.clone();
-    this.timestamp = Date.now();
+    this.timestamp = nowUTC();
 
     this.cooldown = description.cooldown;
 
@@ -122,7 +122,7 @@ Character.prototype.clone = Spell.prototype.clone = function () {
     clone.id = ID_COUNTER++;
 
     if (this.constructor == Spell) {
-        clone.timestamp = Date.now();
+        clone.timestamp = nowUTC();
         clone.initialPosition = this.position.clone();
     }
 

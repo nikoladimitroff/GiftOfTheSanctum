@@ -37,6 +37,16 @@ Vector.prototype = {
     lengthSquared: function () {
         return this.x * this.x + this.y * this.y;
     },
+    distanceTo: function (v) {
+        var dx = this.x - v.x;
+        var dy = this.y - v.y;
+        return Math.sqrt(dx * dx + dy * dy);
+    },
+    distanceToSquared: function (v) {
+        var dx = this.x - v.x;
+        var dy = this.y - v.y;
+        return dx * dx + dy * dy;
+    },
     normalized: function () {
         return this.divide(this.length());
     },

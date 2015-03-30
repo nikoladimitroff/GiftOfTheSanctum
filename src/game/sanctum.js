@@ -3,6 +3,7 @@ var Loggers = require("../utils/logger");
 var SanctumEvent = require("../utils/sanctum_event.js");
 var ArrayUtils = require("../utils/array_utils");
 var stub = require("../utils/stub.js");
+var nowUTC = require("../utils/general_utils").nowUTC;
 
 var PhysicsManager = require("./physics_manager");
 var EffectManager =  require("./effect_manager");
@@ -250,7 +251,7 @@ Sanctum.prototype.reset = function () {
         player.position = positions[i];
         player.velocity.set(Vector.zero);
         player.acceleration.set(Vector.zero);
-        player.target = null;
+        player.destination = null;
         player.health = player.startingHealth;
         player.isDead = false;
     }
@@ -375,11 +376,12 @@ Sanctum.prototype.processNetworkData = function (payload) {
 
                     if (!this.network.isServer()) {
                         this.predictionManager
-                                .predictPlayerMovement(player,
-                                                       event,
-                                                       this.playerIndex);
+                        .predictPlayerMovement(player,
+                                               event,
+                                               this.playerIndex);
+
                         if (event.data.id == this.playerIndex) {
-                            this.model.latency = Date.now() -
+                            this.model.latency = nowUTC() -
                                 event.data.timestamp;
                         }
 
@@ -388,11 +390,11 @@ Sanctum.prototype.processNetworkData = function (payload) {
                     }
                     player.velocity.set(event.data.velocity);
 
-                    if (event.data.target &&
+                    if (event.data.destination &&
                         event.data.id != this.playerIndex) {
-
-                        player.target = new Vector(event.data.target.x,
-                                                   event.data.target.y);
+                        var destX = event.data.destination.x,
+                            destY = event.data.destination.y;
+                        player.destination = new Vector(destX, destY);
                     }
                     break;
 
@@ -402,12 +404,12 @@ Sanctum.prototype.processNetworkData = function (payload) {
                         continue;
                     }
 
-                    var target = new Vector(event.data.target.x,
-                                            event.data.target.y);
+                    var destination = new Vector(event.data.destination.x,
+                                                 event.data.destination.y);
 
                     this.effects.castSpell(event.data.caster,
                                            event.data.spellName,
-                                           target);
+                                           destination);
                     break;
             }
         }

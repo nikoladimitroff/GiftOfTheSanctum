@@ -2,7 +2,7 @@
 var fs = require("fs");
 var path = require("path");
 var StringUtils = require("./string_utils");
-var utcNow = require("./general_utils").utcNow;
+var dateUTC = require("./general_utils").dateUTC;
 
 var LOG_MESSAGE_CLASS = "log-message";
 var WARN_MESSAGE_CLASS = "warn-message";
@@ -15,7 +15,7 @@ function getTimestamp (includeDate) {
     if (includeDate === undefined)
         includeDate = true;
 
-    var now = utcNow();
+    var now = dateUTC();
     if (includeDate) {
         return StringUtils.format("[{0}.{1}.{2} {3}:{4}:{5}]",
                                   StringUtils.padLeft(now.getDate(), "00"),
@@ -35,7 +35,7 @@ function getTimestamp (includeDate) {
 }
 
 function getLogFilename () {
-    return utcNow().toString().replace(/:/g, "-");
+    return dateUTC().toString().replace(/:/g, "-");
 }
 
 var LogMessage = function () {

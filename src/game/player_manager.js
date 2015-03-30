@@ -8,8 +8,8 @@ var PlayerManager = function (characters, physicsManager) {
 PlayerManager.prototype.update = function () {
 };
 
-PlayerManager.prototype.moveTo = function (player, target) {
-    player.target = target.clone();
+PlayerManager.prototype.moveTo = function (player, destination) {
+    player.destination = destination.clone();
     delete player.coefficients;
 };
 

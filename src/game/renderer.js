@@ -217,8 +217,8 @@ Renderer.prototype.renderCollection = function (dt, gameObjects) {
                                   "blue",
                                   offset);
             }
-            if (obj.target) {
-                this.renderCircle(obj.target, obj.collisionRadius);
+            if (obj.destination) {
+                this.renderCircle(obj.destination, obj.collisionRadius);
             }
         }
 

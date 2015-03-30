@@ -1,6 +1,7 @@
 "use strict";
 var Loggers = require("../utils/logger");
 var SanctumEvent = require("../utils/sanctum_event");
+var nowUTC = require("../utils/general_utils").nowUTC;
 var process = process || null;
 
 var NetworkManager = function () {
@@ -53,10 +54,12 @@ NetworkManager.prototype.connect = function (masterSocket, socket) {
     socket.on("next-round", this.handleNextRound.bind(this));
 };
 
-NetworkManager.prototype.addSpellcast = function (spellName, target, caster) {
+NetworkManager.prototype.addSpellcast = function (spellName,
+                                                  destination,
+                                                  caster) {
     this.buffer.push({
         t: NetworkManager.EventTypes.Spellcast, /* EventType */
-        data: {spellName: spellName, target: target, caster: caster}
+        data: {spellName: spellName, destination: destination, caster: caster}
     });
 };
 
@@ -64,10 +67,10 @@ NetworkManager.prototype.addObject = function (object, index) {
     var objectInfo = {
         position: object.position,
         velocity: object.velocity,
-        target: object.target,
+        destination: object.destination,
         inputSequenceNumber: object.inputSequenceNumber,
         id: index,
-        timestamp: Date.now()
+        timestamp: nowUTC()
     };
 
     this.buffer.push({t: NetworkManager.EventTypes.ObjectInfo, /* EventType */

@@ -4,20 +4,20 @@ var Matrix = require("./matrix");
 
 var steering = {};
 function tryStopMovement(obj) {
-    var dist = obj.getCenter().subtract(obj.target).lengthSquared();
+    var dist = obj.getCenter().subtract(obj.destination).lengthSquared();
     var radius = obj.collisionRadius * 0.5;  /* magic */
     if (dist < radius * radius) {
-        obj.target = null;
+        obj.destination = null;
         return true;
     }
     return false;
 }
 
 steering.linear = function (obj) {
-    if (obj.target) {
+    if (obj.destination) {
         if (tryStopMovement(obj)) return Vector.zero;
 
-        var velocity = obj.target.subtract(obj.size.divide(2))
+        var velocity = obj.destination.subtract(obj.size.divide(2))
                        .subtract(obj.position);
         Vector.normalize(velocity);
         Vector.multiply(velocity, obj.speed, velocity);
@@ -27,18 +27,18 @@ steering.linear = function (obj) {
 };
 
 steering.arrive = function (obj) {
-    if (obj.target) {
+    if (obj.destination) {
         if (tryStopMovement(obj)) return Vector.zero;
 
-        var toTarget = obj.target.subtract(obj.size.divide(2))
-                       .subtract(obj.position);
-        var dist = toTarget.length();
+        var toDestination = obj.destination.subtract(obj.size.divide(2))
+                            .subtract(obj.position);
+        var dist = toDestination.length();
 
         var decelerationTweaker = 1.5; // magic
         var speed = dist / decelerationTweaker;
         speed = Math.min(speed, obj.speed);
-        Vector.multiply(toTarget, speed / dist, toTarget);
-        return toTarget;
+        Vector.multiply(toDestination, speed / dist, toDestination);
+        return toDestination;
     }
     return Vector.zero;
 };
@@ -50,22 +50,22 @@ Math.sign = Math.sign || function (x) {
 
 function computeQuadraticCoefficients(obj) {
     var center = obj.getCenter();
-    var toCenter = center.subtract(obj.target);
+    var toCenter = center.subtract(obj.destination);
     var angle = Math.PI - Math.atan2(toCenter.y, toCenter.x);
 
     var rotation = Matrix.fromRotation(angle);
     var translation = Vector.lerp(rotation.transform(center),
-                                  rotation.transform(obj.target),
+                                  rotation.transform(obj.destination),
                                   0.5);
     var totalTransform = rotation;
     totalTransform.m13 = -translation.x;
     totalTransform.m23 = -translation.y;
 
     var transformedCenter = totalTransform.transform(center),
-        transformedTarget = totalTransform.transform(obj.target);
+        transformedDest = totalTransform.transform(obj.destination);
 
-    var x1 = Math.min(transformedCenter.x, transformedTarget.x),
-        x2 = Math.max(transformedCenter.x, transformedTarget.x);
+    var x1 = Math.min(transformedCenter.x, transformedDest.x),
+        x2 = Math.max(transformedCenter.x, transformedDest.x);
 
     var inFirstQuadrant = angle >= 0 && angle < Math.PI / 2,
         inThirdQuadrant = angle >= Math.PI && angle < 3 * Math.PI / 2;
@@ -73,7 +73,7 @@ function computeQuadraticCoefficients(obj) {
         b = (-x1 - x2) / a,
         c = x1 * x2 / a,
         scale = 1 / (x2 - x1),
-        halfPlaneX = Math.sign(transformedTarget.x - transformedCenter.x);
+        halfPlaneX = Math.sign(transformedDest.x - transformedCenter.x);
 
     return {
         a: a,
@@ -86,7 +86,7 @@ function computeQuadraticCoefficients(obj) {
 }
 
 steering.quadratic = function (obj) {
-    if (obj.target) {
+    if (obj.destination) {
         if (tryStopMovement(obj)) {
             delete obj.coeffiecients;
             return Vector.zero;

@@ -3,7 +3,7 @@
 var http = eval("require('https')"); // jshint ignore: line
 var Loggers = require("../utils/logger");
 var Callbacker = require("../utils/callbacker");
-var utcNow = require("../utils/general_utils").utcNow;
+var nowUTC = require("../utils/general_utils").nowUTC;
 
 var StatManager = function () {
     this.serviceUrl = "gift-of-the-sanctum.azure-mobile.net";
@@ -21,7 +21,7 @@ StatManager.prototype.init = function (characters, achievements) {
         };
         return stats;
     }, {});
-    this.timestamp = utcNow();
+    this.timestamp = nowUTC();
 
     Loggers.Debug.log("Stat manager initialized with: {0}",
                       Loggers.asJSON(achievements));
@@ -101,7 +101,7 @@ var getUserUpdateCallback = function (callbacker,
                                         name, e);
                 }
                 if (isAchieved) {
-                    totalAchievements[name] = utcNow();
+                    totalAchievements[name] = nowUTC();
                     Loggers.Debug.log("Achievement earned: ", name);
                 }
             }

@@ -1,5 +1,6 @@
 "use strict";
 var Vector = require("./math/vector");
+var nowUTC = require("../utils/general_utils").nowUTC;
 
 var PredictionManager = function (characters, network) {
     this.characters = characters;
@@ -87,25 +88,22 @@ PredictionManager.prototype.predictPlayerMovement = function (player,
         }
         inputs.forEach(this.replayInputs.bind(player));
     } else {
-        var eventPositionCopy = new Vector();
-        eventPositionCopy.set(event.data.position);
 
-        var isTargetDifferent = (player.target && event.data.target) ?
-                            !(player.target.equals(event.data.target)) : true;
-        var allowedPacketTimestamp = (Date.now() -
-                event.data.timestamp) < 600; // Magic
-        var abovePacketTimestamp = (Date.now() -
-                event.data.timestamp) > 3000; // Magic
+        var oldDest = player.destination,
+            newDest = event.data.destination;
+        var isDestDifferent = !oldDest || !newDest || !oldDest.equals(newDest);
 
-        var isClosePosition = eventPositionCopy
-                .subtract(player.position).length() < 90; // Magic
-        var isVeryFarPosition = eventPositionCopy
-                .subtract(player.position).length() > 200; // Magic
+        var timeDelta = nowUTC() - event.data.timestamp;
+        var isPacketNew = timeDelta < 600; // Magic
+        var isPacketTooOld = timeDelta > 3000; // Magic
 
-        if ((abovePacketTimestamp) ||
-            (allowedPacketTimestamp &&
-            !isClosePosition && isTargetDifferent) ||
-            (allowedPacketTimestamp && isVeryFarPosition)) {
+        var distance = player.position.distanceTo(event.data.position);
+        var isClose = distance < 90; // Magic
+        var isVeryFar = distance > 200; // Magic
+
+        if ((isPacketTooOld) ||
+            (isPacketNew && !isClose && isDestDifferent) ||
+            (isPacketNew && isVeryFar)) {
 
             player.position.set(event.data.position);
         }

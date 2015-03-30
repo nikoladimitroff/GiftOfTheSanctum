@@ -1,6 +1,7 @@
 "use strict";
 var Loggers = require("../utils/logger");
 var Vector = require("./math/vector");
+var nowUTC = require("../utils/general_utils").nowUTC;
 var Character = require("./game_objects").Character,
     Spell = require("./game_objects").Spell;
 
@@ -24,7 +25,7 @@ var effectsMap = {
                         spell.pushbackForce,
                         hitDirection);
         physics.applyForce(target, hitDirection);
-        target.target = null;
+        target.destination = null;
     }
 };
 
@@ -106,7 +107,7 @@ EffectManager.prototype.pulseSpell = function (spell, physics,
             if (effectFunction) {
                 effectFunction(target, spell, physics, isServer);
             } else {
-                Loggers.Debug.error("{0} does not exist!", effect);
+                Loggers.Debug.error("Effect {0} is not implemented!", effect);
             }
         }
     }
@@ -120,9 +121,12 @@ EffectManager.prototype.pulseSpell = function (spell, physics,
     }
 };
 
-EffectManager.prototype.castSpell = function (characterId, spellName, target) {
+EffectManager.prototype.castSpell = function (characterId,
+                                              spellName,
+                                              destination) {
+
     var lastCast = this.spellCooldowns[characterId][spellName];
-    var timeSinceLastCast = Date.now() - lastCast;
+    var timeSinceLastCast = nowUTC() - lastCast;
     if (timeSinceLastCast <= this.spellLibrary[spellName].cooldown) {
         return null;
     }
@@ -133,7 +137,7 @@ EffectManager.prototype.castSpell = function (characterId, spellName, target) {
 
         var center = character.getCenter();
         var offset = spell.size.divide(2);
-        var forward = target.subtract(center).normalized();
+        var forward = destination.subtract(center).normalized();
 
         var radius = spell.collisionRadius + character.collisionRadius;
         spell.position = center.subtract(offset)
@@ -141,18 +145,18 @@ EffectManager.prototype.castSpell = function (characterId, spellName, target) {
         spell.initialPosition = spell.position.clone();
 
         spell.rotation = -Math.PI / 2 + Vector.right.angleTo360(forward);
-        spell.target = target.clone();
+        spell.destination = destination.clone();
     }
     if (spell.castType == CastType.instant) {
-        var distance = target.subtract(character.getCenter()).length();
+        var distance = destination.subtract(character.getCenter()).length();
         var isInRange = this.spellLibrary[spellName].range > distance;
         if (!isInRange)
             return null;
-        spell.position = target.subtract(spell.size.divide(2));
+        spell.position = destination.subtract(spell.size.divide(2));
     }
     this.activeSpells.push(spell);
 
-    this.spellCooldowns[characterId][spellName] = Date.now();
+    this.spellCooldowns[characterId][spellName] = nowUTC();
     spell.casterId = characterId;
     if (this.audio) {
         var sfx = this.spellLibrary[spell.name].sfx.move;
@@ -176,7 +180,7 @@ EffectManager.prototype.applyPlatformEffect = function (physics) {
 };
 
 EffectManager.prototype.cleanupEffects = function () {
-    var now = Date.now();
+    var now = nowUTC();
     for (var i = 0; i < this.activeSpells.length; i++) {
         var spell = this.activeSpells[i];
         var removeInstantSpell = spell.castType === CastType.instant &&
@@ -187,12 +191,11 @@ EffectManager.prototype.cleanupEffects = function () {
         var outsideRange = spell.range > 0 && distanceTravelled >= spell.range;
         var outsideMap = pos.x < 0 || pos.x > this.platform.size.x ||
                          pos.y < 0 || pos.y > this.platform.size.y;
-        var targetProximitySquared = 50 * 50; // magic
-        var reachedTarget = spell.target === null;
+        var reachedDestination = spell.destination === null;
         var removeProjectileSpell = spell.castType === CastType.projectile &&
                                     (outsideMap ||
                                      outsideRange ||
-                                     reachedTarget);
+                                     reachedDestination);
 
         if (removeInstantSpell || removeProjectileSpell) {
             if (this.removeSpell(spell.id, i))
@@ -231,7 +234,7 @@ EffectManager.prototype.getSpellCoolingPercentage = function (characterId,
     }
 
     var lastCast = this.spellCooldowns[characterId][spellName];
-    var timeSinceLastCast = Date.now() - lastCast;
+    var timeSinceLastCast = nowUTC() - lastCast;
     var ratio = timeSinceLastCast / this.spellLibrary[spellName].cooldown;
     return Math.min(1, ratio);
 };
@@ -244,7 +247,7 @@ EffectManager.prototype.getSpellRemainingCooldown = function (characterId,
     }
 
     var lastCast = this.spellCooldowns[characterId][spellName];
-    var timeSinceLastCast = Date.now() - lastCast;
+    var timeSinceLastCast = nowUTC() - lastCast;
     var cd = this.spellLibrary[spellName].cooldown;
     var remaining = (cd - timeSinceLastCast) / 1000;
     if (remaining < 0)
