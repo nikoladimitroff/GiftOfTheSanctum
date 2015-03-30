@@ -1,12 +1,13 @@
-﻿<VoiceCommands xmlns="http://schemas.microsoft.com/voicecommands/1.1">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VoiceCommands xmlns="http://schemas.microsoft.com/voicecommands/1.1">
   <CommandSet xml:lang="en-us" Name="sanctumvcd">
     <CommandPrefix>Sanctum</CommandPrefix>
     <Example>Gift of the Sanctum magic arena</Example>
 
     <Command Name="playGame">
       <Example>Take me on an adventure</Example>
-      <ListenFor>take me on an adventure</ListenFor>
-      <Feedback>Sanctum is taking you to the castle.</Feedback>
+      <ListenFor>Take me on an adventure</ListenFor>
+      <Feedback>Sanctum is taking you to the tower.</Feedback>
       <Navigate/>
     </Command>
   </CommandSet>

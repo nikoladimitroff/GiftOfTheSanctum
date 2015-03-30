@@ -156,7 +156,8 @@ Client.prototype.postAzureLogin = function (result) {
 };
 
 Client.prototype.getAzureResult = function () {
-    if (window.localStorage !== undefined) {
+    if (window.localStorage !== undefined &&
+        window.localStorage.getItem("azureLoginData")) {
         return JSON.parse(window.localStorage.getItem("azureLoginData"));
     }
 };

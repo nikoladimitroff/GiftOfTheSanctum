@@ -22,7 +22,8 @@
     };
 
     Client.prototype.getAzureResult = function () {
-        if (localSettings !== undefined) {
+        if (localSettings !== undefined &&
+            localSettings.values.azureLoginData) {
             return JSON.parse(localSettings.values.azureLoginData);
         }
     };
@@ -48,7 +49,7 @@
             if (args.detail.previousExecutionState !==
                 activation.ApplicationExecutionState.terminated) {
                 var uri = new Windows.Foundation
-                    .Uri("ms-appx:///data/sanctum_widgets.xml");
+                    .Uri("ms-appx:///sanctum_widgets.xml");
                 Windows.Storage.StorageFile.getFileFromApplicationUriAsync(uri)
                     .then(
                     // Success function.
@@ -72,37 +73,34 @@
             }
             args.setPromise(WinJS.UI.processAll());
         }
-        else if (args.detail.kind ==
+
+        if (args.detail.kind ==
             activation.ActivationKind.webAuthenticationBrokerContinuation) {
-            var token = JSON.parse(decodeURIComponent(args.detail
-                .webAuthenticationResult.responseData).split("token=")[1]);
-            client.azureManager.client.currentUser = token.user;
-            client.azureManager.client.currentUser
-                .mobileServiceAuthenticationToken = token.authenticationToken;
-            client.azureManager
-                .loadInformation(client.postAzureLogin.bind(client));
+            if (args.detail.webAuthenticationResult.responseData) {
+                var token = JSON.parse(decodeURIComponent(args.detail
+                    .webAuthenticationResult.responseData).split("token=")[1]);
+                client.azureManager.client.currentUser = token.user;
+                client.azureManager.client
+                    .currentUser.mobileServiceAuthenticationToken =
+                    token.authenticationToken;
+                client.azureManager
+                    .loadInformation(client.postAzureLogin.bind(client));
+            }
+            else {
+                client.azureManager.client.logout();
+            }
         }
-        else if (args.detail.kind === activation.ActivationKind.voiceCommand) {
+
+        if (args.detail.kind === activation.ActivationKind.voiceCommand) {
             var speechRecognitionResult = args.detail.result;
             var voiceCommandName = speechRecognitionResult.rulePath[0];
 
-            var textSpoken =
-                speechRecognitionResult.text !==
-                undefined ? speechRecognitionResult.text : "EXCEPTION";
-
-            // var navigationTarget = speechRecognitionResult
-            //     .semanticInterpretation.properties.NavigationTarget[0];
             if (voiceCommandName === "playGame") {
                 azureLoadGame();
             }
             else {
                 azureLoadGame();
             }
-
-            var messageDialog =
-                new Windows.UI.Popups.MessageDialog(
-                textSpoken, "Text spoken");
-            messageDialog.showAsync();
         }
 
     };
