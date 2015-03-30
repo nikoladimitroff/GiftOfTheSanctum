@@ -32,7 +32,7 @@ var ContentManager = function () {
     this.audioLibraryKey = "audiolib";
     this.achievementsKey = "achievementlib";
     this.contentCache[this.audioLibraryKey] = {};
-    this.spellsSpritesPath = "content/art/spells/";
+    this.spellsSpritesPath = this.root + "art/spells/";
     this.events = {
         charactersLoaded: new SanctumEvent(),
         loadingProgress: new SanctumEvent()
@@ -115,9 +115,10 @@ ContentManager.prototype.loadPlatform = function (description, isServer) {
         platform = new Platform({}, {}, description);
     }
     else {
-        platform = new Platform(this.get(description.texture).image,
-                                this.get(description.outsideTexture).image,
-                                description);
+        platform = new Platform(
+            this.get(this.root + description.texture).image,
+            this.get(this.root + description.outsideTexture).image,
+            description);
     }
     this.contentCache[description.name] = platform;
     this._notifyLoadingProgress();

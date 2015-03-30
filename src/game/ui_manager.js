@@ -40,15 +40,6 @@ UIManager.prototype.showLoadingScreen = function (characters,
 
 UIManager.prototype.init = function (model) {
     this.model = model;
-
-    ko.bindingHandlers.orbStyle = {
-        update: function (element, valueAccessor) {
-            var value = ko.utils.unwrapObservable(valueAccessor());
-            element.style.background = "linear-gradient(to top, red " +
-                value + "%, rgba(0, 0, 0, 0.5) 0%)";
-        }.bind(this)
-    };
-
     this.viewmodel.messages = [];
     var maxMessages = Loggers.Gameplay.MAXIMUM_NUMBER_OF_MESSAGES;
     var messageFunction = function (i) {

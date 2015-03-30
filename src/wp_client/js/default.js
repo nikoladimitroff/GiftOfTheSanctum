@@ -48,7 +48,7 @@
             if (args.detail.previousExecutionState !==
                 activation.ApplicationExecutionState.terminated) {
                 var uri = new Windows.Foundation
-                    .Uri("ms-appx:///sanctum_widgets.xml");
+                    .Uri("ms-appx:///data/sanctum_widgets.xml");
                 Windows.Storage.StorageFile.getFileFromApplicationUriAsync(uri)
                     .then(
                     // Success function.

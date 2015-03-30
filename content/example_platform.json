@@ -2,7 +2,7 @@
     name: "Basic platform",
     sides: 10, // The size of each side of polygon
     radius: 500, // The radius of the polygon.
-    texture: "content/art/environment/lava.jpg",
+    texture: "art/environment/lava.jpg",
     soundtrack: "sounds/music/without.mp3",
     width: 1300,
     height: 750,
@@ -10,7 +10,7 @@
     collapseIterations: 0, // The number of times parts of the platform crumble
     collapseInterval: 1500, // The interval in ms after which the platform crumbles. Can't be less than ms per frame
 
-    outsideTexture: "content/art/environment/fog_of_suddent_death.png",
+    outsideTexture: "art/environment/fog_of_suddent_death.png",
     outsideDamage: 0,
     
     maxPlayers: 8, // The maximum number of players on the given map

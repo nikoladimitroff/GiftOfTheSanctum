@@ -43,6 +43,8 @@
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\$(WMSJSProjectDirectory)\Microsoft.VisualStudio.$(WMSJSProject).props" />
   <PropertyGroup>
     <DefaultLanguage>en-US</DefaultLanguage>
+    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+    <AppxBundlePlatforms>neutral</AppxBundlePlatforms>
   </PropertyGroup>
   <ItemGroup>
     <AppxManifest Include="package.appxmanifest">
@@ -54,14 +56,18 @@
     <Content Include="3rdparty\font-awesome-4.2.0\fonts\fontawesome-webfont.ttf" />
     <Content Include="3rdparty\font-awesome-4.2.0\fonts\fontawesome-webfont.woff" />
     <Content Include="3rdparty\font-awesome-4.2.0\fonts\FontAwesome.otf" />
+    <Content Include="3rdparty\jquery-2.1.3.min.js" />
     <Content Include="3rdparty\jquery-2.1.3.min.wp.js" />
+    <Content Include="3rdparty\knockout-3.2.0.js" />
     <Content Include="3rdparty\knockout-3.2.0.wp.js" />
+    <Content Include="3rdparty\MobileServices.Web-1.2.5.js" />
+    <Content Include="3rdparty\MobileServices.Web-1.2.5.min.js" />
     <Content Include="3rdparty\MobileServices.winjs.intellisense.js" />
     <Content Include="3rdparty\MobileServices.winjs.js" />
     <Content Include="3rdparty\MobileServices.winjs.pri" />
-    <Content Include="3rdparty\MobileServices.Web-1.2.5.js" />
-    <Content Include="3rdparty\MobileServices.Web-1.2.5.min.js" />
     <Content Include="3rdparty\socket.io-1.2.0.js" />
+    <Content Include="content\achievements.json" />
+    <Content Include="content\art\characters\click_arrow.png" />
     <Content Include="content\art\characters\health_orb.png" />
     <Content Include="content\art\characters\lobby\archer.png" />
     <Content Include="content\art\characters\lobby\knight.png" />
@@ -92,6 +98,9 @@
     <Content Include="content\art\cursor\walk.cur" />
     <Content Include="content\art\environment\Cave_Floor_Tile_-_Lava_Background.psd" />
     <Content Include="content\art\environment\fog_of_suddent_death.png" />
+    <Content Include="content\art\environment\forest.png" />
+    <Content Include="content\art\environment\forest2.png" />
+    <Content Include="content\art\environment\forest_evening.png" />
     <Content Include="content\art\environment\lava.jpg" />
     <Content Include="content\art\environment\lava.png" />
     <Content Include="content\art\environment\lava.psd" />
@@ -160,8 +169,10 @@
     <Content Include="content\art\spells\ready sprites\ready_sprite_8.png" />
     <Content Include="content\art\spells\ready sprites\ready_sprtes_length.txt" />
     <Content Include="content\art\spells\unicorns!.png" />
+    <Content Include="content\characters.json" />
     <Content Include="content\example_platform.json" />
     <Content Include="content\game_data.json" />
+    <Content Include="content\loading_screen_sprites.json" />
     <Content Include="content\obstacles.json" />
     <Content Include="content\sounds.json" />
     <Content Include="content\sounds\ambient\elemental_spell.mp3" />
@@ -191,7 +202,12 @@
     <Content Include="content\sounds\voices\your_feeble_efforts_amuse_me.mp3" />
     <Content Include="content\spell_library.json" />
     <Content Include="content\sprites.json" />
+    <Content Include="data\sanctum_widgets.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="default.html" />
+    <Content Include="distr\achievements.html" />
     <Content Include="distr\client.js" />
     <Content Include="distr\cursors\dwarven_gauntlet.cur" />
     <Content Include="distr\cursors\dwarven_gauntlet.png" />
@@ -219,10 +235,6 @@
     <Content Include="css\ui-themed.theme-dark.css" />
     <Content Include="css\ui-themed.theme-light.css" />
     <Content Include="js\default.js" />
-    <Content Include="sanctum_widgets.xml">
-      <SubType>Designer</SubType>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <SDKReference Include="Microsoft.Phone.WinJS.2.1, Version=1.0" />
