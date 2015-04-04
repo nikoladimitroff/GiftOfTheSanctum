@@ -16,6 +16,10 @@ SanctumEvent.prototype.removeEventListener = function (callback) {
     }
 };
 
+SanctumEvent.prototype.removeAllListeners = function () {
+    this.listeners = [];
+};
+
 SanctumEvent.prototype.fire = function () {
     for (var i = 0; i < this.listeners.length; i++) {
         this.listeners[i].apply(undefined, arguments);

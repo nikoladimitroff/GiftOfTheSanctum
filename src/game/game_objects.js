@@ -30,7 +30,7 @@ function copyProperties(object, description) {
 
 var DEFAULT_CHARACTER = {
     health: 600,
-    speed: 300,
+    speed: 150,
     size: new Vector(64, 64),
     mass: 1,
     animations: {

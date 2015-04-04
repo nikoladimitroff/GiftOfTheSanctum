@@ -5,7 +5,7 @@ var nowUTC = require("../utils/general_utils").nowUTC;
 var process = process || null;
 
 var NetworkManager = function () {
-    this.updateTime = 100; // Magic /* millis */
+    this.updateTime = 40; // Magic /* millis */
 
     this.lastUpdate = 0;
     this.port = (process && process.env && process.env.PORT) || 8080;
@@ -25,9 +25,7 @@ var NetworkManager = function () {
     };
 };
 
-
 NetworkManager.port = (process && process.env && process.env.PORT) || 8080;
-
 
 NetworkManager.EventTypes = {
     Spellcast: 0,
@@ -219,16 +217,19 @@ NetworkManager.prototype.isServer = function () {
     return this.masterSocket !== null;
 };
 
-NetworkManager.prototype.reset = function () {
+NetworkManager.prototype.resetRound = function () {
     this.lastUpdate = 0;
     this.updateQueue = {};
     this.buffer = [];
     this.pendingDeaths = [];
+
 };
 
 NetworkManager.prototype.resetGame = function () {
-    this.reset();
-    this.events = null;
+    this.resetRound();
+    for (var eventKey in this.events) {
+        this.events[eventKey].removeAllListeners();
+    }
 };
 
 NetworkManager.prototype.disconnect = function (socketId) {

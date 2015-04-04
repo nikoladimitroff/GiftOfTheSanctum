@@ -4,7 +4,7 @@ var Vector = require("./math/vector");
 var Renderer = function (context, debugRender, autoresize) {
     this.context = context;
     this.debugLineWidth = 4;
-    this.debugVectorScale = 100;
+    this.debugVectorScale = 1;
     this.debugRender = debugRender;
     this.autoresize = autoresize;
 };
@@ -17,6 +17,8 @@ Renderer.prototype.init = function (camera) {
 
     if (this.autoresize !== 0) {
         var onresize = function () {
+            window.innerWidth = 1366; // Magic
+            window.innerHeight = 768; // Magic
             this.context.canvas.width = this.autoresize * window.innerWidth;
             this.context.canvas.height = this.autoresize * window.innerHeight;
 

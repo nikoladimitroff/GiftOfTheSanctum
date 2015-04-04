@@ -12,6 +12,8 @@ var Platform = function (texture, outsideTexture, description) {
 
     this.vertices = this.generateVertices(sides, radius);
 
+    this.startingRadius = radius;
+    this.startingCollapseIterations = description.collapseIterations;
     this.radius = radius;
     this.texture = texture;
     this.outsideTexture = outsideTexture;
@@ -23,7 +25,6 @@ var Platform = function (texture, outsideTexture, description) {
     this.width = description.width;
     this.height = description.height;
 };
-
 
 Platform.prototype.update = function (dt) {
     this.lastCollapse += dt;
@@ -49,6 +50,14 @@ Platform.prototype.generateVertices = function (sides, radius, center) {
     }
 
     return vertices;
+};
+
+Platform.prototype.reset = function () {
+    this.radius = this.startingRadius;
+    this.collapseIterations = this.startingCollapseIterations;
+    this.lastCollapse = 0;
+    this.vertices = this.generateVertices(this.vertices.length,
+                                          this.radius);
 };
 
 module.exports = Platform;

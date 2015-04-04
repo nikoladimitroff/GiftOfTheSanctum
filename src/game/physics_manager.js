@@ -6,7 +6,7 @@ var integrators = require("./math/integrators");
 var PhysicsManager = function (friction) {
     this.integrator = new integrators.Euler();
     this.fixedStep = 1 / 60;
-    this.friction = friction || 0.0003; // wood
+    this.friction = friction || 5; // wood
     this.collisions = [];
 };
 

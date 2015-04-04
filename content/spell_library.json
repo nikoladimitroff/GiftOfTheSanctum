@@ -13,7 +13,7 @@
     ],
     effectRadius: 0, // the radius in which to hit nearby enemies / obstacles
     damageAmount: 60,
-    pushbackForce: 100,
+    pushbackForce: 3000,
     cooldown: 1000, // cooldown of the spell
     movementFunction: "quadratic", // determines the projectile's path - "quadratic", "homing", "sin"
     initialAcceleration: 150, // the projectile's initial acceleration magnitude
@@ -81,9 +81,9 @@
     effects: [
         "damage"
     ],
-	damageAmount: 60,
+	damageAmount: 200,
 	duration: 5000,
-	cooldown: 15000,
+	cooldown: 8000,
     radius: 75,
     range: 750,
     sfx: {
@@ -106,7 +106,7 @@
     ],
     effectRadius: 0,
     damageAmount: 60,
-    pushbackForce: 10,
+    pushbackForce: 5000,
     haste: -15,
     cooldown: 1000,
     movementFunction: "quadratic",

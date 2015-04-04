@@ -61,8 +61,8 @@ UIManager.prototype.init = function (model) {
 
         players[i].healthPercentage = ko.computed(function (i) {
             this.reevaluator();
-            return 100 * this.model.characters[i].health /
-            this.model.characters[i].startingHealth;
+            return 100 * Math.max(0, this.model.characters[i].health /
+            this.model.characters[i].startingHealth);
         }.bind(this, i));
     }
     this.viewmodel.scoreboardAvatars = AVATAR_IMAGES.map(function (path) {
@@ -96,7 +96,8 @@ UIManager.prototype.init = function (model) {
 
     this.viewmodel.health = ko.computed(function () {
         this.reevaluator();
-        return this.model.characters[this.model.playerIndex].health;
+        return Math.max(0,
+                        this.model.characters[this.model.playerIndex].health);
     }.bind(this));
 
     this.viewmodel.healthPercentage = ko.computed(function () {

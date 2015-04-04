@@ -13,6 +13,9 @@ var CastType = {
 var effectsMap = {
     damage: function (target, spell) {
         target.health -= spell.damageAmount;
+        if (target.health > target.startingHealth) {
+            target.health = target.startingHealth;
+        }
     },
 
     pushback: function (target, spell, physics, isServer) {

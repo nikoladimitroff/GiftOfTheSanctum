@@ -241,6 +241,7 @@ Sanctum.prototype.loadContent = function () {
 
 Sanctum.prototype.reset = function () {
     Loggers.Debug.log("Round reset.");
+    this.platform.reset();
     var center = this.platform.size.divide(2);
     var positions = this.platform.generateVertices(this.characters.length,
                                                    150, // Magic
@@ -258,7 +259,7 @@ Sanctum.prototype.reset = function () {
     this.model.state = GameState.midround;
     this.previousTime = 0;
     this.effects.reset();
-    this.network.reset();
+    this.network.resetRound();
     this.spells = [];
     if (!this.network.isServer()) {
         this.ui.viewmodel.showScoreboard(false);
@@ -425,11 +426,13 @@ Sanctum.prototype.processPendingDeaths = function () {
         var player = this.characters[deaths[i]];
         if (!player.isDead) {
             player.isDead = true;
+            player.health = 0;
             if (this.network.isServer()) {
                 this.network.sendScores(deaths[i], this.deadCount - 1);
             }
         }
     }
+
     var allDead = this.deadCount >= this.characters.length - 1;
     if (this.network.isServer() && allDead) {
         var lastManIndex = ArrayUtils.firstIndex(this.characters,
@@ -440,7 +443,7 @@ Sanctum.prototype.processPendingDeaths = function () {
             this.network.sendScores(lastManIndex, this.deadCount);
         }
     }
-    this.network.pendingDeaths = [];
+    // this.network.pendingDeaths = [];
 };
 
 Sanctum.prototype.processAuthoritativeDeaths = function () {
@@ -487,7 +490,6 @@ Sanctum.prototype.update = function (delta) {
             this.handleInput();
         }
 
-        this.platform.update(delta);
         this.playerManager.update();
 
         this.ui.update();
@@ -496,6 +498,7 @@ Sanctum.prototype.update = function (delta) {
     this.physics.update(this.effects.characters);
     this.physics.update(this.effects.activeSpells);
 
+    // this.platform.update(delta);
     this.effects.update(delta, this.physics, this.platform,
                         this.network.isServer());
 
