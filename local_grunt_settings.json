@@ -1,0 +1,10 @@
+{
+    "htmlTasks": ["concat:html5"],
+    "cssTasks": ["newer:less:html5"],
+    "jsTasks": [
+        "newer:preprocess:html5-debug",
+        "browserify:html5-debug",
+        "newer:preprocess:server-debug"
+    ],
+    "contentTasks": ["newer:copy:html5", "newer:copy:server"]
+}

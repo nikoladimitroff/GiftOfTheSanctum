@@ -95,9 +95,11 @@ Vector.prototype = {
         this.x = x; this.y = y;
         return this;
     },
+    // jscs: disable
     toString: function () {
         return "(" + this.x + ", " + this.y + ")";
     }
+    // jscs: enable
 };
 
 Vector.zero = new Vector(0, 0);

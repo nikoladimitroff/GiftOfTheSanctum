@@ -109,17 +109,16 @@ ContentManager.prototype.loadCharacter = function (description) {
     this.contentCache[name] = character;
 };
 
-ContentManager.prototype.loadPlatform = function (description, isServer) {
+ContentManager.prototype.loadPlatform = function (description) {
     var platform;
-    if (isServer) {
-        platform = new Platform({}, {}, description);
-    }
-    else {
-        platform = new Platform(
-            this.get(this.root + description.texture).image,
-            this.get(this.root + description.outsideTexture).image,
-            description);
-    }
+    // @ifdef PLATFORM_SERVER
+    platform = new Platform({}, {}, description);
+    // @endif
+    // @ifndef PLATFORM_SERVER
+    platform = new Platform(this.get(this.root + description.texture).image,
+                            this.get(this.root + description.outsideTexture).image,
+                            description);
+    // @endif
     this.contentCache[description.name] = platform;
     this._notifyLoadingProgress();
 };
@@ -198,16 +197,34 @@ ContentManager.prototype.loadPregameData = function (spritesFilePath,
     return deferred.promise;
 };
 
-ContentManager.prototype.loadGameData = function (gameDataPath, isServer) {
+// @ifdef PLATFORM_SERVER
+ContentManager.prototype.loadGameData = function (gameDataPath) {
+    var deferred = Q.defer();
+    this._loadingDeferred = deferred;
+    var gameData = this.fetchJSONServer(gameDataPath);
+
+    var characterLibrary = this.fetchJSONServer(gameData.characters);
+    characterLibrary.map(this.loadCharacter.bind(this));
+
+    var spellLibrary = this.fetchJSONServer(gameData.spells);
+    spellLibrary.map(this.loadSpell.bind(this));
+
+    var achievementLibrary = this.fetchJSONServer(gameData.achievements);
+    achievementLibrary.map(this.loadAchievementCategory.bind(this));
+
+    var platform = this.fetchJSONServer(gameData.platform);
+
+    this.loadPlatform(platform, true);
+    deferred.resolve();
+    return deferred.promise;
+};
+// @endif
+// @ifndef PLATFORM_SERVER
+ContentManager.prototype.loadGameData = function (gameDataPath) {
     var deferred = Q.defer();
     this._loadingDeferred = deferred;
     this._loading = 1; // the platform
     this._loaded = 0;
-    if (isServer) {
-        this.loadGameDataServer(gameDataPath);
-        deferred.resolve();
-        return deferred.promise;
-    }
 
     var self = this;
     this.fetchJSONFile(gameDataPath)
@@ -263,24 +280,7 @@ ContentManager.prototype.loadGameData = function (gameDataPath, isServer) {
 
     return deferred.promise;
 };
-
-ContentManager.prototype.loadGameDataServer = function (gameDataPath) {
-
-    var gameData = this.fetchJSONServer(gameDataPath);
-
-    var characterLibrary = this.fetchJSONServer(gameData.characters);
-    characterLibrary.map(this.loadCharacter.bind(this));
-
-    var spellLibrary = this.fetchJSONServer(gameData.spells);
-    spellLibrary.map(this.loadSpell.bind(this));
-
-    var achievementLibrary = this.fetchJSONServer(gameData.achievements);
-    achievementLibrary.map(this.loadAchievementCategory.bind(this));
-
-    var platform = this.fetchJSONServer(gameData.platform);
-
-    this.loadPlatform(platform, true);
-};
+// @endif
 
 ContentManager.prototype.fetchJSONServer = function (path) {
     var stringData = fs.readFileSync(this.root + path, "utf8");

@@ -127,7 +127,7 @@ Client.prototype.findSelfIndex = function () {
 
 Client.prototype.endGame = function () {
     this.networkManager.resetGame();
-    UIHelper.loadPage("room", null, this);
+    UIHelper.loadView("room", null, this);
 };
 
 Client.prototype.doNormalLogin = function (name) {
@@ -169,15 +169,15 @@ Client.prototype.storeAzureResult = function (token) {
 };
 
 Client.prototype.goToStartScreen = function () {
-    UIHelper.loadPage("login", null, this);
+    UIHelper.loadView("login", null, this);
 };
 
 Client.prototype.goToWaitingScreen = function () {
-    UIHelper.loadPage("please_wait", null, this);
+    UIHelper.loadView("please_wait", null, this);
 };
 
 Client.prototype.goToRoomView = function () {
-    UIHelper.loadPage("room", null, this);
+    UIHelper.loadView("room", null, this);
     this.networkManager = new NetworkManager();
     this.networkManager.connect(null, this.gameSocket);
 
@@ -189,12 +189,12 @@ Client.prototype.goToRoomView = function () {
 };
 
 Client.prototype.goToAchievementsScreen = function () {
-    UIHelper.loadPage("achievements", null, this);
+    UIHelper.loadView("achievements", null, this);
 };
 
 Client.prototype.startGame = function () {
     this.userState = UserState.playing;
-    UIHelper.loadPage("game", null, this);
+    UIHelper.loadView("game", null, this);
 };
 
 Client.prototype.reset = function () {

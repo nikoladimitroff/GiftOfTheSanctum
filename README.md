@@ -33,15 +33,28 @@ Art resources
 
 Deployment
 --------
-To run this on your localhost you need node.js, then clone this repo, navigate to it and run
+To run this on your localhost you need node.js, then clone this repo, navigate to the repo
+and run **setup.bat**.
 
+To build the game:
 ```
-npm install
+grunt build:platform:config // for example: build:html5:debug
+```
+
+To run a development server:
+```
+grunt watch
 node server.js
 ```
+(or run **dev_server.bat**)
+Change **local_grunt_settings.json** to modify your `grunt watch` command.
 
-That's it, you can now open your browser and access `http://localhost:8080/`
+To run the code checkers:
+```
+grunt check-code
+```
 
-Development server
---------
-Deployed on Azure Websites [here](http://sanctum.azurewebsites.net/indexUI.html) from [this fork](https://github.com/nikup/GiftOfTheSanctum).
+To run the tests
+```
+grunt test
+```

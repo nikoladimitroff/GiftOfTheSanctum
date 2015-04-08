@@ -10,9 +10,9 @@ var PredictionManager = function (characters, network) {
     this.lastProcessedInputNumber = 0;
     this.inputs = [];
 
-    if (this.network.isServer()) {
-        this.cleanupSocketListeners();
-    }
+    // @ifdef PLATFORM_SERVER
+    this.cleanupSocketListeners();
+    // @endif
 
     this.network.socket.on("input-verification",
                             this.handleInputVerification.bind(this));

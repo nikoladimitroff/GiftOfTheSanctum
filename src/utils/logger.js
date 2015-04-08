@@ -35,7 +35,9 @@ function getTimestamp (includeDate) {
 }
 
 function getLogFilename () {
+    // jscs: disable
     return dateUTC().toString().replace(/:/g, "-");
+    // jscs: enable
 }
 
 var LogMessage = function () {
@@ -95,6 +97,9 @@ var LogTypes = {
 var FileLogger = function (logFolderPath) {
     this.logFile = path.join(logFolderPath, getLogFilename() + ".log");
     // Create the file if it doesn't exist
+    if (!fs.existsSync(logFolderPath)) {
+        fs.mkdirSync(logFolderPath);
+    }
     fs.closeSync(fs.openSync(this.logFile, "a"));
 };
 

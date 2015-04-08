@@ -77,12 +77,12 @@ NetworkManager.prototype.addObject = function (object, index) {
 
 NetworkManager.prototype.flush = function (playerIndex) {
     if (this.buffer.length > 0) {
-        if (!this.isServer()) {
-            this.socket.emit("update", [{data: this.buffer,
-                                         id: playerIndex}]);
-        } else {
-            this.masterSocket.emit("update", this.buffer);
-        }
+        // @ifdef PLATFORM_SERVER
+        this.masterSocket.emit("update", this.buffer);
+        // @endif
+        // @ifndef PLATFORM_SERVER
+        this.socket.emit("update", [{data: this.buffer, id: playerIndex}]);
+        // @endif
     }
 
     this.buffer = [];
@@ -96,24 +96,24 @@ NetworkManager.prototype.handleUpdate = function (payload /*Array*/) {
         var data = payload[i].data;
         if (data !== undefined) {
             this.updateQueue[payload[i].id].push(data);
-            if (this.isServer()) {
-                // I have no idea why this works the way it does
-                // We need some serious refactoring
-                for (var j = 0; j < data.length; j++) {
-                    if (data[j].t === NetworkManager.EventTypes.Spellcast) {
-                        this.recorder.onSpellcast(data[j].data.caster,
-                                                  data[j].data.spellName);
-                    }
+            // @ifdef PLATFORM_SERVER
+            // I have no idea why this works the way it does
+            // We need some serious refactoring
+            for (var j = 0; j < data.length; j++) {
+                if (data[j].t === NetworkManager.EventTypes.Spellcast) {
+                    this.recorder.onSpellcast(data[j].data.caster,
+                                              data[j].data.spellName);
                 }
             }
+            // @endif
         }
     }
 };
 
 NetworkManager.prototype.handleDeath = function (data) {
-    if (this.isServer()) {
-        this.masterSocket.emit("death", data);
-    }
+    // @ifdef PLATFORM_SERVER
+    this.masterSocket.emit("death", data);
+    // @endif
     Loggers.Debug.log("Client death: {0}", data.index);
     this.pendingDeaths.push(data.index);
 };
@@ -128,10 +128,10 @@ NetworkManager.prototype.sendDie = function (playerIndex) {
 };
 
 NetworkManager.prototype.sendScores = function (playerIndex, score) {
-    if (this.isServer()) {
-        this.events.scoresInfo.fire(this, score, playerIndex);
-        this.masterSocket.emit("scores", {index: playerIndex, score: score});
-    }
+    // @ifdef PLATFORM_SERVER
+    this.events.scoresInfo.fire(this, score, playerIndex);
+    this.masterSocket.emit("scores", {index: playerIndex, score: score});
+    // @endif
 };
 
 NetworkManager.prototype.sendVerifiedInput = function (socketId,
@@ -158,19 +158,19 @@ NetworkManager.prototype.sendNextRound = function () {
 };
 
 NetworkManager.prototype.sendPartlyContentLoaded = function (progress) {
-    if (!this.isServer()) {
-        this.socket.emit("partly-content-loaded", {
-            socketId: this.gameSocketId,
-            progress: progress
-        });
-    }
+    // @ifndef PLATFORM_SERVER
+    this.socket.emit("partly-content-loaded", {
+        socketId: this.gameSocketId,
+        progress: progress
+    });
+    // @endif
 };
 
 NetworkManager.prototype.handleNextRound = function () {
     this.events.nextRound.fire(this);
-    if (this.isServer()) {
-        this.masterSocket.emit("next-round");
-    }
+    // @ifdef PLATFORM_SERVER
+    this.masterSocket.emit("next-round");
+    // @endif
     Loggers.Debug.log("Next round received");
 };
 
@@ -178,25 +178,26 @@ NetworkManager.prototype.handlePartlyContentLoaded = function (data) {
     /** data.socketId
         data.progress
     **/
-    if (this.isServer()) {
-        if (this.sockets[data.socketId]) {
-            var playerIndex = this.sockets[data.socketId].playerIndex;
-            this.masterSocket.emit("partly-content-loaded", {
-                playerIndex: playerIndex,
-                progress: data.progress
-            });
-        }
-    } else {
-        /**
-            data.playerIndex
-            data.progress
-        **/
-        if (this.events) {
-            this.events.partlyContentLoaded.fire(this,
-                                                 data.progress,
-                                                 data.playerIndex);
-        }
+    // @ifdef PLATFORM_SERVER
+    if (this.sockets[data.socketId]) {
+        var playerIndex = this.sockets[data.socketId].playerIndex;
+        this.masterSocket.emit("partly-content-loaded", {
+            playerIndex: playerIndex,
+            progress: data.progress
+        });
     }
+    // @endif
+    // @ifndef PLATFORM_SERVER
+    /**
+        data.playerIndex
+        data.progress
+    **/
+    if (this.events) {
+        this.events.partlyContentLoaded.fire(this,
+                                             data.progress,
+                                             data.playerIndex);
+    }
+    // @endif
 };
 
 NetworkManager.prototype.getLastUpdateFrom = function (objectId) {
@@ -204,11 +205,11 @@ NetworkManager.prototype.getLastUpdateFrom = function (objectId) {
         return null;
     }
 
-    if (!this.isServer()) {
-        if (this.updateQueue[objectId].length > 15) { // Magic
-            this.updateQueue[objectId] = this.updateQueue[objectId].slice(0, 1);
-        }
+    // @ifndef PLATFORM_SERVER
+    if (this.updateQueue[objectId].length > 15) { // Magic
+        this.updateQueue[objectId] = this.updateQueue[objectId].slice(0, 1);
     }
+    // @endif
 
     return this.updateQueue[objectId].shift();
 };

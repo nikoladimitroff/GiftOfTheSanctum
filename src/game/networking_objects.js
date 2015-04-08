@@ -7,7 +7,9 @@ var networking = networking || {};
 var MAX_PLAYERS = 8;
 
 networking.token = function () {
+    // jscs: disable
     return Math.random().toString(36).substr(2);
+    // jscs: enable
 };
 
 networking.Player = function (socketId, name) {
@@ -113,7 +115,7 @@ networking.Room.prototype.leave = function (socket /*, data */) {
                                         roomClosed: this.players.length === 0,
                                         name: player.name,
                                         playerIndex: socket.playerIndex
-                                   });
+                                    });
 
             this.networkManager.disconnect(socket.id);
         }

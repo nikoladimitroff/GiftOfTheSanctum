@@ -5,7 +5,7 @@ var Matrix = require("./matrix");
 var steering = {};
 function tryStopMovement(obj) {
     var dist = obj.getCenter().subtract(obj.destination).lengthSquared();
-    var radius = obj.collisionRadius * 0.5;  /* magic */
+    var radius = obj.collisionRadius * 0.5; /* magic */
     if (dist < radius * radius) {
         obj.destination = null;
         return true;

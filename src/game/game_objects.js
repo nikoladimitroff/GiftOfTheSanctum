@@ -3,8 +3,8 @@ var Vector = require("./math/vector");
 var nowUTC = require("../utils/general_utils").nowUTC;
 
 var Settings = {
-    spellIconPath: "/content/art/spells/icons/",
-    achievementIconPath: "/content/art/achievements/",
+    spellIconPath: "content/art/spells/icons/",
+    achievementIconPath: "content/art/achievements/",
     imageFormat: ".png"
 };
 
@@ -111,7 +111,9 @@ var Spell = function (sprite, description) {
 };
 
 Character.prototype.clone = Spell.prototype.clone = function () {
+    // jscs: disable
     var clone = new this.constructor({}, {});
+    // jscs: enable
     clone.position = this.position.clone();
     clone.velocity = this.velocity.clone();
     clone.acceleration = this.acceleration.clone();
@@ -121,7 +123,7 @@ Character.prototype.clone = Spell.prototype.clone = function () {
     clone.collisionRadius = this.collisionRadius;
     clone.id = ID_COUNTER++;
 
-    if (this.constructor == Spell) {
+    if (this instanceof Spell) {
         clone.timestamp = nowUTC();
         clone.initialPosition = this.position.clone();
     }
@@ -137,10 +139,10 @@ Character.prototype.getCenter = Spell.prototype.getCenter = function () {
 Character.prototype.playAnimation = function (action, forward) {
     var angle = Vector.right.angleTo360(forward);
     var animationOffset = 0;
-    if (angle >= Math.PI / 4 && angle <  3 * Math.PI / 4) {
+    if (angle >= Math.PI / 4 && angle < 3 * Math.PI / 4) {
         animationOffset = 3;
     }
-    else if (angle >= 3 * Math.PI / 4 && angle <  5 * Math.PI / 4) {
+    else if (angle >= 3 * Math.PI / 4 && angle < 5 * Math.PI / 4) {
         animationOffset = 2;
     }
     else if (angle >= 5 * Math.PI / 4 && angle < 7 * Math.PI / 2) {
@@ -160,11 +162,11 @@ var Achievement = function (description) {
     this.icon = Settings.achievementIconPath + filename;
     this.description = description.description;
     this.category = description.category;
-     /* jshint ignore: start */
+    /* jshint ignore: start */
     this.requirements = new Function("game",
                                      "total",
                                      description.requirements);
-     /* jshint ignore: end */
+    /* jshint ignore: end */
 };
 
 module.exports.Character = Character;

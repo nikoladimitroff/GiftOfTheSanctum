@@ -18,10 +18,8 @@ var effectsMap = {
         }
     },
 
-    pushback: function (target, spell, physics, isServer) {
-        if (isServer) {
-            return;
-        }
+    pushback: function (target, spell, physics) {
+        // @ifndef PLATFORM_SERVER
         var hitDirection = target.position.subtract(spell.position);
         Vector.normalize(hitDirection);
         Vector.multiply(hitDirection,
@@ -29,6 +27,7 @@ var effectsMap = {
                         hitDirection);
         physics.applyForce(target, hitDirection);
         target.destination = null;
+        // @endif
     }
 };
 
@@ -68,7 +67,7 @@ EffectManager.prototype.removeSpell = function (spellId, index) {
     return false;
 };
 
-EffectManager.prototype.applyEffects = function (physics, dt, isServer) {
+EffectManager.prototype.applyEffects = function (physics, dt) {
     var collisions = physics.getCollisionPairs(this.characters,
                                                this.activeSpells);
     for (var i = 0; i < collisions.length; i++) {
@@ -77,13 +76,12 @@ EffectManager.prototype.applyEffects = function (physics, dt, isServer) {
 
         if (first instanceof Character &&
             second instanceof Spell) {
-            this.pulseSpell(second, physics, first, dt, isServer);
+            this.pulseSpell(second, physics, first, dt);
         }
     }
 };
 
-EffectManager.prototype.pulseSpell = function (spell, physics,
-                                               hitTarget, dt, isServer) {
+EffectManager.prototype.pulseSpell = function (spell, physics, hitTarget, dt) {
     if (spell.castType == CastType.instant) {
         spell.lastUpdate = (spell.lastUpdate + dt) || dt;
         if (spell.lastUpdate <= 1000) { // magic
@@ -108,7 +106,7 @@ EffectManager.prototype.pulseSpell = function (spell, physics,
             var effectFunction = effectsMap[effect];
 
             if (effectFunction) {
-                effectFunction(target, spell, physics, isServer);
+                effectFunction(target, spell, physics);
             } else {
                 Loggers.Debug.error("Effect {0} is not implemented!", effect);
             }
@@ -207,8 +205,8 @@ EffectManager.prototype.cleanupEffects = function () {
     }
 };
 
-EffectManager.prototype.update = function (delta, physics, platform, isServer) {
-    this.applyEffects(physics, delta, isServer);
+EffectManager.prototype.update = function (delta, physics, platform) {
+    this.applyEffects(physics, delta);
     this.applyPlatformEffect(physics, platform);
     this.cleanupEffects();
 };

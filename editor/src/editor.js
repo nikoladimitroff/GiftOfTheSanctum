@@ -64,7 +64,7 @@ var Viewmodel = function (game) {
 
     this.name = ko.observable(this.constants.spellnames[0]);
     this.icon = ko.computed(function () {
-        return "../content/art/spells/icons/" +
+        return "content/art/spells/icons/" +
                this.name().toLowerCase().replace(/ /g, "_") + ".png";
     }.bind(this));
     this.description = ko.observable();

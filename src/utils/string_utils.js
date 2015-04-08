@@ -63,9 +63,9 @@ function toFormattedString(useLocale, args) {
         if (typeof (arg) === "undefined" || arg === null) {
             arg = "";
         }
-
+        // jscs: disable
         result += arg.toString();
-
+        // jscs: enable
         i = close + 1;
     }
 

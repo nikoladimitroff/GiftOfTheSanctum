@@ -13,20 +13,18 @@ if [ "$isThereFailingTest" -ne 0 ]; then
     echo ""
     echo "COMMIT FAILED:"
     echo "There's a failing test."
-    echo "(Run run_tests.bat to see the errors)"
+    echo "(Run grunt test to see the errors)"
     exit 1
 fi
 
 # Run style tests
-jshintLines=$(node_modules/.bin/jshint src/ | wc -l)
-jscsLines=$(node_modules/.bin/jscs src --config=.jscsrc | wc -l)
-result=$((jshintLines + jscsLines))
+jscsLines=$(grunt check-code)
 
 if [ "$result" -ne 1 ]; then
     echo ""
     echo "COMMIT FAILED:"
     echo "Our code checkers reported errors. Please fix them and try committing again."
-    echo "(Run check_code.bat to see the errors)"
+    echo "(Run grunt check-code to see the errors)"
     exit 1
 fi
 

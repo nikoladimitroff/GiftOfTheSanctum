@@ -53,9 +53,9 @@ AchievementsController.prototype.init = function (client) {
     }.bind(this);
 
     $.ajax({
-      url: "/content/achievements.json",
-      success: onAchievementsLoaded,
-      dataType: "text"
+        url: "content/achievements.json",
+        success: onAchievementsLoaded,
+        dataType: "text"
     }).fail(function () {
         Loggers.Debug.error("An error occurred while loading" +
                             "achievements: {0}",

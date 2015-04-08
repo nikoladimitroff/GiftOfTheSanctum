@@ -10,7 +10,9 @@ function UTCDate() {
 }
 
 function UTCnow() {
+    // jscs: disable
     return UTCDate().valueOf(); // jshint ignore: line
+    // jscs: enable
 }
 
 module.exports.nowUTC = UTCnow;

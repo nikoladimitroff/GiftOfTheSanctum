@@ -20,9 +20,11 @@ MovingDots.prototype.update = function (delta) {
     }
 };
 
+// jscs: disable
 MovingDots.prototype.toString = function () {
     return new Array(this.current + 1).join(".");
 };
+// jscs: enable
 
 function getYOffset(index, player, extraOffset) {
     extraOffset = extraOffset || 0;

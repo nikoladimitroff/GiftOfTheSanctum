@@ -9,31 +9,26 @@ var AchievementsController = require("../game_client/achievements_controller");
 
 var CONTROLLER_SUFFIX = "Controller";
 
-var UIHelper = function () {
-    this.root = "distr/";
-    this.htmlFileExtension = ".html";
-};
+var UIHelper = function () {};
 
-UIHelper.prototype.loadPage = function (page, container, client) {
-    var path = this.root + page + this.htmlFileExtension;
+UIHelper.prototype.loadView = function (view, container, client) {
     container = (container) ? container : "main#content";
     var content = $(container);
-    $(content).load(path, function () {
-        $(content).removeClass();
-        $(content).addClass(page);
+    $(content).html($("#" + view).html());
+    $(content).removeClass();
+    $(content).addClass(view);
 
-        var typeName = page.split("_").map(function (s) {
-            return s[0].toUpperCase() + s.substr(1);
-        }).join("") + CONTROLLER_SUFFIX;
+    var typeName = view.split("_").map(function (s) {
+        return s[0].toUpperCase() + s.substr(1);
+    }).join("") + CONTROLLER_SUFFIX;
 
-        var Type = eval(typeName); // jshint ignore: line
-        if (Type) {
-            var controller = new Type();
-            controller.init(client);
-        } else {
-            throw new Error("No such controller!");
-        }
-    });
+    var Type = eval(typeName); // jshint ignore: line
+    if (Type) {
+        var controller = new Type();
+        controller.init(client);
+    } else {
+        throw new Error("No such controller!");
+    }
 };
 
 module.exports = UIHelper;

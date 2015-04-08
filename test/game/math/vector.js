@@ -1,5 +1,7 @@
+"use strict";
+/* jshint expr: true */
 var Vector = require("../../../src/game/math/vector");
-var should = require("chai").should();
+var should = require("chai").should(); // jshint ignore: line
 
 describe("Vector", function () {
     it("static members", function () {
@@ -14,14 +16,14 @@ describe("Vector", function () {
         Vector.left.x.should.equal(-1);
         Vector.left.y.should.equal(0);
     });
-    
+
     it("#add", function () {
         Vector.right.add(Vector.up).equals(Vector.one).should.be.true;
         var result = new Vector();
         Vector.add(Vector.right, Vector.left, result);
         result.equals(Vector.zero).should.be.true;
     });
-    
+
     it("#set", function () {
         var v = new Vector();
         v.set(123, -321);
