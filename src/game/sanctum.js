@@ -16,6 +16,8 @@ var PlayerManager = require("./player_manager");
 var NetworkManager = require("./network_manager");
 var PredictionManager = require("./prediction_manager");
 
+var ArrowPointerAnimation = require("./programmed_animations").ArrowPointer;
+
 var GameState = require("./enums").GameState,
     Action = require("./enums").Action;
 var Camera = require("./camera");
@@ -84,6 +86,7 @@ var Sanctum = function (playerNames, selfIndex, networkManager,
     this.renderer = new Renderer(context,
                                  options.debug,
                                  options.autoresize);
+    this.playerTargetAnimation = null;
     this.ui = new UIManager(viewmodel, this.events);
     // @endif
 
@@ -126,10 +129,6 @@ var OBJECTS = {
     fireball: "content/art/spells/fireball.png",
     platform: "Basic platform",
 };
-
-// var SPRITES = {
-//     clickArrow: "content/art/characters/click_arrow.png"
-// };
 
 var CHARACTERS = [
     "character_archer",
@@ -176,6 +175,8 @@ Sanctum.prototype.init = function () {
     this.stat.init(this.characters, this.content.getAchievementLibrary());
     // @endif
     // @ifndef PLATFORM_SERVER
+    var outlining = this.platform.playerOutlining;
+    this.characters[this.playerIndex].outlining = outlining;
     var camera = new Camera(new Vector(), this.platform.size);
     this.renderer.init(camera);
     this.audio.init(this.content.get(this.content.audioLibraryKey));
@@ -275,14 +276,18 @@ Sanctum.prototype.handleInput = function () {
         }
     }
 
-    // Respond to game
     var player = this.characters[this.playerIndex];
     if (this.input.mouse.right &&
         !this.input.previousMouse.right) {
 
-        this.playerManager.moveTo(player, this.input.mouse.absolute);
-        player.playAnimation(Action.walk, player.totalVelocity.normalized());
+        var destination = this.input.mouse.absolute.clone();
+        this.playerManager.moveTo(player, destination);
+        var direction = destination.subtract(player.position).normalized();
+        player.playAnimation(Action.walk, direction);
         this.audio.play(player.voice.move);
+        var options = this.platform.arrowPointerOptions;
+        var animation = new ArrowPointerAnimation(options, destination);
+        this.playerTargetAnimation = animation;
     }
     else if (this.input.mouse.left &&
              !this.input.previousMouse.left &&
@@ -521,12 +526,20 @@ Sanctum.prototype.render = function (delta) {
                     this.playerIndex : this.getMaxScorePlayerIndex();
     this.renderer.camera.follow(this.characters[following].position);
 
-    var filteredCharacters = this.characters
+    var livingCharacters = this.characters
         .filter(function (character) {
             return !character.isDead;
         });
+    var animations = [];
+    if (this.characters[this.playerIndex].destination === null) {
+        this.playerTargetAnimation = null;
+    }
+    if (this.playerTargetAnimation !== null) {
+        animations.push(this.playerTargetAnimation);
+    }
     this.renderer.render(delta,
-                         [filteredCharacters, this.effects.activeSpells],
+                         [livingCharacters, this.effects.activeSpells],
+                         animations,
                          this.platform,
                          this.characters[this.playerIndex].isDead);
 };

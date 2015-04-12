@@ -24,6 +24,9 @@ var Platform = function (texture, outsideTexture, description) {
     this.collapseRadiusReduction = radius / description.collapseIterations;
     this.width = description.width;
     this.height = description.height;
+
+    this.arrowPointerOptions = description.arrowPointer;
+    this.playerOutlining = description.outlining;
 };
 
 Platform.prototype.update = function (dt) {

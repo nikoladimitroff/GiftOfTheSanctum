@@ -115,9 +115,9 @@ ContentManager.prototype.loadPlatform = function (description) {
     platform = new Platform({}, {}, description);
     // @endif
     // @ifndef PLATFORM_SERVER
-    platform = new Platform(this.get(this.root + description.texture).image,
-                            this.get(this.root + description.outsideTexture).image,
-                            description);
+    var texture = this.get(this.root + description.texture).image,
+        outerTexture = this.get(this.root + description.outsideTexture).image;
+    platform = new Platform(texture, outerTexture, description);
     // @endif
     this.contentCache[description.name] = platform;
     this._notifyLoadingProgress();

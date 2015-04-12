@@ -1,8 +1,59 @@
 "use strict";
 var Vector = require("./math/vector");
 
+var Outliner = function () {
+    this.context = document.createElement("canvas").getContext("2d");
+    this.context.canvas.width = this.context.canvas.height = 1024;
+};
+
+Outliner.prototype.outlineSprite = function (renderContext,
+                                             sprite, obj, frameX, frameY,
+                                             outlining) {
+
+    var context = this.context;
+    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+    var color = outlining.color,
+        lineWidth = outlining.width;
+    var x = lineWidth,
+        y = lineWidth;
+    context.drawImage(sprite.image,
+                      frameX, frameY,
+                      sprite.frameWidth,
+                      sprite.frameHeight,
+                      x - lineWidth,
+                      y - lineWidth,
+                      obj.size.x + 2 * lineWidth,
+                      obj.size.y + 2 * lineWidth);
+    context.save();
+    context.fillStyle = color;
+    context.globalCompositeOperation = "source-in";
+    context.fillRect(x - lineWidth,
+                     y - lineWidth,
+                     obj.size.x + 2 * lineWidth,
+                     obj.size.y + 2 * lineWidth);
+    context.restore();
+    context.globalCompositeOperation = "source-over";
+    context.drawImage(sprite.image,
+                      frameX, frameY,
+                      sprite.frameWidth,
+                      sprite.frameHeight,
+                      x,
+                      y,
+                      obj.size.x,
+                      obj.size.y);
+    renderContext.drawImage(context.canvas,
+                            x - lineWidth, y - lineWidth,
+                            obj.size.x + 2 * lineWidth,
+                            obj.size.y + 2 * lineWidth,
+                            obj.position.x - lineWidth,
+                            obj.position.y - lineWidth,
+                            obj.size.x + 2 * lineWidth,
+                            obj.size.y + 2 * lineWidth);
+};
+
 var Renderer = function (context, debugRender, autoresize) {
     this.context = context;
+    this.outliner = new Outliner();
     this.debugLineWidth = 4;
     this.debugVectorScale = 1;
     this.debugRender = debugRender;
@@ -87,8 +138,9 @@ Renderer.prototype.renderCircle = function (center, radius, color) {
     this.context.stroke();
 };
 
-Renderer.prototype.renderVector = function (vector, position, color, offset) {
-    var arrowHeadLength = 10;
+Renderer.prototype.renderVector = function (vector, position,
+                                            color, offset, lineWidth) {
+    var arrowHeadLength = lineWidth || 10;
     var fromX = position.x,
         fromY = position.y;
 
@@ -96,15 +148,15 @@ Renderer.prototype.renderVector = function (vector, position, color, offset) {
         fromX += offset.x;
         fromY += offset.y;
     }
-    var toX = fromX + vector.x * this.debugVectorScale,
-        toY = fromY + vector.y * this.debugVectorScale;
+    var toX = fromX + vector.x,
+        toY = fromY + vector.y;
 
 
     var angle = Math.atan2(toY - fromY, toX - fromX);
 
     this.context.save();
     this.context.strokeStyle = this.context.fillStyle = color;
-    this.context.lineWidth = this.debugLineWidth;
+    this.context.lineWidth = lineWidth || this.debugLineWidth;
 
     this.context.beginPath();
     this.context.moveTo(fromX, fromY);
@@ -199,15 +251,21 @@ Renderer.prototype.renderCollection = function (dt, gameObjects) {
         context.rotate(obj.rotation);
         context.translate(-center.x, -center.y);
 
-        context.drawImage(sprite.image,
-                          frameX, frameY,
-                          sprite.frameWidth,
-                          sprite.frameHeight,
-                          obj.position.x,
-                          obj.position.y,
-                          obj.size.x,
-                          obj.size.y
-                          );
+        if (obj.outlining !== undefined) {
+            this.outliner.outlineSprite(context, sprite, obj,
+                                        frameX, frameY,
+                                        obj.outlining);
+        }
+        else {
+            context.drawImage(sprite.image,
+                              frameX, frameY,
+                              sprite.frameWidth,
+                              sprite.frameHeight,
+                              obj.position.x,
+                              obj.position.y,
+                              obj.size.x,
+                              obj.size.y);
+        }
 
         if (this.debugRender) {
             this.renderCircle(obj.getCenter(), obj.collisionRadius);
@@ -262,6 +320,7 @@ Renderer.prototype.renderText = function (message, position,
 
 Renderer.prototype.render = function (dt,
                                       objectCollections,
+                                      renderables,
                                       platform,
                                       shouldRenderOverlay) {
 
@@ -281,6 +340,10 @@ Renderer.prototype.render = function (dt,
 
     for (var i = 0; i < objectCollections.length; i++) {
         this.renderCollection(dt, objectCollections[i]);
+    }
+
+    for (i = 0; i < renderables.length; i++) {
+        renderables[i].render(this, dt);
     }
 
     context.restore();

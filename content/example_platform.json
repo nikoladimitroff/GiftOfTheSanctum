@@ -15,4 +15,17 @@
     
     maxPlayers: 8, // The maximum number of players on the given map
     rounds: 1, // The number of rounds the game is to be played
+    arrowPointer: { // The cosmetics of the arrow pointer that appears when the player moves
+        arrowCount: 4,
+        startAngle: Math.PI / 4,
+        arrowLength: 125,
+        arrowWidth: 7.5,
+        rotationSpeed: 0.01,
+        color: "seagreen",
+        duration: 1000
+    },
+    outlining: { // The cosmetics of the outlining effect of the player's character
+        color: "seagreen",
+        width: 7.5
+    }
 }

@@ -53,17 +53,19 @@ UIManager.prototype.init = function (model) {
 
     // Add whatever else the viewmodel needs
     var players = this.viewmodel.players();
+    var scoreUpdate = function (i) {
+        this.reevaluator();
+        return this.model.characters[i].score;
+    };
+    var healthUpdate = function (i) {
+        this.reevaluator();
+        var hp = this.model.characters[i].health /
+                 this.model.characters[i].startingHealth;
+        return hp * 100;
+    };
     for (i = 0; i < players.length; i++) {
-        players[i].score = ko.computed(function (i) {
-            this.reevaluator();
-            return this.model.characters[i].score;
-        }.bind(this, i));
-
-        players[i].healthPercentage = ko.computed(function (i) {
-            this.reevaluator();
-            return 100 * Math.max(0, this.model.characters[i].health /
-            this.model.characters[i].startingHealth);
-        }.bind(this, i));
+        players[i].score = ko.computed(scoreUpdate.bind(this, i));
+        players[i].healthPercentage = ko.computed(healthUpdate.bind(this, i));
     }
     this.viewmodel.scoreboardAvatars = AVATAR_IMAGES.map(function (path) {
         return "content/art/characters/scoreboard/" + path;

@@ -76,7 +76,7 @@ function LoadingScreen(players,
 
 LoadingScreen.prototype.render = function (/* timestamp */) {
     var delta = 1000 / 30;
-    this.renderer.render(delta, [this.players], this.background, false);
+    this.renderer.render(delta, [this.players], [], this.background, false);
     for (var i = 0; i < this.players.length; i++) {
         var progress = this.loadingProgress[i];
         var textX = this.players[i].position.x +
